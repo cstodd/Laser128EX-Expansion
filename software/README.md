@@ -47,6 +47,14 @@ python3 software/build.py          # -> software/build/
 python3 software/test/harness.py   # 65C02 emulation tests
 python3 software/mkdisk.py         # -> software/dist/ (binaries + LASERCLOCK.po)
 ```
+Independent image check with AppleCommander 1.10.1 (`net.sf.applecommander:AppleCommander`, Maven Central):
+```sh
+javac -cp AppleCommander-1.10.1.jar software/test/CheckImage.java
+java -cp AppleCommander-1.10.1.jar:software/test CheckImage software/dist/LASERCLOCK.po software/dist
+```
+It lists the volume, checks each binary against `dist/`, and prints AppleCommander's own listing of the
+BASIC programs. All of these matched as of this commit (19 blocks used, file types and load addresses correct).
+
 The harness runs the real binaries on a 65C02 emulator, with models of the Laser's main/aux
 memory and language card, the slinky registers (auto-increment, 1 MB), the card's CPLD (unlock
 key and RTC port, as in `cpld/laser128_ramcard.v`), a bit-level DS3231, and the parts of ProDOS
