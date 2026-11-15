@@ -21,7 +21,7 @@ Stock figures are snapshots. Check them live before ordering.
 | **MAX693ACPE+** (DIP-16) | Listed as a current product at ADI (verify with the distributor) | Proposed DS1210 replacement: battery switchover (VOUT) + **chip-enable gating, 10 ns max** + reset. 4.40 V threshold (MAX691A = 4.65 V, too close to a sagging rail). |
 | MAX691ACPE+ (DIP-16) | Active (DigiKey ~140 + factory) | Same part, 4.65 V threshold. |
 | **ISSI IS62C5128BL-45** (SOP-32/TSOP-II) | Active | **Rejected:** 5 V ±10% only, and standby/data-retention current is in **mA** (10 mW typ standby, Idr typ 2 mA at 2 V). A CR2032 would last days. Its JEDEC SOP/TSOP-II pinout = AS6C4008 DIP with A17/A18 swapped (pins 1/30). |
-| **Infineon CY62148ELL-45ZSXI** (TSOP-II-32, 1.27 mm) | Verify (the CY62158ELL sibling is NRND) | Chosen 45 ns alternate (U9/U10). 4.5–5.5 V, "LL" ultra-low-power family. **Datasheet still to be checked** for standby/data-retention current and the exact TSOP-II pinout. |
+| **Infineon CY62148ELL-45ZSXI** (TSOP-II-32, 1.27 mm) | **Active** (DigiKey 1106954) | **Chosen 45 ns alternate (U9/U10).** Datasheet 38-05442 Rev *S checked: 4.5–5.5 V, tAA 45 ns, tDOE 22 ns. ISB2 2.5 µA typ / 7 µA max; data retention to 2.0 V at 3 µA typ / 8.8 µA max, so it is battery-friendly. Pinout = JEDEC SOIC/TSOP II (A17 pin 1, A18 pin 30), wired pin-for-pin with the DIP; the A17/A18 swap is harmless. Package 20.95 × 11.76 mm, matching KiCad TSOP-II-32_21.0x10.2mm_P1.27mm. **Caveat:** VCC min is 4.5 V, and the MAX693A VOUT is VCC − 0.2–0.3 V, so measure the Laser +5 V rail (it needs ≳4.8 V). |
 | 74AHCT245 / 74AHCT574 / 74AHCT573 | Commodity | — |
 
 ## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (dropped)
