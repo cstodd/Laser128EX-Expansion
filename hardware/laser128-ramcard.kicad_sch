@@ -1198,6 +1198,281 @@
             (type default))
           (fill
             (type background)))))
+    (symbol "74xx:74LS573"
+      (pin_names
+        (offset 1.016))
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at -7.62 16.51 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Value" "74LS573"
+        (at -7.62 -16.51 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "Datasheet" "74xx/74hc573.pdf"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_locked" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27))))
+      (property "ki_keywords" "TTL DFF DFF8 LATCH 3State"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "8-bit Latch 3-state outputs"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_fp_filters" "DIP?20*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (symbol "74LS573_1_0"
+        (pin input inverted
+          (at -12.7 -12.7 0)
+          (length 5.08)
+          (name "OE"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at 0 -20.32 90)
+          (length 5.08)
+          (name "GND"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 -10.16 0)
+          (length 5.08)
+          (name "Load"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 -5.08 180)
+          (length 5.08)
+          (name "Q7"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 -2.54 180)
+          (length 5.08)
+          (name "Q6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "13"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 0 180)
+          (length 5.08)
+          (name "Q5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "14"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 2.54 180)
+          (length 5.08)
+          (name "Q4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "15"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 5.08 180)
+          (length 5.08)
+          (name "Q3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "16"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 7.62 180)
+          (length 5.08)
+          (name "Q2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "17"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 10.16 180)
+          (length 5.08)
+          (name "Q1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "18"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin tri_state line
+          (at 12.7 12.7 180)
+          (length 5.08)
+          (name "Q0"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "19"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 12.7 0)
+          (length 5.08)
+          (name "D0"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_in line
+          (at 0 20.32 270)
+          (length 5.08)
+          (name "VCC"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "20"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 10.16 0)
+          (length 5.08)
+          (name "D1"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 7.62 0)
+          (length 5.08)
+          (name "D2"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 5.08 0)
+          (length 5.08)
+          (name "D3"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 2.54 0)
+          (length 5.08)
+          (name "D4"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 0 0)
+          (length 5.08)
+          (name "D5"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 -2.54 0)
+          (length 5.08)
+          (name "D6"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -12.7 -5.08 0)
+          (length 5.08)
+          (name "D7"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27))))))
+      (symbol "74LS573_1_1"
+        (rectangle
+          (start -7.62 15.24)
+          (end 7.62 -15.24)
+          (stroke
+            (width 0.254)
+            (type default))
+          (fill
+            (type background)))))
     (symbol "74xx:74HC245"
       (property "Reference" "U"
         (at -7.62 16.51 0)
@@ -3529,7 +3804,7 @@
         (size 1.27 1.27))
       (justify right bottom))
     (uuid "d78dc55f-d0c8-555a-98b7-24f2ea6ad30c"))
-  (label "COLCLK"
+  (label "COL_LE"
     (at 124.46 111.76 180)
     (fields_autoplaced)
     (effects
@@ -4155,7 +4430,7 @@
         (size 1.27 1.27))
       (justify right bottom))
     (uuid "fd000f51-0c56-5933-a452-08ff6a330a8e"))
-  (label "COLCLK"
+  (label "COL_LE"
     (at 213.36 139.7 180)
     (fields_autoplaced)
     (effects
@@ -4300,7 +4575,7 @@
       (justify right bottom))
     (uuid "3e5b914b-6cb5-5589-873c-453d75673c94"))
   (symbol
-    (lib_id "74xx:74HCT574")
+    (lib_id "74xx:74LS573")
     (at 226.06 129.54 0)
     (unit 1)
     (in_bom yes)
@@ -4312,7 +4587,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "74AHCT574"
+    (property "Value" "74AHCT573"
       (at 226.06 160.02 0)
       (effects
         (font
@@ -4545,7 +4820,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "74HCT245"
+    (property "Value" "74AHCT245"
       (at 139.7 236.22 0)
       (effects
         (font
@@ -6912,7 +7187,7 @@
         (size 1.27 1.27))
       (justify left bottom))
     (uuid "783dd631-4434-54da-b164-e2b32fa6280a"))
-  (text "Row register U2 latches ERA0-7 on /RASB fall; column register U3 on first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits."
+  (text "Row register U2 (574) captures ERA0-7 on /RASB fall; column latch U3 (573) is transparent until the first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits."
     (at 25.4 19.05 0)
     (effects
       (font

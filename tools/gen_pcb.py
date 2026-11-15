@@ -27,17 +27,17 @@ PLACE = {
     'J1': (94.73, 27.44, 0),        # measured: pins 15/16 are 23.00 mm above H1, row centreline x = 96
     'U5': (4.0, 6.0, 0), 'U6': (25.0, 6.0, 0),            # SRAMs (DIP-32)
     'U1': (61.27, 15.65, 0),                               # CPLD socket, body centre ~ (60, 22)
-    'U2': (50.0, 44.0, 0), 'U3': (64.0, 44.0, 0),          # row / column registers
-    'U4': (80.0, 44.0, 0),                                 # '245, B side faces J1
-    'U7': (35.0, 52.0, 0),                                 # MAX693A
-    'U8': (40.0, 80.0, 0),                                 # DS3231 (SOIC origin = centre)
-    'BT1': (5.0, 75.0, 0),
+    'U3': (46.0, 46.0, 0), 'U2': (62.0, 46.0, 0),          # column / row registers
+    'U4': (80.0, 46.0, 0),                                 # '245, B side faces J1
+    'U7': (36.0, 87.0, 90),                                # MAX693A, horizontal along the bottom
+    'U8': (66.0, 82.0, 0),                                 # DS3231 (SOIC origin = centre)
+    'BT1': (3.5, 75.0, 0),
     'J2': (78.0, 7.0, 0), 'J3': (88.0, 6.0, 0),
     'R3': (74.0, 26.0, 0), 'R4': (74.0, 30.0, 0), 'R5': (74.0, 34.0, 0),
-    'R1': (60.0, 79.0, 0), 'R2': (60.0, 83.0, 0),
+    'R1': (75.0, 79.0, 0), 'R2': (75.0, 83.0, 0),
     'C1': (48.5, 38.3, 0), 'C2': (56.5, 38.3, 0), 'C3': (64.5, 38.3, 0), 'C4': (52.0, 5.0, 0),
-    'C5': (50.0, 71.5, 0), 'C6': (64.0, 71.5, 0), 'C7': (80.0, 71.5, 0),
-    'C8': (35.0, 48.0, 0), 'C9': (48.0, 77.0, 0),
+    'C6': (46.0, 74.0, 0), 'C5': (62.0, 74.0, 0), 'C7': (80.0, 74.0, 0),
+    'C8': (33.0, 76.0, 90), 'C9': (58.0, 86.0, 90),
     'C10': (4.0, 48.0, 0), 'C12': (13.0, 48.0, 0), 'C11': (25.0, 48.0, 0),
     'C13': (88.0, 20.0, 0),
 }
@@ -156,8 +156,8 @@ def main(netfile):
         board.Add(tx)
         return tx
 
-    text('Laser 128/128EX 1MB RAM + Clock  rev 0.1', 48, 87.5, pcbnew.F_SilkS, 1.0)
-    bt = text('github.com/cstodd/laser128ex-expansion', 60, 87.5, pcbnew.B_SilkS, 1.0)
+    text('Laser 128/128EX 1MB RAM + Clock  rev 0.1', 3, 55.0, pcbnew.F_SilkS, 1.2)
+    bt = text('github.com/cstodd/laser128ex-expansion', 38, 57.5, pcbnew.B_SilkS, 1.0)
 
     board.Save(OUT)
     rpt = OUT.replace('.kicad_pcb', '.drc.rpt')

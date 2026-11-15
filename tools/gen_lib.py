@@ -168,7 +168,19 @@ def write_j1_footprint():
         fp.append(line(*a, 'F.SilkS', 0.12))
     fp.append(line(x0, 1.27, 1.27, 1.27, 'F.SilkS', 0.12))   # pin-1 marker bar
     fp.append(line(1.27, 1.27, 1.27, y0, 'F.SilkS', 0.12))
-    # courtyard
+    # socket body is fitted on the BOTTOM (non-component) side: mark it there too
+    for a in ((x0, y0, x1, y0), (x1, y0, x1, y1), (x1, y1, x0, y1), (x0, y1, x0, y0)):
+        fp.append(line(*a, 'B.SilkS', 0.12))
+    fp.append(line(x0, 1.27, 1.27, 1.27, 'B.SilkS', 0.12))
+    fp.append(line(1.27, 1.27, 1.27, y0, 'B.SilkS', 0.12))
+    bt = txt('user', 'J1 SOCKET THIS SIDE', -2.6, 17.78, 'B.SilkS')
+    bt[3] = S('at', -2.6, 17.78, 90)
+    bt[-2] = S('effects', S('font', S('size', 1, 1), S('thickness', 0.15)), S('justify', Sym('mirror')))
+    fp.append(bt)
+    fp.append(txt('user', 'socket on bottom', -2.6, 17.78, 'F.Fab'))
+    # courtyard (both sides)
+    for a in ((-1.8, -1.8, 4.35, -1.8), (4.35, -1.8, 4.35, 37.35), (4.35, 37.35, -1.8, 37.35), (-1.8, 37.35, -1.8, -1.8)):
+        fp.append(line(*a, 'B.CrtYd', 0.05))
     c0, c1, d0, d1 = -1.8, 4.35, -1.8, 37.35
     for a in ((c0, d0, c1, d0), (c1, d0, c1, d1), (c1, d1, c0, d1), (c0, d1, c0, d0)):
         fp.append(line(*a, 'F.CrtYd', 0.05))

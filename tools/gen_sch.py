@@ -112,7 +112,7 @@ CPLD = {
     # card-side data bus
     9: 'XD0', 11: 'XD1', 12: 'XD2', 14: 'XD3', 16: 'XD4', 17: 'XD5', 18: 'XD6', 19: 'XD7',
     # outputs
-    20: 'ROWCLK', 21: 'COLCLK', 33: 'MA8', 37: 'MA17', 24: 'MA18',
+    20: 'ROWCLK', 21: 'COL_LE', 33: 'MA8', 37: 'MA17', 24: 'MA18',
     25: 'RAM_CE_n', 26: 'OE0_n', 27: 'OE1_n', 28: 'WE0_n', 29: 'WE1_n', 31: 'BUF_OE_n',
     34: 'SDA', 36: 'SCL', 40: 'PWR_RST_n', 41: 'DBG0',
     # JTAG
@@ -129,17 +129,18 @@ row.update(bus('ERA', [2, 3, 4, 5, 6, 7, 8, 9]))
 row.update(bus('MA', [19, 18, 17, 16, 15, 14, 13, 12], 9))
 part('U2', '74xx:74HCT574', '74AHCT574', FP_DIP20, row, (226.06, 63.5))
 
-# U3: column register  ERA0-7 -> MA0-7, clocked on first /ECASn fall (COLCLK)
-col = {1: 'GND', 10: 'GND', 20: '+5V', 11: 'COLCLK'}
+# U3: column latch (74AHCT573, same pinout as '574; pin 11 = LE). Transparent until the
+# first /ECASn fall, then holds ERA0-7 -> MA0-7. COL_LE from the CPLD.
+col = {1: 'GND', 10: 'GND', 20: '+5V', 11: 'COL_LE'}
 col.update(bus('ERA', [2, 3, 4, 5, 6, 7, 8, 9]))
 col.update(bus('MA', [19, 18, 17, 16, 15, 14, 13, 12], 0))
-part('U3', '74xx:74HCT574', '74AHCT574', FP_DIP20, col, (226.06, 129.54))
+part('U3', '74xx:74LS573', '74AHCT573', FP_DIP20, col, (226.06, 129.54))
 
 # U4: data buffer. A = card side (XD), B = Laser side (D). DIR = MEMRD (high: card -> Laser)
 buf = {1: 'MEMRD', 19: 'BUF_OE_n', 10: 'GND', 20: '+5V'}
 buf.update(bus('XD', [2, 3, 4, 5, 6, 7, 8, 9]))
 buf.update(bus('D', [18, 17, 16, 15, 14, 13, 12, 11]))
-part('U4', '74xx:74HC245', '74HCT245', FP_DIP20, buf, (139.7, 205.74))
+part('U4', '74xx:74HC245', '74AHCT245', FP_DIP20, buf, (139.7, 205.74))
 
 
 def sram(n):
@@ -284,7 +285,7 @@ def build():
 
     notes = [
         'Laser 128 / 128EX battery-backed 1MB SRAM expansion + RTC  (architecture B, see docs/design-notes.md)',
-        'Row register U2 latches ERA0-7 on /RASB fall; column register U3 on first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits.',
+        'Row register U2 (574) captures ERA0-7 on /RASB fall; column latch U3 (573) is transparent until the first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits.',
         'U5 = bank 0 (512K), U6 = bank 1. Both CE# from MAX693A CE OUT (battery write-protect); CPLD selects chip with OEn/WEn.',
         'RTC: DS3231 I2C bit-banged through the CPLD, reachable via $C0D3 only after the 8-byte unlock key.',
         'U2/U3: use 74AHCT574 (fast). Do not substitute 74LS. U5/U6: AS6C4008 (2.7-5.5V) - NOT 3.3V-only parts.',
