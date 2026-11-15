@@ -21,7 +21,7 @@ FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'lib', 'Laser128.pretty')}
 STOCK_FP = '/usr/share/kicad/footprints'
 OX, OY = 50.0, 50.0          # board origin on the KiCad page
 LAYERS = int(os.environ.get('PCB_LAYERS', '2'))   # 4: In1 = GND plane, In2 = signal
-SMD_ALT = os.environ.get('SMD_ALT', '1') == '1'   # on-board TSOP-II alternates U9/U10
+SMD_ALT = os.environ.get('SMD_ALT', '0') == '1'   # on-board TSOP-II alternates U9/U10
 XS = 30.0 if SMD_ALT else 8.0     # left strip: SMD SRAM alternates, or just room for H2/H3
 W, H = 100.0 + XS, 90.0           # board size (right/bottom edges fixed by J1/H1)
 
@@ -30,7 +30,9 @@ PLACE = {
     'J1': (94.73, 27.44, 0),        # measured: pins 15/16 are 23.00 mm above H1, row centreline x = 96
     'U5': (4.0, 6.0, 0), 'U6': (25.0, 6.0, 0),            # SRAMs (DIP-32)
     'U1': (61.27, 15.65, 0),                               # CPLD socket, body centre ~ (60, 22)
-    'U3': (46.0, 46.0, 0), 'U2': (62.0, 46.0, 0),          # column / row registers
+    # column / row registers rotated 180 deg: D inputs (pins 2-9) face J1, Q outputs face the
+    # SRAMs. Origin is pad 1, so (x+7.62, y+22.86) keeps the body where it was.
+    'U3': (53.62, 68.86, 180), 'U2': (69.62, 68.86, 180),
     'U4': (80.0, 46.0, 0),                                 # '245, B side faces J1
     'U7': (36.0, 87.0, 90),                                # MAX693A, horizontal along the bottom
     'U8': (66.0, 82.0, 0),                                 # DS3231 (SOIC origin = centre)
@@ -38,7 +40,8 @@ PLACE = {
     'J2': (78.0, 7.0, 0), 'J3': (88.0, 6.0, 0),
     'R3': (74.0, 26.0, 0), 'R4': (74.0, 30.0, 0), 'R5': (74.0, 34.0, 0),
     'R1': (75.0, 79.0, 0), 'R2': (75.0, 83.0, 0),
-    'C1': (48.5, 38.3, 0), 'C2': (56.5, 38.3, 0), 'C3': (64.5, 38.3, 0), 'C4': (52.0, 5.0, 0),
+    # CPLD decoupling beside the socket, out of the CPLD -> register channel
+    'C1': (44.7, 12.0, 90), 'C2': (44.7, 24.0, 90), 'C3': (73.5, 39.0, 0), 'C4': (52.0, 5.0, 0),
     'C6': (46.0, 74.0, 0), 'C5': (62.0, 74.0, 0), 'C7': (80.0, 74.0, 0),
     'C8': (33.0, 76.0, 90), 'C9': (58.0, 86.0, 90),
     'C10': (4.0, 48.0, 0), 'C12': (13.0, 48.0, 0), 'C11': (25.0, 48.0, 0),
@@ -180,7 +183,7 @@ def main(netfile):
         return tx
 
     text('Laser 128/128EX 1MB RAM + Clock  rev 0.1', 3 + XS, 55.0, pcbnew.F_SilkS, 1.2)
-    text('SRAM: fit U5 or U9, U6 or U10', 3 + XS, 58.5, pcbnew.F_SilkS, 1.0)
+    text('U5/U6: AS6C4008-55 or 45ns CY62148ELL on TSOP-DIP adapter', 3 + XS, 58.5, pcbnew.F_SilkS, 0.9)
     bt = text('github.com/cstodd/laser128ex-expansion', 38 + XS, 61.0, pcbnew.B_SilkS, 1.0)
 
     board.Save(OUT)

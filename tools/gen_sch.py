@@ -158,14 +158,8 @@ part('U5', 'Memory_RAM:AS6C4008-55PCN', 'AS6C4008-55PCN', 'Package_DIP:DIP-32_W1
 part('U6', 'Memory_RAM:AS6C4008-55PCN', 'AS6C4008-55PCN', 'Package_DIP:DIP-32_W15.24mm_Socket',
      sram(1), (317.5, 162.56))
 
-# U9/U10: optional 45 ns SMD alternatives to U5/U6 (populate U5 OR U9, U6 OR U10).
-# Infineon CY62148ELL-45ZSXI (512Kx8, 4.5-5.5 V, ultra-low standby), TSOP-II-32 1.27 mm.
-# Wired pin-for-pin like the DIP part; the JEDEC SOP/TSOP-II pinout swaps A17/A18 on pins 1/30,
-# which is harmless for a RAM (each chip just sees its address bits in a different order).
-part('U9', 'Memory_RAM:AS6C4008-55PCN', 'CY62148ELL-45ZSXI (alt U5)',
-     'Package_SO:TSOP-II-32_21.0x10.2mm_P1.27mm', sram(0), (365.76, 73.66))
-part('U10', 'Memory_RAM:AS6C4008-55PCN', 'CY62148ELL-45ZSXI (alt U6)',
-     'Package_SO:TSOP-II-32_21.0x10.2mm_P1.27mm', sram(1), (365.76, 162.56))
+# 45 ns option: a CY62148ELL-45ZSXI (TSOP-II-32) on a TSOP-to-DIP-32 adapter plugs into U5/U6.
+# Its JEDEC pinout equals the AS6C4008 DIP except A17/A18 swap places (pins 1/30), which is harmless.
 
 # U7: MAX693A supervisor (replaces the obsolete DS1210): VOUT = battery-switched SRAM supply,
 # CE IN/OUT = power-fail chip-enable gating (10 ns max), /RESET (4.40 V, 200 ms) -> CPLD power-on clear.
@@ -299,7 +293,7 @@ def build():
     notes = [
         'Laser 128 / 128EX battery-backed 1MB SRAM expansion + RTC  (architecture B, see docs/design-notes.md)',
         'Row register U2 (574) captures ERA0-7 on /RASB fall; column latch U3 (573) is transparent until the first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits.',
-        'SRAM: populate U5 (DIP AS6C4008-55) OR U9 (TSOP-II CY62148ELL-45), and U6 OR U10. 45 ns parts give ~9 ns more margin at 3.6 MHz.',
+        'SRAM U5/U6: AS6C4008-55PCN, or CY62148ELL-45ZSXI on a TSOP-II-32 to DIP-32 adapter (~9 ns more margin at 3.6 MHz).',
         'U5 = bank 0 (512K), U6 = bank 1. Both CE# from MAX693A CE OUT (battery write-protect); CPLD selects chip with OEn/WEn.',
         'RTC: DS3231 I2C bit-banged through the CPLD, reachable via $C0D3 only after the 8-byte unlock key.',
         'U2/U3: use 74AHCT574 (fast). Do not substitute 74LS. U5/U6: AS6C4008 (2.7-5.5V) - NOT 3.3V-only parts.',
