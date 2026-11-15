@@ -22,16 +22,15 @@ Stock figures are snapshots. Check them live before ordering.
 | MAX691ACPE+ (DIP-16) | Active (DigiKey ~140 + factory) | Same part, 4.65 V threshold. |
 | 74HCT245 / 74AHCT574 | Commodity | — |
 
-## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (current plan)
+## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (dropped)
 - 5 ICs. The CPLD latches everything. Smallest board.
 - JLC places the TQFP-100 and TSOP-44, but both parts are scarce at LCSC and the 1 MB SRAM is going EOL.
 
-## Option B: fully socketable, through-hole (proposed)
+## Option B: fully socketable, through-hole (**chosen**; see design-notes §2 for the final form)
 - **U1 ATF1504AS-10JU44** (PLCC-44 in a socket, 64 macrocells, 32 I/O + 4 dedicated inputs).
-- **Row latch:** 2 × 74AHCT573 with LE = /RASB directly. Transparent while high, latched on the fall.
-  RAS-only refresh just reloads it, which is harmless.
-- **Column latch:** 2 × 74AHCT573 with LE from the CPLD (transparent until any /ECAS↓).
-  AHCT parts take ~7 ns versus ~25 ns for HCT, which matters on the 3.6 MHz read path.
+- **Row register:** 74AHCT574 clocked by ROWCLK (CPLD, /RASB↓). **Column register:** 74AHCT574 clocked
+  by COLCLK (first /ECASn↓). ERA8 row/column bits are held in the CPLD. ('573 transparent latches were rejected:
+  at 1 MHz /RASB rises before /ECAS ends, so a '573 would reopen mid-access.)
 - **SRAM:** 2 × AS6C4008-55PCN (DIP-32 sockets). Both chips' CE# come from the DS1210 CEO
   (common battery write-protect). The CPLD selects the chip with separate /OE0, /OE1, /WE0, /WE1. The deselected chip
   sees CE# low but OE# and WE# high, so it stays high-Z and is never written. In battery mode CEO is high and both chips
