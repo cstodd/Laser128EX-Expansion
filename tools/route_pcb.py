@@ -21,6 +21,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
 POWER_NETS = ('GND', '+5V', 'VBB', 'VBAT')
 TIMEOUT = int(os.environ.get('ROUTE_TIMEOUT', '900'))
+JOB_TIMEOUT = os.environ.get('ROUTE_JOB_TIMEOUT', '00:12:00')   # freerouting stops itself and saves
 
 
 def mm(v):
@@ -54,8 +55,11 @@ def main(jar, java='java', passes=25):
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         raise SystemExit('DSN export failed')
     move_power_nets(dsn)
-    cmd = [java, '-jar', jar, '-de', dsn, '-do', ses, '-mp', str(passes),
+    cmd = [java, '-jar', jar, '-de', dsn, '-do', ses,
            '--gui.enabled=false', '--api_server.enabled=false',
+           '--router.autorouter.max_passes=%d' % passes, '--router.optimizer.enabled=false',
+           '--router.automatic_neckdown=false', '--router.copper_to_edge_clearance_um=600',
+           '--router.job_timeout=%s' % JOB_TIMEOUT,
            '--usage_and_diagnostic_data.disable_analytics=true']
     print(' '.join(cmd))
     try:
@@ -66,6 +70,15 @@ def main(jar, java='java', passes=25):
         raise SystemExit('no session file produced')
     ntracks, nvias = import_ses(board, ses)
     print('imported %d track segments, %d vias' % (ntracks, nvias))
+
+    # drop vias that only touch one layer's copper (router leftovers)
+    tracks = list(board.GetTracks())
+    segs = [x for x in tracks if x.GetClass() == 'PCB_TRACK']
+    for v in [x for x in tracks if x.GetClass() == 'PCB_VIA']:
+        lay = {s.GetLayer() for s in segs if s.GetNetCode() == v.GetNetCode() and
+               (s.GetStart() == v.GetPosition() or s.GetEnd() == v.GetPosition())}
+        if len(lay) < 2:
+            board.Remove(v)
 
     filler = pcbnew.ZONE_FILLER(board)
     filler.Fill(board.Zones())
