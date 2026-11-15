@@ -1,0 +1,323 @@
+(footprint "Laser128_J1_Socket_2x15_P2.54mm_Unumbered"
+  (version 20221018)
+  (generator "laser128_gen_lib")
+  (layer "F.Cu")
+  (descr "Laser 128/128EX J13 mate: 2x15 female socket, 2.54mm, U-numbered (1-15 down one row, 30-16 down the other). NOT the stock odd/even 2x15.")
+  (tags "Laser 128 expansion RAM connector")
+  (attr through_hole)
+  (fp_text reference "REF**"
+    (at 1.27 -2.77)
+    (layer "F.SilkS")
+    (effects
+      (font
+        (size 1 1)
+        (thickness 0.15)))
+    (tstamp "bbfcf9cd-c838-48e8-9bc1-9da3593ed109"))
+  (fp_text value "Laser128_J1"
+    (at 1.27 38.33)
+    (layer "F.Fab")
+    (effects
+      (font
+        (size 1 1)
+        (thickness 0.15)))
+    (tstamp "e0eb6bd7-bab2-4be6-83d9-242580b5e572"))
+  (fp_text user "${REFERENCE}"
+    (at 1.27 17.78)
+    (layer "F.Fab")
+    (effects
+      (font
+        (size 1 1)
+        (thickness 0.15)))
+    (tstamp "c0303120-c371-43cd-904c-de085dd5e952"))
+  (fp_line
+    (start -1.33 -1.33)
+    (end 3.87 -1.33)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "e1dab1f9-681d-477f-93be-1ecb12f904a3"))
+  (fp_line
+    (start 3.87 -1.33)
+    (end 3.87 36.89)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "37d66fce-a269-42eb-8aae-853aae024024"))
+  (fp_line
+    (start 3.87 36.89)
+    (end -1.33 36.89)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "77612213-7423-49d0-a258-37b108e776dc"))
+  (fp_line
+    (start -1.33 36.89)
+    (end -1.33 -1.33)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "02d3f575-c7c5-4a3e-a7a7-6415e2f1edf4"))
+  (fp_line
+    (start -1.33 1.27)
+    (end 1.27 1.27)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "67790bde-9cde-4c38-8e4d-c069d245dfeb"))
+  (fp_line
+    (start 1.27 1.27)
+    (end 1.27 -1.33)
+    (stroke
+      (width 0.12)
+      (type solid))
+    (layer "F.SilkS")
+    (tstamp "344f8bad-d377-4c69-9d21-64c4bd99f752"))
+  (fp_line
+    (start -1.8 -1.8)
+    (end 4.35 -1.8)
+    (stroke
+      (width 0.05)
+      (type solid))
+    (layer "F.CrtYd")
+    (tstamp "45712403-1cb3-479e-ba5e-2a40abdd96f8"))
+  (fp_line
+    (start 4.35 -1.8)
+    (end 4.35 37.35)
+    (stroke
+      (width 0.05)
+      (type solid))
+    (layer "F.CrtYd")
+    (tstamp "e19ddd10-2386-4e2a-be73-f072e99e65e0"))
+  (fp_line
+    (start 4.35 37.35)
+    (end -1.8 37.35)
+    (stroke
+      (width 0.05)
+      (type solid))
+    (layer "F.CrtYd")
+    (tstamp "a014b82b-901b-4453-b1fb-fcee18592d2c"))
+  (fp_line
+    (start -1.8 37.35)
+    (end -1.8 -1.8)
+    (stroke
+      (width 0.05)
+      (type solid))
+    (layer "F.CrtYd")
+    (tstamp "ce6d290d-bedc-4f5b-821c-b11605698999"))
+  (fp_line
+    (start -1.27 -1.27)
+    (end 3.81 -1.27)
+    (stroke
+      (width 0.1)
+      (type solid))
+    (layer "F.Fab")
+    (tstamp "39a1745c-eae4-4d67-be87-a3d6f571fa8a"))
+  (fp_line
+    (start 3.81 -1.27)
+    (end 3.81 36.83)
+    (stroke
+      (width 0.1)
+      (type solid))
+    (layer "F.Fab")
+    (tstamp "94eab8ad-8e25-4bc5-a1b5-cdd2bdce2504"))
+  (fp_line
+    (start 3.81 36.83)
+    (end -1.27 36.83)
+    (stroke
+      (width 0.1)
+      (type solid))
+    (layer "F.Fab")
+    (tstamp "72b79598-025f-4526-b3ef-32a655a6473e"))
+  (fp_line
+    (start -1.27 36.83)
+    (end -1.27 -1.27)
+    (stroke
+      (width 0.1)
+      (type solid))
+    (layer "F.Fab")
+    (tstamp "16f1964b-95e4-4199-b622-3dc0f8d0ba41"))
+  (pad "1" thru_hole rect
+    (at 0 0)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "040f14ad-24cf-4cf6-9ee2-a56ca1d42b92"))
+  (pad "30" thru_hole oval
+    (at 2.54 0)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "968fe48c-d9c1-42fb-b205-7faaa589b898"))
+  (pad "2" thru_hole oval
+    (at 0 2.54)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "84a8a280-d1ce-4ac0-ba59-b06880583553"))
+  (pad "29" thru_hole oval
+    (at 2.54 2.54)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "76991ad2-6df6-45cf-a685-d621fb4a3c73"))
+  (pad "3" thru_hole oval
+    (at 0 5.08)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "10191115-4e93-4060-8f58-0bff212917ad"))
+  (pad "28" thru_hole oval
+    (at 2.54 5.08)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "28ef8ef2-83da-4035-ab7e-d0a6377b5302"))
+  (pad "4" thru_hole oval
+    (at 0 7.62)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "30e3459e-de7c-4f26-b697-e3cdb8795362"))
+  (pad "27" thru_hole oval
+    (at 2.54 7.62)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "3b3c784f-c277-4b03-b2cd-623d9df7d365"))
+  (pad "5" thru_hole oval
+    (at 0 10.16)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "104c0719-371f-46dc-8552-a749b983773c"))
+  (pad "26" thru_hole oval
+    (at 2.54 10.16)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "13ea048e-4c96-45a2-8c83-0aa6930ea8c9"))
+  (pad "6" thru_hole oval
+    (at 0 12.7)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "5d08c48a-29eb-42f9-93f5-7aec48b607f0"))
+  (pad "25" thru_hole oval
+    (at 2.54 12.7)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "2af8c3fd-fb61-472c-84fe-cfeac89103b4"))
+  (pad "7" thru_hole oval
+    (at 0 15.24)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "8f1e36b9-6d51-40c2-aa38-51c23b8ce3f1"))
+  (pad "24" thru_hole oval
+    (at 2.54 15.24)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "ebd94960-658e-4e5e-b1cc-59e13b570c8b"))
+  (pad "8" thru_hole oval
+    (at 0 17.78)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "9f9d42aa-2c17-4547-8280-efe28c651822"))
+  (pad "23" thru_hole oval
+    (at 2.54 17.78)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "43b69ac7-d5d6-4c78-9c94-5036543e846e"))
+  (pad "9" thru_hole oval
+    (at 0 20.32)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "b9c85242-d2e5-4916-b0d7-e15c35588e65"))
+  (pad "22" thru_hole oval
+    (at 2.54 20.32)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "75492e15-7c36-4e3b-9d9b-5a8697daf15e"))
+  (pad "10" thru_hole oval
+    (at 0 22.86)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "634daa4c-ca16-4d5f-88d3-b6cce07a722e"))
+  (pad "21" thru_hole oval
+    (at 2.54 22.86)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "f916c5cf-1355-417f-820c-6b23b8142273"))
+  (pad "11" thru_hole oval
+    (at 0 25.4)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "3fd9d5e7-b521-47d4-911f-fb933baad1b7"))
+  (pad "20" thru_hole oval
+    (at 2.54 25.4)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "e6a30134-8c1f-4e8d-8e13-733af9d0504c"))
+  (pad "12" thru_hole oval
+    (at 0 27.94)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "a64c9413-70f6-4612-92c6-fab88cb3923e"))
+  (pad "19" thru_hole oval
+    (at 2.54 27.94)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "ab7814fb-d6bc-4c48-baf6-63fd339c0eab"))
+  (pad "13" thru_hole oval
+    (at 0 30.48)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "6b6c0892-b1f2-4b63-bd70-86d8ecbd2e6e"))
+  (pad "18" thru_hole oval
+    (at 2.54 30.48)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "b3804e0a-c591-4811-a26a-d931cee320aa"))
+  (pad "14" thru_hole oval
+    (at 0 33.02)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "e01dfdee-97d5-445e-929e-028b73b23d28"))
+  (pad "17" thru_hole oval
+    (at 2.54 33.02)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "c0c36602-9e65-4a78-bd64-e29979a3a4b9"))
+  (pad "15" thru_hole oval
+    (at 0 35.56)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "3cc10823-29bb-4c0a-a31a-366c85f59f23"))
+  (pad "16" thru_hole oval
+    (at 2.54 35.56)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (tstamp "5d04c356-025a-481c-a3fb-b3612f977529")))

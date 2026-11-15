@@ -1,6 +1,6 @@
 # Laser 128EX Battery-Backed SRAM Expansion + Clock — Design Notes
 
-Status: **parts locked, moving to KiCad symbols/footprints, then CPLD logic.**
+Status: **architecture B locked; schematic v0.1 generated (hardware/); CPLD logic next.**
 Interface facts (pinout, timing) are in [`laser-expansion-interface.md`](laser-expansion-interface.md).
 The decisions below come from the earlier design conversation (Claude.ai, Nov 2026) and were re-checked
 against the Technical Reference Manual.
@@ -18,31 +18,35 @@ against the Technical Reference Manual.
 - Target: **Laser 128EX**, including 2.3 and 3.6 MHz. The J13 pinout is identical on the New Laser 128,
   so the card should work there too.
 
-## 2. Locked parts
+## 2. Locked parts: architecture B (socketed, through-hole), chosen Nov 2026
+
+The TQFP-100 ATF1508AS + 1 MB TSOP plan (architecture A) was dropped. The AS6C8008 is going EOL, both
+parts are scarce at JLCPCB/LCSC, and a socketable CPLD still exists. See [`sourcing.md`](sourcing.md).
 
 | Ref | Part | Package | Notes |
 |---|---|---|---|
-| U1 | **ATF1508AS-7AX100** (or -10AU100) | TQFP-100, 0.5 mm | 5 V native, 128 MC, 80 I/O. The PLCC-84 parts went EOL in Oct 2025, so this is the only actively made 5 V option. Buy spares. |
-| U2 | **AS6C8008-55ZIN** | TSOP-II-44 | 1M×8, 2.7–5.5 V, low standby current. One chip, so one chip enable. |
-| U3 | **74HCT245** | DIP-20 (socketed) | Data buffer. DIR and /OE come from the CPLD, not straight from J13, so the timing can be tuned. |
-| U4 | **DS1210** (or MXD1210) | DIP-8 | SRAM battery switch plus /CE write-protect at power-fail. **TOL tied to VCCO** (trip 4.25–4.49 V; TOL=GND trips at up to 4.74 V, too close to a sagging Laser rail). VCCO supplies up to 80 mA (the SRAM needs ≤60 mA); CE→CEO delay ≤20 ns. Ground the unused VBAT2. |
-| U5 | **DS3231** (SN) | SOIC-16W | I²C RTC with internal TCXO, ±2 ppm, no crystal. This avoids Renée's 7 s/day drift. Pins 5–12 **must be grounded**. Draws 0.84 µA typ / 3 µA max from the battery while keeping time. |
-| BT1 | CR2032 holder | — | Backs both the DS3231 VBAT and the DS1210 BAT. |
-| J1 | 2×15 socket, 2.54 mm | custom footprint | Mates with the Laser's J13 pins. **U-numbering** (below). |
-| J2 | JTAG header | per programmer | FT232H or ATDH1150USB. Pinout to be chosen. |
-| J3 | Debug header | 0.1" | Spare CPLD I/O. Renée regretted leaving these off. |
+| U1 | **ATF1504AS-10JU44** | PLCC-44 in THT socket | 5 V, 64 MC, 32 I/O + 4 inputs. Active. Pin map in `hardware/README.md`. |
+| U2 | **74AHCT574** | DIP-20 | Row register: ERA0–7 → MA9–16, clocked by ROWCLK (/RASB↓). AHCT for speed; not LS/HC. |
+| U3 | **74AHCT574** | DIP-20 | Column register: ERA0–7 → MA0–7, clocked by COLCLK (first /ECASn↓). |
+| U4 | **74HCT245** | DIP-20 | Data buffer. A = card bus XD, B = Laser D. DIR = MEMRD (as on the stock card); /OE from the CPLD. |
+| U5, U6 | **AS6C4008-55PCN** | DIP-32 | 512K×8, 2.7–5.5 V. U5 = bank 0, U6 = bank 1. **Not** a 3.3 V-only part. |
+| U7 | **DS1210** | DIP-8 | Battery switch + CE gating for both SRAMs. TOL→VCCO (trip 4.25–4.49 V). VCCO ≤80 mA. CE→CEO ≤20 ns. VBAT2 grounded. |
+| U8 | **DS3231SN** | SOIC-16W | I²C RTC, TCXO, ±2 ppm. Pins 5–12 grounded. 0.84 µA typ from the battery. |
+| BT1 | CR2032 | Keystone 103 holder | Feeds the DS1210 VBAT1 and the DS3231 VBAT. |
+| J1 | 2×15 socket, 2.54 mm | custom U-numbered footprint | Mates with the Laser J13. |
+| J2 | 2×5 IDC | 0.1" | JTAG, Altera/Atmel 10-pin layout (1 TCK, 2 GND, 3 TDO, 4 VCC, 5 TMS, 9 TDI, 10 GND). |
+| J3 | 1×4 header | 0.1" | GND, DBG0, DBG1, +5V. Spare CPLD pins for debugging. |
 
-**SRAM ordering warning (from Alliance datasheets):** the original **AS6C8008-55ZIN** runs on 2.7–5.5 V
-and is the part we need. The newer **AS6C8008B** is **3.3 V only**: 2.7–3.6 V, absolute max 4.6 V.
-On this 5 V card it would be destroyed. Pinout (TSOP-II-44, same for both): 1 A4, 2 A3, 3 A2, 4 A1, 5 A0,
-6 CE#, 7–8 NC, 9 DQ0, 10 DQ1, 11 Vcc, 12 Vss, 13 DQ2, 14 DQ3, 15–16 NC, 17 WE#, 18 A19, 19 A18, 20 A17,
-21 A16, 22 A15, 23 A14, 24 A13, 25 A12, 26 A11, 27 A10, 28 A9, 29–30 NC, 31 DQ4, 32 DQ5, 33 Vcc,
-34 Vss, 35 DQ6, 36 DQ7, 37–38 NC, 39 A8, 40 CE2, 41 OE#, 42 A7, 43 A6, 44 A5.
-CE2 (active high) is tied to the battery-backed VCCO rail. Operating current is 30 mA typ / 60 mA max at minimum
-cycle time; standby (ISB1) is 6 µA typ / 50 µA max. Data retention works down to 1.5 V.
+Address mapping: SRAM A0–A7 = column ERA0–7 (U3), A8 = column ERA8 (CPLD), A9–A16 = row ERA0–7 (U2),
+A17 = row ERA8 (CPLD), A18 = bank bit 0 (CPLD), chip select = bank bit 1 (CPLD drives OE0/OE1, WE0/WE1).
+The mapping only has to be consistent, so any permutation of ERA bits works.
 
-Optional insurance: series-resistor footprints (or 0 Ω links) on the strobes and data,
-as the factory card had (R118–R133, plus the R138/L132 ferrite on D0 in rev C).
+**Why '574 and not '573:** at 1 MHz /RASB goes high *before* /ECAS ends (Fig. 11-19a). A transparent
+'573 would then pass the refresh row to the SRAM mid-read. Edge-triggered registers hold the row until
+the next /RASB↓, which comes after the access is over.
+
+**Why separate OE/WE per SRAM:** the DS1210 has a single CE path. Both SRAMs share CE#, so the CPLD
+selects a chip by giving only that one OE# or WE#. The other chip is enabled but idle, with its outputs high-Z.
 
 ### J1 footprint (confirmed with Renée's kit socket and the original card photo)
 - 2.54 mm pitch, 2.54 mm row spacing. The socket's solder pins measure 36.35 mm end to end.
@@ -85,8 +89,8 @@ DS1315 but implemented in the CPLD:
 - Laser off: the CR2032 feeds the DS3231 VBAT (timekeeping) and the DS1210 BAT. The DS1210 VCCO keeps the SRAM
   alive and its CEO holds the SRAM /CE high. The CPLD and '245 are unpowered; the SRAM sees their
   pins near 0 V, which is safe because /CE is high.
-- To verify: DS1210 VCCO current capability vs. AS6C8008 active current, the DS1210 TOL setting,
-  and the coin-cell life estimate (SRAM standby plus DS3231 timekeeping current).
+- Checked: the DS1210 VCCO supplies ≤80 mA, against one active AS6C4008 (≤~60 mA) plus one idle chip. TOL→VCCO.
+  The coin cell lasts ~3 years with the Laser off (§2).
 
 ## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
 - /E1MOE rises exactly at the CPUP0 fall, while /RASB, /ECAS and /RWR are still low.
@@ -96,18 +100,18 @@ DS1315 but implemented in the CPLD:
 
 ## 6. Toolchain
 - CPLD logic in portable Verilog, simulated with Icarus Verilog.
-- Fitting: Quartus II (MAX7000S target) → POF2JED → `.jed`, or WinCUPL/`fit1508`. The
-  ATF15xx open flow (prjbureau) is an alternative.
+- Fitting: WinCUPL/`fit1504` (Microchip, free), or Quartus II (EPM7064S target) → POF2JED → `.jed`.
+  The ATF15xx open flow (prjbureau/yosys) is an alternative.
 - Programming: ATDH1150USB or ATMISP7 with an FT232H breakout via SVF.
 - KiCad files are generated as KiCad 7 format and open in KiCad 8 and 9.
 
 ## 7. Task list
-1. KiCad: symbols (J1, DS1210, AS6C8008, ATF1508AS if not in the stock library) and footprints (J1).
-2. KiCad schematic → ERC.
+1. ~~KiCad symbols and footprints~~ (done: `hardware/lib`)
+2. ~~KiCad schematic~~ (done: v0.1; netlist checks pass, `tools/check_netlist.py`)
 3. CPLD: Verilog plus testbench (1 MHz and 3.6 MHz waveforms, refresh, unlock/RTC mode).
-4. CPLD pin assignment, back-annotated into the schematic.
+4. Confirm the ATF1504AS PLCC-44 pinout against the datasheet.
 5. Board outline, mounting holes and J1 position, **measured from an original card**.
 6. PCB layout → DRC → gerbers, drill, BOM and position files.
-7. Order boards; assemble the TQFP/TSOP (or have them factory placed).
+7. Order boards and parts; assemble (all THT except the DS3231 SOIC).
 8. 6502: RTC driver (unlock, I²C, ProDOS clock hook) and a set-clock utility.
 9. 6502: RAM test (the built-in `C50AG` diagnostics should also pass).

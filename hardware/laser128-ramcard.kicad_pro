@@ -1,0 +1,7 @@
+{
+  "meta": { "filename": "laser128-ramcard.kicad_pro", "version": 1 },
+  "schematic": { "legacy_lib_dir": "", "legacy_lib_list": [] },
+  "boards": [],
+  "sheets": [ [ "6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3", "" ] ],
+  "text_variables": {}
+}
