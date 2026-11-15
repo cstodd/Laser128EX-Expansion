@@ -23,8 +23,8 @@ Board coordinates: origin at the top-left corner, x to the right, y down, viewed
 | J1 pins 15 / 16 | (124.73, 63.00) / (127.27, 63.00): 23.00 mm above H1 |
 | J1 socket body | **underside** (non-component side). Pad numbering is as seen from the component side |
 
-J1's row centreline is x = 126.00, through the H1 centre. The stock card's left part (x < 0 in these coordinates,
-down to −90 mm) is free space we don't use.
+J1's row centreline is x = 126.00, through the H1 centre. The stock card extends a further ~60 mm to the left of our board (x < 0 in these coordinates),
+space we don't use.
 
 ## Still to confirm
 - Component height limit above the card (tallest parts: the PLCC socket with chip, the CR2032 holder, the 22 µF cap).

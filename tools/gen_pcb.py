@@ -20,7 +20,8 @@ OUT = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
 FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'lib', 'Laser128.pretty')}
 STOCK_FP = '/usr/share/kicad/footprints'
 OX, OY = 50.0, 50.0          # board origin on the KiCad page
-W, H = 100.0, 90.0           # board size
+W, H = 130.0, 90.0           # board size (right/bottom edges fixed by J1/H1)
+XS = 30.0                    # left strip added for the SMD SRAM alternates
 
 # ref: (x, y, rotation_deg) of footprint origin (pad 1 for DIP/headers/J1)
 PLACE = {
@@ -41,7 +42,15 @@ PLACE = {
     'C10': (4.0, 48.0, 0), 'C12': (13.0, 48.0, 0), 'C11': (25.0, 48.0, 0),
     'C13': (88.0, 20.0, 0),
 }
-HOLE = (96.0, 86.0)
+# left strip (x < XS): SMD SRAM alternates and their decoupling
+PLACE_LEFT = {
+    'U9': (9.5, 20.0, 0), 'U10': (9.5, 46.0, 0),          # TSOP-II-32, origin = centre
+    'C14': (3.5, 61.0, 0), 'C15': (3.5, 65.0, 0),
+}
+PLACE = {r: (x + XS, y, a) for r, (x, y, a) in PLACE.items()}
+PLACE.update(PLACE_LEFT)
+HOLE = (96.0 + XS, 86.0)
+STANDOFFS = [(4.0, 4.0), (4.0, 86.0)]   # left-side support holes (user standoffs, position not critical)
 
 
 def mm(v):
@@ -129,6 +138,15 @@ def main(netfile):
     for pad in h.Pads():
         pad.SetNet(nets['GND'])
 
+    for i, (x, y) in enumerate(STANDOFFS):
+        s = load_fp('MountingHole:MountingHole_3.2mm_M3_Pad')
+        s.SetReference('H%d' % (i + 2))
+        s.SetValue('M3 standoff')
+        s.SetPosition(pt(x, y))
+        board.Add(s)
+        for pad in s.Pads():
+            pad.SetNet(nets['GND'])
+
     # GND pours on both layers (filled after routing)
     for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
         z = pcbnew.ZONE(board)
@@ -156,8 +174,9 @@ def main(netfile):
         board.Add(tx)
         return tx
 
-    text('Laser 128/128EX 1MB RAM + Clock  rev 0.1', 3, 55.0, pcbnew.F_SilkS, 1.2)
-    bt = text('github.com/cstodd/laser128ex-expansion', 38, 57.5, pcbnew.B_SilkS, 1.0)
+    text('Laser 128/128EX 1MB RAM + Clock  rev 0.1', 3 + XS, 55.0, pcbnew.F_SilkS, 1.2)
+    text('SRAM: fit U5 or U9, U6 or U10', 3 + XS, 58.5, pcbnew.F_SilkS, 1.0)
+    bt = text('github.com/cstodd/laser128ex-expansion', 38 + XS, 61.0, pcbnew.B_SilkS, 1.0)
 
     board.Save(OUT)
     rpt = OUT.replace('.kicad_pcb', '.drc.rpt')

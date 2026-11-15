@@ -10,7 +10,12 @@ import os
 import subprocess
 import sys
 
+import re
+
 import pcbnew
+
+sys.path.insert(0, os.path.dirname(__file__))
+from sexp import parse, find, find1  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
@@ -48,6 +53,7 @@ def main(jar, java='java', passes=25):
     dsn, ses = base + '.dsn', base + '.ses'
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         raise SystemExit('DSN export failed')
+    move_power_nets(dsn)
     cmd = [java, '-jar', jar, '-de', dsn, '-do', ses, '-mp', str(passes),
            '--gui.enabled=false', '--api_server.enabled=false',
            '--usage_and_diagnostic_data.disable_analytics=true']
@@ -58,8 +64,8 @@ def main(jar, java='java', passes=25):
         print('freerouting timed out after %ds; using its last saved result if any' % TIMEOUT)
     if not os.path.exists(ses):
         raise SystemExit('no session file produced')
-    if not pcbnew.ImportSpecctraSES(board, ses):
-        raise SystemExit('SES import failed')
+    ntracks, nvias = import_ses(board, ses)
+    print('imported %d track segments, %d vias' % (ntracks, nvias))
 
     filler = pcbnew.ZONE_FILLER(board)
     filler.Fill(board.Zones())
@@ -69,6 +75,62 @@ def main(jar, java='java', passes=25):
     for f in (dsn, ses):
         os.remove(f)
     print('routed; DRC report:', rpt)
+
+
+def move_power_nets(dsn):
+    """KiCad 7's DSN exporter ignores per-net classes set from Python; move the power nets
+    from the default class into the Power class by editing the DSN text."""
+    s = open(dsn).read()
+    for n in POWER_NETS:
+        s = re.sub(r'(\(class kicad_default[^()]*?)\s%s(?=[\s)])' % re.escape(n), r'\1', s, count=1)
+    s = s.replace('(class Power', '(class Power ' + ' '.join(POWER_NETS), 1)
+    open(dsn, 'w').write(s)
+
+
+def import_ses(board, ses):
+    """Minimal Specctra session importer (KiCad 7's ImportSpecctraSES needs the GUI).
+    SES units: 'resolution um 10' => 0.1 um, Y axis inverted, page coordinates."""
+    t = parse(open(ses).read())
+    routes = find1(t, 'routes')
+    res = find1(routes, 'resolution')
+    per_mm = {'um': 1000.0, 'mm': 1.0, 'mil': 1000 / 25.4, 'inch': 1 / 25.4}[str(res[1])] * float(res[2])
+    layers = {'F.Cu': pcbnew.F_Cu, 'B.Cu': pcbnew.B_Cu}
+    padstacks = {}
+    for ps in find(find1(routes, 'library_out') or [], 'padstack'):
+        m = re.search(r'_(\d+):(\d+)_um', ps[1])
+        padstacks[ps[1]] = (int(m.group(1)), int(m.group(2))) if m else (700, 350)
+    nets = board.GetNetsByName()
+
+    def xy(x, y):
+        return pcbnew.VECTOR2I(pcbnew.FromMM(float(x) / per_mm), pcbnew.FromMM(-float(y) / per_mm))
+
+    nt = nv = 0
+    for net in find(find1(routes, 'network_out'), 'net'):
+        ni = nets[net[1]]
+        for w in find(net, 'wire'):
+            path = find1(w, 'path')
+            layer, width, pts = layers[str(path[1])], float(path[2]), path[3:]
+            pts = [p for p in pts if not isinstance(p, list)]
+            for i in range(0, len(pts) - 2, 2):
+                tr = pcbnew.PCB_TRACK(board)
+                tr.SetStart(xy(pts[i], pts[i + 1]))
+                tr.SetEnd(xy(pts[i + 2], pts[i + 3]))
+                tr.SetWidth(pcbnew.FromMM(width / per_mm))
+                tr.SetLayer(layer)
+                tr.SetNet(ni)
+                board.Add(tr)
+                nt += 1
+        for v in find(net, 'via'):
+            dia, drill = padstacks.get(v[1], (700, 350))
+            via = pcbnew.PCB_VIA(board)
+            via.SetPosition(xy(v[2], v[3]))
+            via.SetWidth(pcbnew.FromMM(dia / 1000.0))
+            via.SetDrill(pcbnew.FromMM(drill / 1000.0))
+            via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
+            via.SetNet(ni)
+            board.Add(via)
+            nv += 1
+    return nt, nv
 
 
 if __name__ == '__main__':

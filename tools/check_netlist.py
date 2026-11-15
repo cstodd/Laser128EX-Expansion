@@ -64,24 +64,28 @@ def main(path):
     for i in range(19):
         n = 'MA%d' % i
         refs = sorted({r for r, p, _ in nets.get(n, [])})
-        if not {'U5', 'U6'} <= set(refs):
+        if not {'U5', 'U6', 'U9', 'U10'} <= set(refs):
             err.append('%s does not reach both SRAMs: %s' % (n, refs))
         src = [x for x in nets.get(n, []) if x[0] in ('U1', 'U2', 'U3')]
         if len(src) != 1:
             err.append('%s should have exactly one source (U1/U2/U3), has %s' % (n, src))
     for i in range(8):
         refs = {r for r, p, _ in nets.get('XD%d' % i, [])}
-        if refs != {'U1', 'U4', 'U5', 'U6'}:
+        if refs != {'U1', 'U4', 'U5', 'U6', 'U9', 'U10'}:
             err.append('XD%d connects %s' % (i, sorted(refs)))
         refs = {r for r, p, _ in nets.get('D%d' % i, [])}
         if refs != {'J1', 'U4'}:
             err.append('D%d connects %s' % (i, sorted(refs)))
     # SRAM supply must be battery-backed; chip enable must come through the DS1210
-    for ref in ('U5', 'U6'):
+    for ref in ('U5', 'U6', 'U9', 'U10'):
         if pinnet.get((ref, '32')) != 'VBB':
             err.append('%s VCC not on VBB' % ref)
         if pinnet.get((ref, '22')) != 'RAM_CEO_n':
             err.append('%s CE# not from supervisor CE OUT' % ref)
+    for a, b in (('U5', 'U9'), ('U6', 'U10')):    # SMD alternates wired pin-for-pin with the DIP
+        for pin in map(str, range(1, 33)):
+            if pinnet.get((a, pin)) != pinnet.get((b, pin)):
+                err.append('%s/%s pin %s differ' % (a, b, pin))
     if pinnet.get(('U7', '12')) != 'RAM_CEO_n' or pinnet.get(('U7', '13')) != 'RAM_CE_n' or \
             pinnet.get(('U7', '2')) != 'VBB' or pinnet.get(('U7', '1')) != 'VBAT':
         err.append('U7 (MAX693A) CE/VOUT/VBATT wiring wrong')
