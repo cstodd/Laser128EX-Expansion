@@ -50,7 +50,7 @@ def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         raise SystemExit('DSN export failed')
     import_only = bool(os.environ.get('ROUTE_IMPORT_ONLY'))
-    move_power_nets(dsn, gnd_as_signal=incremental)
+    move_power_nets(dsn, gnd_as_signal=incremental or bool(os.environ.get('ROUTE_GND_SIGNAL')))
     cmd = [java, '-jar', jar, '-de', dsn, '-do', ses,
            '--gui.enabled=false', '--api_server.enabled=false',
            '--router.autorouter.max_passes=%d' % passes, '--router.optimizer.enabled=false',
