@@ -67,10 +67,12 @@ and the Applied Engineering **RamExpress + DClock** pair before it.
 - A fixed 64-bit pattern, written one bit per access through the RAM interface, makes
   the next 64 accesses read or write the clock registers instead of RAM.
   After that it drops back to being RAM.
-- Because the CPLD rebuilds the full linear address, it can feed the DS1315's
-  A0 (data-in) and A2 (read/write select) from address bits, exactly as a
-  DClock-equivalent wiring would require *(exact bit mapping: verify against the
-  DClock driver / A2Heaven RamExpress II+)*.
+- The DS1315 runs in **RAM mode**. Pattern and clock bits move on **data bit 0** (D in, Q out),
+  using the card's /WE and /OE, and the DS1315 is selected whenever the SRAM is.
+  Address bits are irrelevant, which suits the slinky's auto-incrementing address register:
+  the driver just accesses `$C0D3` 64 times. Signal path: CPLD /CE → DS1315 /CEI;
+  DS1315 /CEO → SRAM /CE; D and Q on card-side D0. *(Confirm against the DClock driver's
+  access sequence and the DS1315 datasheet's RAM-mode timing at 3.6 MHz.)*
 - Software: the **AE DClock ProDOS driver** (Renée confirmed it works on the Laser).
   A ProDOS clock-driver patch or a small boot-time loader sets the date.
 - Bonus: the DS1315 is also the **battery switch**. Its VCCO output powers the
@@ -82,17 +84,23 @@ came from a crystal ESR/load-capacitance mismatch. Use a crystal that meets the 
 specified load (6 pF *(verify)*), keep the crystal traces short with a ground guard, and
 consider a through-hole footprint so different crystals can be tried.
 
-## 3. Open items (blocking schematic/PCB)
+## 3. Resolved from the Tech Ref Manual (see `laser-expansion-interface.md`)
 
-1. **Connector pinout, connector type, and board outline/mount holes** from the Tech Ref
-   Manual (expansion card section and schematic).
-2. Which strobes select the bank: four /RAS lines or four /CAS lines? And the
-   RAS/CAS/'245-enable timing at 1 MHz and at 3.6 MHz.
-3. DClock wiring and register protocol: which address bits go to the DS1315 A0/A2.
-4. Whether the card fits the original Laser 128 (new-style) as well as the 128EX.
-   Renée notes the old-style original 128 used a different pinout.
+- J13/J17 is a 2×15 header on a 0.1" grid with the full pinout extracted. It is **identical on the New Laser 128 and the 128EX**,
+  so one card fits both.
+- Bank select uses **four /ECAS lines** with one common /RASB. Refresh is RAS-only, which the SRAM ignores.
+- 128EX timing: /E1MOE rises at the CPUP0 fall while RAS, CAS and RWR are still low. End writes on /E1MOE↑
+  and hold /OE until /E1MOE↑.
 
-## 4. Deliverables plan
+## 4. Open items
+
+1. **Mechanical**: measure a real card's outline, mounting holes, J17 position and which side J17 sits on.
+   The scan-based estimates are about 190 × 92 mm.
+2. DS1315 availability, RAM-mode timing margins at 3.6 MHz, and VCCO current capacity for the SRAM.
+3. DClock driver: obtain it and confirm the access sequence.
+4. Decisions from the earlier Claude conversation, still to merge.
+
+## 5. Deliverables plan
 
 - `cpld/`: CUPL (or Verilog for the open flow) plus a testbench driven by
   RAS/CAS/RA waveforms, simulated before hardware.
