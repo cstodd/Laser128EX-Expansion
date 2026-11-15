@@ -30,12 +30,12 @@ parts are scarce at JLCPCB/LCSC, and a socketable CPLD still exists. See [`sourc
 | U3 | **74AHCT574** | DIP-20 | Column register: ERA0–7 → MA0–7, clocked by COLCLK (first /ECASn↓). |
 | U4 | **74HCT245** | DIP-20 | Data buffer. A = card bus XD, B = Laser D. DIR = MEMRD (as on the stock card); /OE from the CPLD. |
 | U5, U6 | **AS6C4008-55PCN** | DIP-32 | 512K×8, 2.7–5.5 V. U5 = bank 0, U6 = bank 1. **Not** a 3.3 V-only part. |
-| U7 | **DS1210** | DIP-8 | Battery switch + CE gating for both SRAMs. TOL→VCCO (trip 4.25–4.49 V). VCCO ≤80 mA. CE→CEO ≤20 ns. VBAT2 grounded. |
-| U8 | **DS3231SN** | SOIC-16W | I²C RTC, TCXO, ±2 ppm. Pins 5–12 grounded. 0.84 µA typ from the battery. |
+| U7 | **MAX693ACPE+** | DIP-16 | Replaces the obsolete DS1210. VOUT = battery-switched SRAM rail (250 mA from VCC, 10 mA from the battery). CE IN→CE OUT gating ≤10 ns, held high below 4.40 V. /RESET (pin 15) → CPLD power-on clear. WDI/OSC pins open, PFI→GND. 0.04 µA from the battery. |
+| U8 | **DS3231M+** (or DS3231SN#) | SOIC-16W | I²C RTC, TCXO, ±2 ppm. Pins 5–12 grounded. 0.84 µA typ from the battery. |
 | BT1 | CR2032 | Keystone 103 holder | Feeds the DS1210 VBAT1 and the DS3231 VBAT. |
 | J1 | 2×15 socket, 2.54 mm | custom U-numbered footprint | Mates with the Laser J13. |
 | J2 | 2×5 IDC | 0.1" | JTAG, Altera/Atmel 10-pin layout (1 TCK, 2 GND, 3 TDO, 4 VCC, 5 TMS, 9 TDI, 10 GND). |
-| J3 | 1×4 header | 0.1" | GND, DBG0, DBG1, +5V. Spare CPLD pins for debugging. |
+| J3 | 1×4 header | 0.1" | GND, DBG0 (CPLD 41), /RESET, +5V. |
 
 Address mapping: SRAM A0–A7 = column ERA0–7 (U3), A8 = column ERA8 (CPLD), A9–A16 = row ERA0–7 (U2),
 A17 = row ERA8 (CPLD), A18 = bank bit 0 (CPLD), chip select = bank bit 1 (CPLD drives OE0/OE1, WE0/WE1).
@@ -110,8 +110,8 @@ DS1315 but implemented in the CPLD:
 2. ~~KiCad schematic~~ (done: v0.1; netlist checks pass, `tools/check_netlist.py`)
 3. CPLD: Verilog plus testbench (1 MHz and 3.6 MHz waveforms, refresh, unlock/RTC mode).
 4. ~~Confirm the ATF1504AS PLCC-44 pinout~~ (done: matches the datasheet).
-4b. Replace the obsolete DS1210 with a MAX693A (pending its datasheet); the DS3231M+ is accepted as an alternative to the DS3231SN.
-5. Board outline, mounting holes and J1 position, **measured from an original card**.
+4b. ~~Replace the DS1210 with a MAX693A~~ (done). The DS3231M+ is accepted.
+5. ~~Board outline / hole / J1 position~~ (measured; see mechanical.md). The 100×90 board is placed (hardware/placement-preview.png).
 6. PCB layout → DRC → gerbers, drill, BOM and position files.
 7. Order boards and parts; assemble (all THT except the DS3231 SOIC).
 8. 6502: RTC driver (unlock, I²C, ProDOS clock hook) and a set-clock utility.

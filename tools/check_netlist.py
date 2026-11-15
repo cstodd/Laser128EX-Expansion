@@ -15,7 +15,8 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from sexp import parse, find, find1  # noqa: E402
 
-ALLOWED_NC = {('J2', '6'), ('J2', '7'), ('J2', '8'), ('U8', '1'), ('U8', '3'), ('U8', '4')}
+ALLOWED_NC = {('J2', '6'), ('J2', '7'), ('J2', '8'), ('U8', '1'), ('U8', '3'), ('U8', '4')} | \
+             {('U7', p) for p in ('5', '6', '7', '8', '10', '11', '14', '16')}
 SUPPLIES = {'+5V', 'GND', 'VBB', 'VBAT'}
 TRISTATE_BUSES = {'XD%d' % i for i in range(8)} | {'D%d' % i for i in range(8)} | \
                  {'MA%d' % i for i in range(19)}
@@ -80,7 +81,12 @@ def main(path):
         if pinnet.get((ref, '32')) != 'VBB':
             err.append('%s VCC not on VBB' % ref)
         if pinnet.get((ref, '22')) != 'RAM_CEO_n':
-            err.append('%s CE# not from DS1210 CEO' % ref)
+            err.append('%s CE# not from supervisor CE OUT' % ref)
+    if pinnet.get(('U7', '12')) != 'RAM_CEO_n' or pinnet.get(('U7', '13')) != 'RAM_CE_n' or \
+            pinnet.get(('U7', '2')) != 'VBB' or pinnet.get(('U7', '1')) != 'VBAT':
+        err.append('U7 (MAX693A) CE/VOUT/VBATT wiring wrong')
+    if pinnet.get(('U1', '40')) != 'PWR_RST_n' or pinnet.get(('U7', '15')) != 'PWR_RST_n':
+        err.append('power-on reset not wired U7.15 -> U1.40')
 
     print('%d nets, %d pins checked' % (len(nets), len(pinnet)))
     if err:

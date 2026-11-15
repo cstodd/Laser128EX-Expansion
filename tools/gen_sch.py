@@ -7,7 +7,7 @@ Architecture (option B, see docs/design-notes.md):
   J1  Laser J13 mate          U1  ATF1504AS-10JU44 (PLCC-44, socket)
   U2  74AHCT574 row register  U3  74AHCT574 column register
   U4  74HCT245 data buffer    U5/U6 AS6C4008-55PCN 512Kx8 SRAM (DIP-32)
-  U7  DS1210 NV controller    U8  DS3231SN RTC     BT1 CR2032
+  U7  MAX693A supervisor      U8  DS3231M/SN RTC   BT1 CR2032
 """
 import os
 import sys
@@ -114,7 +114,7 @@ CPLD = {
     # outputs
     20: 'ROWCLK', 21: 'COLCLK', 33: 'MA8', 37: 'MA17', 24: 'MA18',
     25: 'RAM_CE_n', 26: 'OE0_n', 27: 'OE1_n', 28: 'WE0_n', 29: 'WE1_n', 31: 'BUF_OE_n',
-    34: 'SDA', 36: 'SCL', 40: 'DBG0', 41: 'DBG1',
+    34: 'SDA', 36: 'SCL', 40: 'PWR_RST_n', 41: 'DBG0',
     # JTAG
     7: 'TDI', 13: 'TMS', 32: 'TCK', 38: 'TDO',
     # power
@@ -157,15 +157,18 @@ part('U5', 'Memory_RAM:AS6C4008-55PCN', 'AS6C4008-55PCN', 'Package_DIP:DIP-32_W1
 part('U6', 'Memory_RAM:AS6C4008-55PCN', 'AS6C4008-55PCN', 'Package_DIP:DIP-32_W15.24mm_Socket',
      sram(1), (317.5, 162.56))
 
-# U7: DS1210. TOL->VCCO (4.37V trip), unused VBAT2 grounded (datasheet note 3)
-part('U7', 'Power_Management:DS1210', 'DS1210', 'Package_DIP:DIP-8_W7.62mm_Socket',
-     {1: 'VBB', 2: 'VBAT', 3: 'VBB', 4: 'GND', 5: 'RAM_CE_n', 6: 'RAM_CEO_n', 7: 'GND', 8: '+5V'},
-     (226.06, 205.74))
+# U7: MAX693A supervisor (replaces the obsolete DS1210): VOUT = battery-switched SRAM supply,
+# CE IN/OUT = power-fail chip-enable gating (10 ns max), /RESET (4.40 V, 200 ms) -> CPLD power-on clear.
+# WDI, OSC IN, OSC SEL left open (watchdog off, internal osc); PFI unused -> GND.
+part('U7', 'Power_Supervisor:MAX691xPE', 'MAX693ACPE+', 'Package_DIP:DIP-16_W7.62mm_Socket',
+     {1: 'VBAT', 2: 'VBB', 3: '+5V', 4: 'GND', 9: 'GND', 12: 'RAM_CEO_n', 13: 'RAM_CE_n', 15: 'PWR_RST_n'},
+     (226.06, 205.74), nc=(5, 6, 7, 8, 10, 11, 14, 16),
+     datasheet='https://www.analog.com/media/en/technical-documentation/data-sheets/MAX691A-MAX800M.pdf')
 
-# U8: DS3231SN (stock DS3231M symbol has the same SOIC-16 pinout). N.C. pins 5-12 -> GND.
+# U8: DS3231M+ (or DS3231SN#, identical 16-SO pinout). N.C. pins 5-12 -> GND.
 rtc = {2: '+5V', 13: 'GND', 14: 'VBAT', 15: 'SDA', 16: 'SCL'}
 rtc.update({p: 'GND' for p in range(5, 13)})
-part('U8', 'Timer_RTC:DS3231M', 'DS3231SN', 'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
+part('U8', 'Timer_RTC:DS3231M', 'DS3231M+', 'Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm',
      rtc, (317.5, 236.22), nc=(1, 3, 4))
 
 part('BT1', 'Device:Battery_Cell', 'CR2032', 'Battery:BatteryHolder_Keystone_103_1x20mm',
@@ -175,7 +178,7 @@ part('BT1', 'Device:Battery_Cell', 'CR2032', 'Battery:BatteryHolder_Keystone_103
 part('J2', 'Connector_Generic:Conn_02x05_Odd_Even', 'JTAG', 'Connector_IDC:IDC-Header_2x05_P2.54mm_Vertical',
      {1: 'TCK', 2: 'GND', 3: 'TDO', 4: '+5V', 5: 'TMS', 9: 'TDI', 10: 'GND'}, (45.72, 190.5), nc=(6, 7, 8))
 part('J3', 'Connector_Generic:Conn_01x04', 'DEBUG', 'Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical',
-     {1: 'GND', 2: 'DBG0', 3: 'DBG1', 4: '+5V'}, (45.72, 228.6))
+     {1: 'GND', 2: 'DBG0', 3: 'PWR_RST_n', 4: '+5V'}, (45.72, 228.6))
 
 # pull resistors
 for ref, val, a, b, x in (('R1', '4.7k', 'SDA', '+5V', 50.8), ('R2', '4.7k', 'SCL', '+5V', 63.5),
@@ -282,7 +285,7 @@ def build():
     notes = [
         'Laser 128 / 128EX battery-backed 1MB SRAM expansion + RTC  (architecture B, see docs/design-notes.md)',
         'Row register U2 latches ERA0-7 on /RASB fall; column register U3 on first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits.',
-        'U5 = bank 0 (512K), U6 = bank 1. Both CE# from DS1210 CEO (battery write-protect); CPLD selects chip with OEn/WEn.',
+        'U5 = bank 0 (512K), U6 = bank 1. Both CE# from MAX693A CE OUT (battery write-protect); CPLD selects chip with OEn/WEn.',
         'RTC: DS3231 I2C bit-banged through the CPLD, reachable via $C0D3 only after the 8-byte unlock key.',
         'U2/U3: use 74AHCT574 (fast). Do not substitute 74LS. U5/U6: AS6C4008 (2.7-5.5V) - NOT 3.3V-only parts.',
     ]

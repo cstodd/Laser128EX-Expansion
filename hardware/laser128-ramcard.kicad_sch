@@ -1897,35 +1897,36 @@
             (effects
               (font
                 (size 1.27 1.27)))))))
-    (symbol "Power_Management:DS1210"
+    (symbol "Power_Supervisor:MAX691xPE"
       (in_bom yes)
       (on_board yes)
       (property "Reference" "U"
-        (at -7.62 8.89 0)
+        (at -15.24 13.97 0)
         (effects
           (font
             (size 1.27 1.27))))
-      (property "Value" "DS1210"
-        (at 5.08 8.89 0)
+      (property "Value" "MAX691xPE"
+        (at 3.81 13.97 0)
         (effects
           (font
-            (size 1.27 1.27))))
-      (property "Footprint" "Package_DIP:DIP-8_W7.62mm"
-        (at 0 -20.32 0)
-        (effects
-          (font
-            (size 1.27 1.27)) hide))
-      (property "Datasheet" "https://datasheets.maximintegrated.com/en/ds/DS1210.pdf"
-        (at -2.54 -2.54 0)
+            (size 1.27 1.27))
+          (justify left)))
+      (property "Footprint" "Package_DIP:DIP-16_W7.62mm"
+        (at 0 -21.59 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_keywords" "Nonvolatile, RAM, Controller, Battery, Power"
+      (property "Datasheet" "https://datasheets.maximintegrated.com/en/ds/MAX690-MAX695.pdf"
         (at 0 0 0)
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (property "ki_description" "Nonvolatile Controller, PDIP-8"
+      (property "ki_keywords" "Power Supervisor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)) hide))
+      (property "ki_description" "Microprocessor Supervisory Circuit, DIP-16"
         (at 0 0 0)
         (effects
           (font
@@ -1935,20 +1936,20 @@
         (effects
           (font
             (size 1.27 1.27)) hide))
-      (symbol "DS1210_0_1"
+      (symbol "MAX691xPE_0_1"
         (rectangle
-          (start -7.62 7.62)
-          (end 7.62 -7.62)
+          (start 16.51 12.7)
+          (end -16.51 -15.24)
           (stroke
             (width 0.254)
             (type default))
           (fill
             (type background))))
-      (symbol "DS1210_1_1"
-        (pin power_out line
-          (at 10.16 2.54 180)
+      (symbol "MAX691xPE_1_1"
+        (pin power_in line
+          (at -19.05 -6.35 0)
           (length 2.54)
-          (name "VCCO"
+          (name "VBATT"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -1956,10 +1957,87 @@
             (effects
               (font
                 (size 1.27 1.27)))))
-        (pin power_in line
-          (at -10.16 5.08 0)
+        (pin output line
+          (at 19.05 2.54 180)
           (length 2.54)
-          (name "VBAT1"
+          (name "~{PFO}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -19.05 -2.54 0)
+          (length 2.54)
+          (name "WDI"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin output line
+          (at 19.05 -10.16 180)
+          (length 2.54)
+          (name "~{CE_OUT}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -19.05 -10.16 0)
+          (length 2.54)
+          (name "~{CE_IN}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "13"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin output line
+          (at 19.05 -2.54 180)
+          (length 2.54)
+          (name "~{WDO}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "14"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin output line
+          (at 19.05 7.62 180)
+          (length 2.54)
+          (name "~{RESET}"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "15"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin output line
+          (at 19.05 5.08 180)
+          (length 2.54)
+          (name "RESET"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "16"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin power_out line
+          (at 19.05 -7.62 180)
+          (length 2.54)
+          (name "VOUT"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -1967,10 +2045,10 @@
             (effects
               (font
                 (size 1.27 1.27)))))
-        (pin input line
-          (at -10.16 -2.54 0)
+        (pin power_in line
+          (at 0 15.24 270)
           (length 2.54)
-          (name "TOL"
+          (name "VCC"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -1979,7 +2057,7 @@
               (font
                 (size 1.27 1.27)))))
         (pin power_in line
-          (at 0 -10.16 90)
+          (at 0 -17.78 90)
           (length 2.54)
           (name "GND"
             (effects
@@ -1989,10 +2067,10 @@
             (effects
               (font
                 (size 1.27 1.27)))))
-        (pin input line
-          (at -10.16 -5.08 0)
+        (pin output line
+          (at 19.05 -5.08 180)
           (length 2.54)
-          (name "~{CE}"
+          (name "BATT_ON"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -2001,9 +2079,9 @@
               (font
                 (size 1.27 1.27)))))
         (pin output line
-          (at 10.16 -5.08 180)
+          (at 19.05 0 180)
           (length 2.54)
-          (name "~{CEO}"
+          (name "~{LOW_LINE}"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -2011,10 +2089,10 @@
             (effects
               (font
                 (size 1.27 1.27)))))
-        (pin power_in line
-          (at -10.16 2.54 0)
+        (pin input line
+          (at -19.05 3.81 0)
           (length 2.54)
-          (name "VBAT2"
+          (name "OSC_IN"
             (effects
               (font
                 (size 1.27 1.27))))
@@ -2022,14 +2100,25 @@
             (effects
               (font
                 (size 1.27 1.27)))))
-        (pin power_in line
-          (at 0 10.16 270)
+        (pin input line
+          (at -19.05 1.27 0)
           (length 2.54)
-          (name "VCCI"
+          (name "OSC_SEL"
             (effects
               (font
                 (size 1.27 1.27))))
           (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)))))
+        (pin input line
+          (at -19.05 6.35 0)
+          (length 2.54)
+          (name "PFI"
+            (effects
+              (font
+                (size 1.27 1.27))))
+          (number "9"
             (effects
               (font
                 (size 1.27 1.27)))))))
@@ -3592,7 +3681,7 @@
         (size 1.27 1.27))
       (justify left bottom))
     (uuid "e4f07d86-bbdf-5c6a-ab72-10838d224f5e"))
-  (label "DBG0"
+  (label "PWR_RST_n"
     (at 154.94 101.6 0)
     (fields_autoplaced)
     (effects
@@ -3600,7 +3689,7 @@
         (size 1.27 1.27))
       (justify left bottom))
     (uuid "768eb122-354d-52f7-a9f1-54896cdc3284"))
-  (label "DBG1"
+  (label "DBG0"
     (at 154.94 99.06 0)
     (fields_autoplaced)
     (effects
@@ -5222,114 +5311,154 @@
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
           (reference "U6")
           (unit 1)))))
-  (label "VBB"
-    (at 236.22 203.2 0)
+  (label "VBAT"
+    (at 207.01 212.09 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify right bottom))
+    (uuid "88eae139-7027-55bc-b671-e4ba21e06529"))
+  (no_connect
+    (at 245.11 203.2)
+    (uuid "0cf130af-091c-51c4-b585-8412dee5bb33"))
+  (no_connect
+    (at 207.01 208.28)
+    (uuid "69f8f5f8-3133-5daa-af74-e3bb62d654c4"))
+  (label "RAM_CEO_n"
+    (at 245.11 215.9 0)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "88eae139-7027-55bc-b671-e4ba21e06529"))
-  (label "VBAT"
-    (at 215.9 200.66 180)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right bottom))
-    (uuid "0cf130af-091c-51c4-b585-8412dee5bb33"))
-  (label "VBB"
-    (at 215.9 208.28 180)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right bottom))
-    (uuid "69f8f5f8-3133-5daa-af74-e3bb62d654c4"))
-  (label "GND"
-    (at 226.06 215.9 270)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right bottom))
     (uuid "5381c1a3-d2f2-5fc2-a785-bf69a0ebfde7"))
   (label "RAM_CE_n"
-    (at 215.9 210.82 180)
+    (at 207.01 215.9 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right bottom))
     (uuid "0df7a272-6ceb-52d7-8bbd-c5b4a7ac175d"))
-  (label "RAM_CEO_n"
-    (at 236.22 210.82 0)
+  (no_connect
+    (at 245.11 208.28)
+    (uuid "3970c11a-7362-58da-8e8c-6c9b03d8598c"))
+  (label "PWR_RST_n"
+    (at 245.11 198.12 0)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "3970c11a-7362-58da-8e8c-6c9b03d8598c"))
+    (uuid "57eb49ae-9ee4-50c4-8d50-9aee84bfd118"))
+  (no_connect
+    (at 245.11 200.66)
+    (uuid "73434883-a7bf-546f-95ba-20edecfc2a28"))
+  (label "VBB"
+    (at 245.11 213.36 0)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left bottom))
+    (uuid "5aae59d8-c157-590a-b6c5-73ee1b47fec3"))
+  (label "+5V"
+    (at 226.06 190.5 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1.27 1.27))
+      (justify left bottom))
+    (uuid "896892f4-702b-5e7f-bc61-828eacc99b16"))
   (label "GND"
-    (at 215.9 203.2 180)
+    (at 226.06 223.52 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "57eb49ae-9ee4-50c4-8d50-9aee84bfd118"))
-  (label "+5V"
-    (at 226.06 195.58 90)
+    (uuid "0812d97b-8608-596a-b568-e5beb7a7fdb8"))
+  (no_connect
+    (at 245.11 210.82)
+    (uuid "b2902e45-10c7-54d4-84f1-174e207d3551"))
+  (no_connect
+    (at 245.11 205.74)
+    (uuid "c8be77f7-1962-5e20-84e3-967bd8b0c9aa"))
+  (no_connect
+    (at 207.01 201.93)
+    (uuid "ad64e05b-6092-522c-b043-c5f09512f2ca"))
+  (no_connect
+    (at 207.01 204.47)
+    (uuid "4ca6a84f-a45d-5ada-929a-6a6ed097b18d"))
+  (label "GND"
+    (at 207.01 199.39 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
-      (justify left bottom))
-    (uuid "73434883-a7bf-546f-95ba-20edecfc2a28"))
+      (justify right bottom))
+    (uuid "43ed7dd3-9d44-5a82-8baf-3266ec0a7cc1"))
   (symbol
-    (lib_id "Power_Management:DS1210")
+    (lib_id "Power_Supervisor:MAX691xPE")
     (at 226.06 205.74 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "5aae59d8-c157-590a-b6c5-73ee1b47fec3")
+    (uuid "09878606-602c-5c4f-820e-23ac715e1e26")
     (property "Reference" "U7"
-      (at 226.06 185.42 0)
+      (at 226.06 180.34 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "DS1210"
-      (at 226.06 226.06 0)
+    (property "Value" "MAX693ACPE+"
+      (at 226.06 233.68 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Package_DIP:DIP-8_W7.62mm_Socket"
+    (property "Footprint" "Package_DIP:DIP-16_W7.62mm_Socket"
       (at 226.06 205.74 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "Datasheet" "~"
+    (property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX691A-MAX800M.pdf"
       (at 226.06 205.74 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "896892f4-702b-5e7f-bc61-828eacc99b16"))
+      (uuid "4af89dcf-e2d2-5d17-9e74-cf377282e01b"))
+    (pin "10"
+      (uuid "ebf3f2ab-bfd0-5f16-9206-0fbc47d9da95"))
+    (pin "11"
+      (uuid "84be6acd-c5f6-5f94-acc8-9401619d2fbf"))
+    (pin "12"
+      (uuid "5e36197a-c354-53c9-bf0b-b8c3aea77644"))
+    (pin "13"
+      (uuid "0bf91af7-46dc-5e00-aa5e-d5fa8252759b"))
+    (pin "14"
+      (uuid "be3b8d29-3ab8-55e4-9fc2-d720a1552ec3"))
+    (pin "15"
+      (uuid "c823cace-e5c7-5d06-b217-1be4a2a7a161"))
+    (pin "16"
+      (uuid "2715da75-79a6-59cd-91f6-b118e6bb5b04"))
     (pin "2"
-      (uuid "0812d97b-8608-596a-b568-e5beb7a7fdb8"))
+      (uuid "22a4c568-cd1a-591c-b644-ed25a5efc72a"))
     (pin "3"
-      (uuid "b2902e45-10c7-54d4-84f1-174e207d3551"))
+      (uuid "cc3fb3a3-bbd6-590c-bdbb-864e988bce83"))
     (pin "4"
-      (uuid "c8be77f7-1962-5e20-84e3-967bd8b0c9aa"))
+      (uuid "80f15681-8a7f-5199-92d2-0b90e135996e"))
     (pin "5"
-      (uuid "ad64e05b-6092-522c-b043-c5f09512f2ca"))
+      (uuid "3f3135e5-dd70-517f-aa8e-d8ccb26333d6"))
     (pin "6"
-      (uuid "4ca6a84f-a45d-5ada-929a-6a6ed097b18d"))
+      (uuid "578088cb-f2c8-5889-ae93-68a6a22855b4"))
     (pin "7"
-      (uuid "43ed7dd3-9d44-5a82-8baf-3266ec0a7cc1"))
+      (uuid "346a6960-940a-5f8e-890c-671cb9d11f82"))
     (pin "8"
-      (uuid "09878606-602c-5c4f-820e-23ac715e1e26"))
+      (uuid "3ce1dbc3-b2e8-5c73-b6e8-c08fbaa533c0"))
+    (pin "9"
+      (uuid "1960299c-6e0f-5501-ae0c-75d88116ed10"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5337,7 +5466,7 @@
           (unit 1)))))
   (no_connect
     (at 330.2 231.14)
-    (uuid "4af89dcf-e2d2-5d17-9e74-cf377282e01b"))
+    (uuid "8ea66d11-6787-5866-9014-5dec0cb21a5c"))
   (label "GND"
     (at 317.5 246.38 270)
     (fields_autoplaced)
@@ -5345,7 +5474,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "ebf3f2ab-bfd0-5f16-9206-0fbc47d9da95"))
+    (uuid "4a8bed17-3874-5dcf-a015-6aa178511b81"))
   (label "VBAT"
     (at 317.5 226.06 90)
     (fields_autoplaced)
@@ -5353,7 +5482,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "84be6acd-c5f6-5f94-acc8-9401619d2fbf"))
+    (uuid "772535f7-55d8-59d8-bf84-198d0489a833"))
   (label "SDA"
     (at 304.8 233.68 180)
     (fields_autoplaced)
@@ -5361,7 +5490,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "5e36197a-c354-53c9-bf0b-b8c3aea77644"))
+    (uuid "6d7ce503-3ee7-53cb-b1a3-7b42da7de6f3"))
   (label "SCL"
     (at 304.8 231.14 180)
     (fields_autoplaced)
@@ -5369,7 +5498,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "0bf91af7-46dc-5e00-aa5e-d5fa8252759b"))
+    (uuid "12b66eb5-1d42-51c9-af1c-e1d09e1a4c0c"))
   (label "+5V"
     (at 314.96 226.06 90)
     (fields_autoplaced)
@@ -5377,13 +5506,13 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "be3b8d29-3ab8-55e4-9fc2-d720a1552ec3"))
+    (uuid "96113328-b328-5107-855a-917d6b2ab380"))
   (no_connect
     (at 330.2 238.76)
-    (uuid "c823cace-e5c7-5d06-b217-1be4a2a7a161"))
+    (uuid "9c547683-72fe-59ec-9246-d2ad0ca06018"))
   (no_connect
     (at 304.8 241.3)
-    (uuid "2715da75-79a6-59cd-91f6-b118e6bb5b04"))
+    (uuid "9c9734f7-54d6-5ae7-a936-a227a7ef8b51"))
   (symbol
     (lib_id "Timer_RTC:DS3231M")
     (at 317.5 236.22 0)
@@ -5391,13 +5520,13 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "22a4c568-cd1a-591c-b644-ed25a5efc72a")
+    (uuid "caecdb38-cafc-5a93-b528-e943443ccd31")
     (property "Reference" "U8"
       (at 317.5 215.9 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "DS3231SN"
+    (property "Value" "DS3231M+"
       (at 317.5 256.54 0)
       (effects
         (font
@@ -5413,37 +5542,37 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "cc3fb3a3-bbd6-590c-bdbb-864e988bce83"))
+      (uuid "640b6d75-a235-50b1-8619-6b41cb9d1f2c"))
     (pin "10"
-      (uuid "80f15681-8a7f-5199-92d2-0b90e135996e"))
+      (uuid "b9c0663c-d937-507f-bcd8-c2d93c6af916"))
     (pin "11"
-      (uuid "3f3135e5-dd70-517f-aa8e-d8ccb26333d6"))
+      (uuid "5d87a489-42d8-559c-9dc6-ef1683652ea6"))
     (pin "12"
-      (uuid "578088cb-f2c8-5889-ae93-68a6a22855b4"))
+      (uuid "8e2a3309-fddb-5d7e-a54b-efd472157445"))
     (pin "13"
-      (uuid "346a6960-940a-5f8e-890c-671cb9d11f82"))
+      (uuid "d2932604-7277-598a-a173-5ed85be7ffbf"))
     (pin "14"
-      (uuid "3ce1dbc3-b2e8-5c73-b6e8-c08fbaa533c0"))
+      (uuid "db2edb29-ef88-53ff-bfab-17e071ef4796"))
     (pin "15"
-      (uuid "1960299c-6e0f-5501-ae0c-75d88116ed10"))
+      (uuid "e7367785-cf84-5c7e-88ed-047efa400846"))
     (pin "16"
-      (uuid "8ea66d11-6787-5866-9014-5dec0cb21a5c"))
+      (uuid "1787b7ae-2846-5a34-8ed0-25918b3a656a"))
     (pin "2"
-      (uuid "4a8bed17-3874-5dcf-a015-6aa178511b81"))
+      (uuid "a8479954-ddb8-5fd6-bc5a-cac5c2d7114e"))
     (pin "3"
-      (uuid "772535f7-55d8-59d8-bf84-198d0489a833"))
+      (uuid "42e74d36-80a1-5e39-ac71-73812cbab41c"))
     (pin "4"
-      (uuid "6d7ce503-3ee7-53cb-b1a3-7b42da7de6f3"))
+      (uuid "52e9ce55-bece-5202-afd4-5c0324f75078"))
     (pin "5"
-      (uuid "12b66eb5-1d42-51c9-af1c-e1d09e1a4c0c"))
+      (uuid "e9e1c668-6005-5863-8fe0-9e93ee06747a"))
     (pin "6"
-      (uuid "96113328-b328-5107-855a-917d6b2ab380"))
+      (uuid "41046e9d-a527-5e75-ae33-6530c994b151"))
     (pin "7"
-      (uuid "9c547683-72fe-59ec-9246-d2ad0ca06018"))
+      (uuid "c5e2f5cb-7b4f-5403-90ab-7d5c9d2a6dc9"))
     (pin "8"
-      (uuid "9c9734f7-54d6-5ae7-a936-a227a7ef8b51"))
+      (uuid "bc2918bc-a846-5d95-93e8-bb7606ec991b"))
     (pin "9"
-      (uuid "caecdb38-cafc-5a93-b528-e943443ccd31"))
+      (uuid "270d72ec-2d4d-59d4-9908-d90b3ea0e953"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5456,7 +5585,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "640b6d75-a235-50b1-8619-6b41cb9d1f2c"))
+    (uuid "d1c888a1-86dc-5e9c-8ea3-681445a6627f"))
   (label "GND"
     (at 381 236.22 270)
     (fields_autoplaced)
@@ -5464,7 +5593,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "b9c0663c-d937-507f-bcd8-c2d93c6af916"))
+    (uuid "8bfcafa1-f5b7-5082-9fa1-e0dd6978bd8a"))
   (symbol
     (lib_id "Device:Battery_Cell")
     (at 381 233.68 0)
@@ -5472,7 +5601,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "5d87a489-42d8-559c-9dc6-ef1683652ea6")
+    (uuid "4f5c970e-05ca-5237-843b-624730f6312d")
     (property "Reference" "BT1"
       (at 381 218.44 0)
       (effects
@@ -5494,9 +5623,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "8e2a3309-fddb-5d7e-a54b-efd472157445"))
+      (uuid "e9eae899-13f4-5279-9d8f-ac82e0149398"))
     (pin "2"
-      (uuid "d2932604-7277-598a-a173-5ed85be7ffbf"))
+      (uuid "30fe9510-3e2c-5dfa-b3fb-5eb613ec360f"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5509,7 +5638,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "db2edb29-ef88-53ff-bfab-17e071ef4796"))
+    (uuid "dc3818ac-b082-5af7-a975-04ca6f76ea17"))
   (label "GND"
     (at 53.34 195.58 0)
     (fields_autoplaced)
@@ -5517,7 +5646,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "e7367785-cf84-5c7e-88ed-047efa400846"))
+    (uuid "70d06fa3-9e9e-535a-8148-6462320ba2d4"))
   (label "GND"
     (at 53.34 185.42 0)
     (fields_autoplaced)
@@ -5525,7 +5654,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "1787b7ae-2846-5a34-8ed0-25918b3a656a"))
+    (uuid "947eef2c-0dc3-51ff-99f2-2b589c617bfa"))
   (label "TDO"
     (at 40.64 187.96 180)
     (fields_autoplaced)
@@ -5533,7 +5662,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "a8479954-ddb8-5fd6-bc5a-cac5c2d7114e"))
+    (uuid "c120986c-dffd-5c36-96ae-c8c554d116ef"))
   (label "+5V"
     (at 53.34 187.96 0)
     (fields_autoplaced)
@@ -5541,7 +5670,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "42e74d36-80a1-5e39-ac71-73812cbab41c"))
+    (uuid "05b3299e-68a7-516e-87ba-ed6e8b47a1b5"))
   (label "TMS"
     (at 40.64 190.5 180)
     (fields_autoplaced)
@@ -5549,16 +5678,16 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "52e9ce55-bece-5202-afd4-5c0324f75078"))
+    (uuid "c15e93de-2a79-5990-b0e7-257332c83626"))
   (no_connect
     (at 53.34 190.5)
-    (uuid "e9e1c668-6005-5863-8fe0-9e93ee06747a"))
+    (uuid "cfb885f6-4b9c-5dba-ae24-9c129448dac3"))
   (no_connect
     (at 40.64 193.04)
-    (uuid "41046e9d-a527-5e75-ae33-6530c994b151"))
+    (uuid "9930bb75-415a-5e35-81c3-9edcc7f28b00"))
   (no_connect
     (at 53.34 193.04)
-    (uuid "c5e2f5cb-7b4f-5403-90ab-7d5c9d2a6dc9"))
+    (uuid "f8a1b3d0-da78-5d8c-943b-ba8ab2d2b918"))
   (label "TDI"
     (at 40.64 195.58 180)
     (fields_autoplaced)
@@ -5566,7 +5695,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "bc2918bc-a846-5d95-93e8-bb7606ec991b"))
+    (uuid "22a6cd59-73fb-5d23-a5cc-c402a8981af5"))
   (symbol
     (lib_id "Connector_Generic:Conn_02x05_Odd_Even")
     (at 45.72 190.5 0)
@@ -5574,7 +5703,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "270d72ec-2d4d-59d4-9908-d90b3ea0e953")
+    (uuid "2a71faed-9ecd-508c-b90e-e4832be2c638")
     (property "Reference" "J2"
       (at 46.99 181.61 0)
       (effects
@@ -5596,25 +5725,25 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "d1c888a1-86dc-5e9c-8ea3-681445a6627f"))
+      (uuid "b5bb4691-6e4d-591a-977f-0e57d2696114"))
     (pin "10"
-      (uuid "8bfcafa1-f5b7-5082-9fa1-e0dd6978bd8a"))
+      (uuid "d3de7b9e-03ee-5f86-ba3e-f9f5a8fd6323"))
     (pin "2"
-      (uuid "4f5c970e-05ca-5237-843b-624730f6312d"))
+      (uuid "6203dbdd-5642-5aa6-a632-fd9eab35dfca"))
     (pin "3"
-      (uuid "e9eae899-13f4-5279-9d8f-ac82e0149398"))
+      (uuid "28396854-a17d-50cd-b23a-d8a25437c6d1"))
     (pin "4"
-      (uuid "30fe9510-3e2c-5dfa-b3fb-5eb613ec360f"))
+      (uuid "965bad59-1df3-5e71-9644-7d73ac8d1a34"))
     (pin "5"
-      (uuid "dc3818ac-b082-5af7-a975-04ca6f76ea17"))
+      (uuid "66b92325-d5f2-55c0-a6d3-c89d9ef90633"))
     (pin "6"
-      (uuid "70d06fa3-9e9e-535a-8148-6462320ba2d4"))
+      (uuid "fe832bcb-6ed2-59ba-8a51-03702c1da9f0"))
     (pin "7"
-      (uuid "947eef2c-0dc3-51ff-99f2-2b589c617bfa"))
+      (uuid "762f54b0-c28f-58d5-b63a-79ce21e9c2c1"))
     (pin "8"
-      (uuid "c120986c-dffd-5c36-96ae-c8c554d116ef"))
+      (uuid "d0bd45a3-63dc-5dca-9b2c-56527fea86f4"))
     (pin "9"
-      (uuid "05b3299e-68a7-516e-87ba-ed6e8b47a1b5"))
+      (uuid "41133bfa-d302-525b-94cf-376c35c03fa8"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5627,7 +5756,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "c15e93de-2a79-5990-b0e7-257332c83626"))
+    (uuid "0db89f38-3aa7-5379-9339-700f806913eb"))
   (label "DBG0"
     (at 40.64 228.6 180)
     (fields_autoplaced)
@@ -5635,15 +5764,15 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "cfb885f6-4b9c-5dba-ae24-9c129448dac3"))
-  (label "DBG1"
+    (uuid "cf1ae263-190e-5eb8-a213-c5f3e6bc5365"))
+  (label "PWR_RST_n"
     (at 40.64 231.14 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "9930bb75-415a-5e35-81c3-9edcc7f28b00"))
+    (uuid "42a485e2-b395-5606-ab78-6356ab714c5d"))
   (label "+5V"
     (at 40.64 233.68 180)
     (fields_autoplaced)
@@ -5651,7 +5780,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "f8a1b3d0-da78-5d8c-943b-ba8ab2d2b918"))
+    (uuid "7ed59ea5-8866-548f-958b-0d075ad973a9"))
   (symbol
     (lib_id "Connector_Generic:Conn_01x04")
     (at 45.72 228.6 0)
@@ -5659,7 +5788,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "22a6cd59-73fb-5d23-a5cc-c402a8981af5")
+    (uuid "e8312639-5021-5add-8f2a-d70937d34828")
     (property "Reference" "J3"
       (at 40.64 222.25 0)
       (effects
@@ -5681,13 +5810,13 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "2a71faed-9ecd-508c-b90e-e4832be2c638"))
+      (uuid "fee8cf38-99d8-5347-b361-ac0e7349646b"))
     (pin "2"
-      (uuid "b5bb4691-6e4d-591a-977f-0e57d2696114"))
+      (uuid "77a47a60-281a-521c-89b2-719d64e5688e"))
     (pin "3"
-      (uuid "d3de7b9e-03ee-5f86-ba3e-f9f5a8fd6323"))
+      (uuid "8a0eb4b1-3187-5a63-b563-b87df3cb35c3"))
     (pin "4"
-      (uuid "6203dbdd-5642-5aa6-a632-fd9eab35dfca"))
+      (uuid "cf2cd060-39fa-5aee-84fa-0da029f35ed7"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5700,7 +5829,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "28396854-a17d-50cd-b23a-d8a25437c6d1"))
+    (uuid "63ee543c-0c5e-5daf-b2a3-bdc768e93502"))
   (label "SDA"
     (at 50.8 266.7 270)
     (fields_autoplaced)
@@ -5708,7 +5837,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "965bad59-1df3-5e71-9644-7d73ac8d1a34"))
+    (uuid "c4fdd526-c10a-5de4-8f9b-610ec50ccfa5"))
   (symbol
     (lib_id "Device:R")
     (at 50.8 262.89 0)
@@ -5716,7 +5845,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "66b92325-d5f2-55c0-a6d3-c89d9ef90633")
+    (uuid "83fd0e5e-d6ec-58f9-a6e7-9e6fe315c02e")
     (property "Reference" "R1"
       (at 50.8 248.92 0)
       (effects
@@ -5738,9 +5867,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "fe832bcb-6ed2-59ba-8a51-03702c1da9f0"))
+      (uuid "d41b95d1-6eab-5ea9-aaa0-bcc245f6d1ca"))
     (pin "2"
-      (uuid "762f54b0-c28f-58d5-b63a-79ce21e9c2c1"))
+      (uuid "54ef7805-b58d-54f3-ab43-2fdb489b23bb"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5753,7 +5882,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "d0bd45a3-63dc-5dca-9b2c-56527fea86f4"))
+    (uuid "a6880ce2-f3d2-5417-8707-dcb4d07e6074"))
   (label "SCL"
     (at 63.5 266.7 270)
     (fields_autoplaced)
@@ -5761,7 +5890,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "41133bfa-d302-525b-94cf-376c35c03fa8"))
+    (uuid "514cc56d-5072-5df7-9798-234a5a462376"))
   (symbol
     (lib_id "Device:R")
     (at 63.5 262.89 0)
@@ -5769,7 +5898,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "0db89f38-3aa7-5379-9339-700f806913eb")
+    (uuid "66d31d0b-3963-577c-9090-cd3bb93f1bcc")
     (property "Reference" "R2"
       (at 63.5 248.92 0)
       (effects
@@ -5791,9 +5920,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "cf1ae263-190e-5eb8-a213-c5f3e6bc5365"))
+      (uuid "46a87401-c712-5462-b934-d557b588e582"))
     (pin "2"
-      (uuid "42a485e2-b395-5606-ab78-6356ab714c5d"))
+      (uuid "91e5212d-c8d3-5fad-aae2-fe56cbf990e6"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5806,7 +5935,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "7ed59ea5-8866-548f-958b-0d075ad973a9"))
+    (uuid "89410a2b-1e0a-56f0-bc35-931e80e681be"))
   (label "TMS"
     (at 76.2 266.7 270)
     (fields_autoplaced)
@@ -5814,7 +5943,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "e8312639-5021-5add-8f2a-d70937d34828"))
+    (uuid "634a5291-174d-501d-9077-5904b1a4b32b"))
   (symbol
     (lib_id "Device:R")
     (at 76.2 262.89 0)
@@ -5822,7 +5951,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "fee8cf38-99d8-5347-b361-ac0e7349646b")
+    (uuid "9852db7d-282b-5601-9a27-6913293a709b")
     (property "Reference" "R3"
       (at 76.2 248.92 0)
       (effects
@@ -5844,9 +5973,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "77a47a60-281a-521c-89b2-719d64e5688e"))
+      (uuid "02989419-6b35-5a3f-8453-50ca1c726b1e"))
     (pin "2"
-      (uuid "8a0eb4b1-3187-5a63-b563-b87df3cb35c3"))
+      (uuid "d9d4d1d2-870d-5356-a82c-b606b9bd88c7"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5859,7 +5988,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "cf2cd060-39fa-5aee-84fa-0da029f35ed7"))
+    (uuid "522f1d5a-2d1c-5d41-b43e-7f0c1c09f652"))
   (label "TDI"
     (at 88.9 266.7 270)
     (fields_autoplaced)
@@ -5867,7 +5996,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "63ee543c-0c5e-5daf-b2a3-bdc768e93502"))
+    (uuid "b589aa9c-09f8-5cf4-95a3-ce983f4b466e"))
   (symbol
     (lib_id "Device:R")
     (at 88.9 262.89 0)
@@ -5875,7 +6004,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "c4fdd526-c10a-5de4-8f9b-610ec50ccfa5")
+    (uuid "4c1698dc-14d9-59a3-a7ad-b3c310a3dfa7")
     (property "Reference" "R4"
       (at 88.9 248.92 0)
       (effects
@@ -5897,9 +6026,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "83fd0e5e-d6ec-58f9-a6e7-9e6fe315c02e"))
+      (uuid "9d8f0684-f037-5198-ad19-5caba1c2040b"))
     (pin "2"
-      (uuid "d41b95d1-6eab-5ea9-aaa0-bcc245f6d1ca"))
+      (uuid "8851578d-cf9d-5096-97f2-c8b40f1fb259"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5912,7 +6041,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "54ef7805-b58d-54f3-ab43-2fdb489b23bb"))
+    (uuid "ac22c155-b3fa-563d-91f2-05268aaeab5e"))
   (label "TCK"
     (at 101.6 266.7 270)
     (fields_autoplaced)
@@ -5920,7 +6049,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "a6880ce2-f3d2-5417-8707-dcb4d07e6074"))
+    (uuid "127c32ad-c7c3-5688-a284-6ade2e05b836"))
   (symbol
     (lib_id "Device:R")
     (at 101.6 262.89 0)
@@ -5928,7 +6057,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "514cc56d-5072-5df7-9798-234a5a462376")
+    (uuid "b4802c17-083f-5482-b64e-b878b3af9ef8")
     (property "Reference" "R5"
       (at 101.6 248.92 0)
       (effects
@@ -5950,9 +6079,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "66d31d0b-3963-577c-9090-cd3bb93f1bcc"))
+      (uuid "9b4cc0c4-5d88-56dd-aef0-f32aa74446f2"))
     (pin "2"
-      (uuid "46a87401-c712-5462-b934-d557b588e582"))
+      (uuid "400bb5de-dcf8-5564-a309-40c307d67338"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -5965,7 +6094,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "91e5212d-c8d3-5fad-aae2-fe56cbf990e6"))
+    (uuid "eed07ed9-c649-561a-9ed0-5fb54453a4a4"))
   (label "GND"
     (at 127 266.7 270)
     (fields_autoplaced)
@@ -5973,7 +6102,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "89410a2b-1e0a-56f0-bc35-931e80e681be"))
+    (uuid "d4ca2ea9-ffde-5af5-a7de-544a4096a037"))
   (symbol
     (lib_id "Device:C")
     (at 127 262.89 0)
@@ -5981,7 +6110,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "634a5291-174d-501d-9077-5904b1a4b32b")
+    (uuid "2353e31b-5d65-5ed7-b500-9f1cbfe96937")
     (property "Reference" "C1"
       (at 127 248.92 0)
       (effects
@@ -6003,9 +6132,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "9852db7d-282b-5601-9a27-6913293a709b"))
+      (uuid "16cbdfca-3c2f-5084-a520-71aeb9d4754b"))
     (pin "2"
-      (uuid "02989419-6b35-5a3f-8453-50ca1c726b1e"))
+      (uuid "d962675a-c371-550f-802a-569f6ed7513a"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6018,7 +6147,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "d9d4d1d2-870d-5356-a82c-b606b9bd88c7"))
+    (uuid "75b1e285-19d5-592b-b63c-15e7611ea1aa"))
   (label "GND"
     (at 137.16 266.7 270)
     (fields_autoplaced)
@@ -6026,7 +6155,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "522f1d5a-2d1c-5d41-b43e-7f0c1c09f652"))
+    (uuid "b8f46b56-82a7-54f6-9531-ecf5a3843377"))
   (symbol
     (lib_id "Device:C")
     (at 137.16 262.89 0)
@@ -6034,7 +6163,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "b589aa9c-09f8-5cf4-95a3-ce983f4b466e")
+    (uuid "f3a121ac-cad6-56c4-a481-9eb598763954")
     (property "Reference" "C2"
       (at 137.16 248.92 0)
       (effects
@@ -6056,9 +6185,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "4c1698dc-14d9-59a3-a7ad-b3c310a3dfa7"))
+      (uuid "86e1e8dd-594c-5a84-ac6c-2d97952b5f21"))
     (pin "2"
-      (uuid "9d8f0684-f037-5198-ad19-5caba1c2040b"))
+      (uuid "e786b286-7cd7-5ea3-bb82-193e9e09c5aa"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6071,7 +6200,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "8851578d-cf9d-5096-97f2-c8b40f1fb259"))
+    (uuid "8ed06abc-b1fe-55cb-bbb4-41aae7eb4cd8"))
   (label "GND"
     (at 147.32 266.7 270)
     (fields_autoplaced)
@@ -6079,7 +6208,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "ac22c155-b3fa-563d-91f2-05268aaeab5e"))
+    (uuid "d15cebdb-4a1b-5b14-b8ab-f68f5db816d5"))
   (symbol
     (lib_id "Device:C")
     (at 147.32 262.89 0)
@@ -6087,7 +6216,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "127c32ad-c7c3-5688-a284-6ade2e05b836")
+    (uuid "43ff5a1b-63f7-5046-bf4e-f240af8d46dc")
     (property "Reference" "C3"
       (at 147.32 248.92 0)
       (effects
@@ -6109,9 +6238,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "b4802c17-083f-5482-b64e-b878b3af9ef8"))
+      (uuid "075b559f-6877-5c6e-8f32-f0ac2389191c"))
     (pin "2"
-      (uuid "9b4cc0c4-5d88-56dd-aef0-f32aa74446f2"))
+      (uuid "66304d6c-b7ae-5452-b27d-7be37b9816f0"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6124,7 +6253,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "400bb5de-dcf8-5564-a309-40c307d67338"))
+    (uuid "16301a16-dfa7-56a5-a1a2-af2a6b9bc28f"))
   (label "GND"
     (at 157.48 266.7 270)
     (fields_autoplaced)
@@ -6132,7 +6261,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "eed07ed9-c649-561a-9ed0-5fb54453a4a4"))
+    (uuid "c411592f-4f68-51cc-9cd5-f3a44c41dd3e"))
   (symbol
     (lib_id "Device:C")
     (at 157.48 262.89 0)
@@ -6140,7 +6269,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "d4ca2ea9-ffde-5af5-a7de-544a4096a037")
+    (uuid "52a946f6-a8bc-57d6-ba57-0500319814ae")
     (property "Reference" "C4"
       (at 157.48 248.92 0)
       (effects
@@ -6162,9 +6291,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "2353e31b-5d65-5ed7-b500-9f1cbfe96937"))
+      (uuid "8b17c360-eb51-5450-9190-9835619ec380"))
     (pin "2"
-      (uuid "16cbdfca-3c2f-5084-a520-71aeb9d4754b"))
+      (uuid "fec3d7d2-cdbe-5d63-a037-7b85c030b76c"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6177,7 +6306,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "d962675a-c371-550f-802a-569f6ed7513a"))
+    (uuid "34a55986-a788-5e3d-b1ee-deb6028a6db5"))
   (label "GND"
     (at 167.64 266.7 270)
     (fields_autoplaced)
@@ -6185,7 +6314,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "75b1e285-19d5-592b-b63c-15e7611ea1aa"))
+    (uuid "f44afb5b-6476-55a8-9762-99730b1dc724"))
   (symbol
     (lib_id "Device:C")
     (at 167.64 262.89 0)
@@ -6193,7 +6322,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "b8f46b56-82a7-54f6-9531-ecf5a3843377")
+    (uuid "106b7fdd-c516-5714-bb56-a240f7ba36d6")
     (property "Reference" "C5"
       (at 167.64 248.92 0)
       (effects
@@ -6215,9 +6344,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "f3a121ac-cad6-56c4-a481-9eb598763954"))
+      (uuid "15d34089-3038-5801-b9b3-24bca599e7ce"))
     (pin "2"
-      (uuid "86e1e8dd-594c-5a84-ac6c-2d97952b5f21"))
+      (uuid "b758a2ac-b502-5701-bdc3-60f9ea6ed7f1"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6230,7 +6359,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "e786b286-7cd7-5ea3-bb82-193e9e09c5aa"))
+    (uuid "db20bfb5-e4ca-5a5a-8d49-2d5457be7659"))
   (label "GND"
     (at 177.8 266.7 270)
     (fields_autoplaced)
@@ -6238,7 +6367,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "8ed06abc-b1fe-55cb-bbb4-41aae7eb4cd8"))
+    (uuid "2f3cef04-f9fa-556b-8787-712e384d2b2a"))
   (symbol
     (lib_id "Device:C")
     (at 177.8 262.89 0)
@@ -6246,7 +6375,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "d15cebdb-4a1b-5b14-b8ab-f68f5db816d5")
+    (uuid "72652057-8d1e-5943-a2e2-9ca1827f4280")
     (property "Reference" "C6"
       (at 177.8 248.92 0)
       (effects
@@ -6268,9 +6397,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "43ff5a1b-63f7-5046-bf4e-f240af8d46dc"))
+      (uuid "d2ae8c75-ecc4-561c-8dd3-851c68ec38d9"))
     (pin "2"
-      (uuid "075b559f-6877-5c6e-8f32-f0ac2389191c"))
+      (uuid "2064e452-892d-5733-8cef-04cdc734f4d4"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6283,7 +6412,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "66304d6c-b7ae-5452-b27d-7be37b9816f0"))
+    (uuid "19f8a286-6b55-5964-a1dd-a0f216962aa3"))
   (label "GND"
     (at 187.96 266.7 270)
     (fields_autoplaced)
@@ -6291,7 +6420,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "16301a16-dfa7-56a5-a1a2-af2a6b9bc28f"))
+    (uuid "2a316b3c-9384-5d78-aac3-24979932e588"))
   (symbol
     (lib_id "Device:C")
     (at 187.96 262.89 0)
@@ -6299,7 +6428,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "c411592f-4f68-51cc-9cd5-f3a44c41dd3e")
+    (uuid "83e5dd7d-b5df-5694-9799-d231ea33e3a1")
     (property "Reference" "C7"
       (at 187.96 248.92 0)
       (effects
@@ -6321,9 +6450,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "52a946f6-a8bc-57d6-ba57-0500319814ae"))
+      (uuid "1e5cbb8d-6218-586b-ab56-3ae22252092c"))
     (pin "2"
-      (uuid "8b17c360-eb51-5450-9190-9835619ec380"))
+      (uuid "3499d2f8-3ee5-5e50-83e8-f0d35ce7bf7a"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6336,7 +6465,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "fec3d7d2-cdbe-5d63-a037-7b85c030b76c"))
+    (uuid "bada2bc8-e5f4-5bf1-87a7-760deb8e0645"))
   (label "GND"
     (at 198.12 266.7 270)
     (fields_autoplaced)
@@ -6344,7 +6473,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "34a55986-a788-5e3d-b1ee-deb6028a6db5"))
+    (uuid "391cec28-779c-558b-b81a-07589331f1d4"))
   (symbol
     (lib_id "Device:C")
     (at 198.12 262.89 0)
@@ -6352,7 +6481,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "f44afb5b-6476-55a8-9762-99730b1dc724")
+    (uuid "976c36aa-ee19-5980-b38d-2524da3af1be")
     (property "Reference" "C8"
       (at 198.12 248.92 0)
       (effects
@@ -6374,9 +6503,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "106b7fdd-c516-5714-bb56-a240f7ba36d6"))
+      (uuid "12545c64-f676-52ae-8125-3c4155045a5d"))
     (pin "2"
-      (uuid "15d34089-3038-5801-b9b3-24bca599e7ce"))
+      (uuid "830e4580-90ff-50b9-a8c9-6d3f04e921f0"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6389,7 +6518,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "b758a2ac-b502-5701-bdc3-60f9ea6ed7f1"))
+    (uuid "16cf793d-34be-554f-919e-f57d99854200"))
   (label "GND"
     (at 208.28 266.7 270)
     (fields_autoplaced)
@@ -6397,7 +6526,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "db20bfb5-e4ca-5a5a-8d49-2d5457be7659"))
+    (uuid "66ef8374-8d04-59bc-8230-87d945c6dc63"))
   (symbol
     (lib_id "Device:C")
     (at 208.28 262.89 0)
@@ -6405,7 +6534,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "2f3cef04-f9fa-556b-8787-712e384d2b2a")
+    (uuid "81a4f0e1-6c14-5def-b5dd-1b1099123174")
     (property "Reference" "C9"
       (at 208.28 248.92 0)
       (effects
@@ -6427,9 +6556,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "72652057-8d1e-5943-a2e2-9ca1827f4280"))
+      (uuid "314f898a-8908-50b2-82d6-2dd326703378"))
     (pin "2"
-      (uuid "d2ae8c75-ecc4-561c-8dd3-851c68ec38d9"))
+      (uuid "5476a59d-ddad-5611-a4f9-13546bcc3e96"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6442,7 +6571,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "2064e452-892d-5733-8cef-04cdc734f4d4"))
+    (uuid "8983c8f8-0990-5b1d-8a95-a09dd4fb2c26"))
   (label "GND"
     (at 218.44 266.7 270)
     (fields_autoplaced)
@@ -6450,7 +6579,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "19f8a286-6b55-5964-a1dd-a0f216962aa3"))
+    (uuid "09b5ad84-ff30-562f-b7bb-12e15b837257"))
   (symbol
     (lib_id "Device:C")
     (at 218.44 262.89 0)
@@ -6458,7 +6587,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "2a316b3c-9384-5d78-aac3-24979932e588")
+    (uuid "cfd8822d-17cc-5235-adf1-724059bab464")
     (property "Reference" "C10"
       (at 218.44 248.92 0)
       (effects
@@ -6480,9 +6609,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "83e5dd7d-b5df-5694-9799-d231ea33e3a1"))
+      (uuid "3f7ba37d-df23-5aa3-92a8-5280b05e8eb9"))
     (pin "2"
-      (uuid "1e5cbb8d-6218-586b-ab56-3ae22252092c"))
+      (uuid "21ad8039-3fc8-5cc8-aea8-5a69c644f5fc"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6495,7 +6624,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "3499d2f8-3ee5-5e50-83e8-f0d35ce7bf7a"))
+    (uuid "22ebd11b-7943-5b40-bc18-e6ff931de159"))
   (label "GND"
     (at 228.6 266.7 270)
     (fields_autoplaced)
@@ -6503,7 +6632,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "bada2bc8-e5f4-5bf1-87a7-760deb8e0645"))
+    (uuid "574c6620-c13b-5f89-8847-693da9b28e89"))
   (symbol
     (lib_id "Device:C")
     (at 228.6 262.89 0)
@@ -6511,7 +6640,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "391cec28-779c-558b-b81a-07589331f1d4")
+    (uuid "80edeb50-0cde-541d-b13a-5d0082bfe1cc")
     (property "Reference" "C11"
       (at 228.6 248.92 0)
       (effects
@@ -6533,9 +6662,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "976c36aa-ee19-5980-b38d-2524da3af1be"))
+      (uuid "ff1c4c6f-ff5b-553b-9fc2-4f5d960f5ea8"))
     (pin "2"
-      (uuid "12545c64-f676-52ae-8125-3c4155045a5d"))
+      (uuid "63980b42-a31e-547e-a2f5-51fc0f1a54b3"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6548,7 +6677,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "830e4580-90ff-50b9-a8c9-6d3f04e921f0"))
+    (uuid "1d54d9fb-a7ce-5b4c-ba1b-5664cc3be5b0"))
   (label "GND"
     (at 238.76 266.7 270)
     (fields_autoplaced)
@@ -6556,7 +6685,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "16cf793d-34be-554f-919e-f57d99854200"))
+    (uuid "ac3ff177-cd02-5712-ba6d-c5e375e0e3d1"))
   (symbol
     (lib_id "Device:C")
     (at 238.76 262.89 0)
@@ -6564,7 +6693,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "66ef8374-8d04-59bc-8230-87d945c6dc63")
+    (uuid "b1931f7b-45a6-5a97-ab32-88a0106ade84")
     (property "Reference" "C12"
       (at 238.76 248.92 0)
       (effects
@@ -6586,9 +6715,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "81a4f0e1-6c14-5def-b5dd-1b1099123174"))
+      (uuid "5a0c4ca1-cce4-5c2c-8c45-a6c60d3c8db9"))
     (pin "2"
-      (uuid "314f898a-8908-50b2-82d6-2dd326703378"))
+      (uuid "00ff0022-4521-593e-8951-4b4209aecf87"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6601,7 +6730,7 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "5476a59d-ddad-5611-a4f9-13546bcc3e96"))
+    (uuid "9ae165ad-6808-567e-8ba0-6dc958417c3b"))
   (label "GND"
     (at 248.92 266.7 270)
     (fields_autoplaced)
@@ -6609,7 +6738,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "8983c8f8-0990-5b1d-8a95-a09dd4fb2c26"))
+    (uuid "f967ef2d-615c-50bd-9a9f-ef32c8885cde"))
   (symbol
     (lib_id "Device:C_Polarized")
     (at 248.92 262.89 0)
@@ -6617,7 +6746,7 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid "09b5ad84-ff30-562f-b7bb-12e15b837257")
+    (uuid "8f63259e-5621-5413-b5db-c5dadeca7d54")
     (property "Reference" "C13"
       (at 248.92 248.92 0)
       (effects
@@ -6639,9 +6768,9 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "cfd8822d-17cc-5235-adf1-724059bab464"))
+      (uuid "0bbd6837-2f41-5614-b57b-4189001082e6"))
     (pin "2"
-      (uuid "3f7ba37d-df23-5aa3-92a8-5280b05e8eb9"))
+      (uuid "a19f8eec-8cfe-5d8a-9297-4904a0733022"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6654,7 +6783,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "21ad8039-3fc8-5cc8-aea8-5a69c644f5fc"))
+    (uuid "a36d3aa0-a1fb-5fd5-9fe7-139110ca3782"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 40.64 279.4 0)
@@ -6662,7 +6791,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "22ebd11b-7943-5b40-bc18-e6ff931de159")
+    (uuid "757d429e-ac19-580f-9a46-699595776847")
     (property "Reference" "#FLG01"
       (at 40.64 275.59 0)
       (effects
@@ -6684,7 +6813,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "574c6620-c13b-5f89-8847-693da9b28e89"))
+      (uuid "ef2b62d8-c9f7-54e2-959e-393011da342f"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6697,7 +6826,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "80edeb50-0cde-541d-b13a-5d0082bfe1cc"))
+    (uuid "519b2fe8-552e-5b83-82c9-98e261bcf069"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 55.88 279.4 0)
@@ -6705,7 +6834,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "ff1c4c6f-ff5b-553b-9fc2-4f5d960f5ea8")
+    (uuid "80768979-0a5e-57ee-ad16-a9cc6ed9cc82")
     (property "Reference" "#FLG02"
       (at 55.88 275.59 0)
       (effects
@@ -6727,7 +6856,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "63980b42-a31e-547e-a2f5-51fc0f1a54b3"))
+      (uuid "cb971f2c-19fc-548f-8b00-fac18d47d371"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6740,7 +6869,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "1d54d9fb-a7ce-5b4c-ba1b-5664cc3be5b0"))
+    (uuid "53be0a6b-6cd0-5789-8390-30b8880af86c"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 71.12 279.4 0)
@@ -6748,7 +6877,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "ac3ff177-cd02-5712-ba6d-c5e375e0e3d1")
+    (uuid "709fc08e-3c8f-5da8-bff1-0b5068767bf8")
     (property "Reference" "#FLG03"
       (at 71.12 275.59 0)
       (effects
@@ -6770,7 +6899,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "b1931f7b-45a6-5a97-ab32-88a0106ade84"))
+      (uuid "ae6da478-b6a1-50ca-b56f-8a486a2675e0"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -6782,35 +6911,35 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "5a0c4ca1-cce4-5c2c-8c45-a6c60d3c8db9"))
+    (uuid "783dd631-4434-54da-b164-e2b32fa6280a"))
   (text "Row register U2 latches ERA0-7 on /RASB fall; column register U3 on first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits."
     (at 25.4 19.05 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "00ff0022-4521-593e-8951-4b4209aecf87"))
-  (text "U5 = bank 0 (512K), U6 = bank 1. Both CE# from DS1210 CEO (battery write-protect); CPLD selects chip with OEn/WEn."
+    (uuid "858fd5c0-6be4-5e6d-9be9-ffbf362bce24"))
+  (text "U5 = bank 0 (512K), U6 = bank 1. Both CE# from MAX693A CE OUT (battery write-protect); CPLD selects chip with OEn/WEn."
     (at 25.4 22.86 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "9ae165ad-6808-567e-8ba0-6dc958417c3b"))
+    (uuid "e0d2b3d7-cd56-5283-9fc2-4c756e1bd180"))
   (text "RTC: DS3231 I2C bit-banged through the CPLD, reachable via $C0D3 only after the 8-byte unlock key."
     (at 25.4 26.67 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "f967ef2d-615c-50bd-9a9f-ef32c8885cde"))
+    (uuid "b521101b-3843-5aef-8eb9-0f57896f8e8d"))
   (text "U2/U3: use 74AHCT574 (fast). Do not substitute 74LS. U5/U6: AS6C4008 (2.7-5.5V) - NOT 3.3V-only parts."
     (at 25.4 30.48 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "8f63259e-5621-5413-b5db-c5dadeca7d54"))
+    (uuid "2e6ae88e-1a50-5893-b106-685b7c4c2c23"))
   (sheet_instances
     (path "/"
       (page "1"))))
