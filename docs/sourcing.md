@@ -20,7 +20,9 @@ Stock figures are snapshots. Check them live before ordering.
 | **DS1210 / DS1210+** | **Obsolete since Jan 2016** (DigiKey/Mouser/ADI) | Jameco stock is new-old stock. Workable for prototypes, but the design shouldn't depend on it. |
 | **MAX693ACPE+** (DIP-16) | Listed as a current product at ADI (verify with the distributor) | Proposed DS1210 replacement: battery switchover (VOUT) + **chip-enable gating, 10 ns max** + reset. 4.40 V threshold (MAX691A = 4.65 V, too close to a sagging rail). |
 | MAX691ACPE+ (DIP-16) | Active (DigiKey ~140 + factory) | Same part, 4.65 V threshold. |
-| 74HCT245 / 74AHCT574 | Commodity | — |
+| **ISSI IS62C5128BL-45** (SOP-32/TSOP-II) | Active | **Rejected:** 5 V ±10% only, and standby/data-retention current is in **mA** (10 mW typ standby, Idr typ 2 mA at 2 V). A CR2032 would last days. Its JEDEC SOP/TSOP-II pinout = AS6C4008 DIP with A17/A18 swapped (pins 1/30). |
+| **Infineon CY62148ELL-45ZSXI** (TSOP-II-32, 1.27 mm) | Verify (the CY62158ELL sibling is NRND) | Chosen 45 ns alternate (U9/U10). 4.5–5.5 V, "LL" ultra-low-power family. **Datasheet still to be checked** for standby/data-retention current and the exact TSOP-II pinout. |
+| 74AHCT245 / 74AHCT574 / 74AHCT573 | Commodity | — |
 
 ## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (dropped)
 - 5 ICs. The CPLD latches everything. Smallest board.
