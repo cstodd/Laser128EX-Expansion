@@ -114,5 +114,5 @@ DS1315 but implemented in the CPLD:
 5. ~~Board outline / hole / J1 position~~ (measured; see mechanical.md). The 100×90 board is placed (hardware/placement-preview.png).
 6. PCB layout → DRC → gerbers, drill, BOM and position files.
 7. Order boards and parts; assemble (all THT except the DS3231 SOIC).
-8. 6502: RTC driver (unlock, I²C, ProDOS clock hook) and a set-clock utility.
+8. ~~6502: RTC driver and set-clock utility~~ (done: `software/`, emulator-tested; dual copy aux + main).
 9. 6502: RAM test (the built-in `C50AG` diagnostics should also pass).
