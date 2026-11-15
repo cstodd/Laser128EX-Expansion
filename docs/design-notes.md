@@ -109,7 +109,8 @@ DS1315 but implemented in the CPLD:
 1. ~~KiCad symbols and footprints~~ (done: `hardware/lib`)
 2. ~~KiCad schematic~~ (done: v0.1; netlist checks pass, `tools/check_netlist.py`)
 3. CPLD: Verilog plus testbench (1 MHz and 3.6 MHz waveforms, refresh, unlock/RTC mode).
-4. Confirm the ATF1504AS PLCC-44 pinout against the datasheet.
+4. ~~Confirm the ATF1504AS PLCC-44 pinout~~ (done: matches the datasheet).
+4b. Replace the obsolete DS1210 with a MAX693A (pending its datasheet); the DS3231M+ is accepted as an alternative to the DS3231SN.
 5. Board outline, mounting holes and J1 position, **measured from an original card**.
 6. PCB layout → DRC → gerbers, drill, BOM and position files.
 7. Order boards and parts; assemble (all THT except the DS3231 SOIC).

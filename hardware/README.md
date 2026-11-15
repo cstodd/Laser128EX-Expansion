@@ -19,7 +19,8 @@ The files are KiCad 7 format and open in KiCad 8 and 9 (KiCad offers to upgrade 
 - `Laser128:Laser128_J1_Socket_2x15_P2.54mm_Unumbered`: pins 1–15 down the interior-side row,
   30–16 down the board-edge row. **Not** the stock odd/even 2×15. Print it 1:1 and check against a real socket.
 - `Laser128:ATF1504AS-xJx44`: PLCC-44, derived from the stock TQFP-44 ATF1502/1504 symbol
-  (PLCC pin = TQFP pin + 6, mod 44). To be confirmed against the ATF1504AS datasheet.
+  (PLCC pin = TQFP pin + 6, mod 44). **Verified** against the Atmel-0950 ATF1504AS(L) datasheet tables 16.1/16.2:
+  all 32 I/O pins and the dedicated, JTAG and power pins match.
 
 ## CPLD pin assignment (ATF1504AS-10JU44, PLCC-44)
 

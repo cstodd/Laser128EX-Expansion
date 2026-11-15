@@ -14,7 +14,13 @@ Stock figures are snapshots. Check them live before ordering.
 | CY62158ELL-45ZSXI (1M×8, 4.5–5.5 V) | NRND | Pin-compatible TSOP-44 alternative while it lasts. |
 | Lyontek LY62W10248 (2.7–5.5 V, TSOP-44) | Unverified | Possible second source; check its datasheet. |
 | AS6C4008-55PCN (512K×8, **DIP-32**) / -55SIN (SOP-32) | Active (DigiKey), 20-week lead | Common in retro projects. Socketable. |
-| DS3231SN, DS1210, 74HCT245 / 74AHCT573 | Commodity | — |
+| ATF1504AS-7JX44 (PLCC-44, 7.5 ns, commercial) | Listed in the datasheet | Faster than -10JU44, which gives more row-hold margin. Same pinout. Either works. |
+| DS3231SN# (TCXO crystal, ±2 ppm 0–40 °C) | Active | Mouser stock is thinner. |
+| **DS3231M+** (MEMS, ±5 ppm) | Active, better availability | **Same 16-pin SO pinout and footprint.** Time/date registers are the same, which is all the driver uses. INT/SQW only outputs 1 Hz and the 32 kHz output is uncompensated; we use neither. ±5 ppm ≈ 2.6 min/yr worst case (Renée's clock drifted ~80 ppm). **Acceptable; buy whichever is in stock.** |
+| **DS1210 / DS1210+** | **Obsolete since Jan 2016** (DigiKey/Mouser/ADI) | Jameco stock is new-old stock. Workable for prototypes, but the design shouldn't depend on it. |
+| **MAX693ACPE+** (DIP-16) | Listed as a current product at ADI (verify with the distributor) | Proposed DS1210 replacement: battery switchover (VOUT) + **chip-enable gating, 10 ns max** + reset. 4.40 V threshold (MAX691A = 4.65 V, too close to a sagging rail). |
+| MAX691ACPE+ (DIP-16) | Active (DigiKey ~140 + factory) | Same part, 4.65 V threshold. |
+| 74HCT245 / 74AHCT574 | Commodity | — |
 
 ## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (current plan)
 - 5 ICs. The CPLD latches everything. Smallest board.
