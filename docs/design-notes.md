@@ -93,6 +93,8 @@ DS1315 but implemented in the CPLD:
   The coin cell lasts ~3 years with the Laser off (§2).
 
 ## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
+- Expansion-RAM cycles never run faster than **2.3 MHz**: at the 3.6 MHz setting the Laser slows to 2.3 MHz for
+  these accesses (Tech Ref App. A). The simulation shows ~74 ns read margin with 55 ns SRAM.
 - /E1MOE rises exactly at the CPUP0 fall, while /RASB, /ECAS and /RWR are still low.
 - SRAM /WE = /RWR·/ECAS·/E1MOE, so the write ends on /E1MOE↑ (early) before data floats.
 - SRAM /OE and the '245 enable are held until /E1MOE↑ (late).

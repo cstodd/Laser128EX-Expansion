@@ -27,7 +27,7 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | — | 3 | DIP-20 socket (0.3") | |
 | U5, U6 | 2 | **AS6C4008-55PCN** DIP-32 | 2.7–5.5 V. **Not** a 3.3 V-only part |
 | — | 2 | DIP-32 socket (0.6") | |
-| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | optional 45 ns upgrade for extra 3.6 MHz margin; check height |
+| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | **not needed**: expansion RAM runs at ≤2.3 MHz, so the 55 ns part has ~74 ns margin |
 | U7 | 1 | **MAX693ACPE+** DIP-16 | 4.40 V threshold. Not the MAX691A (4.65 V) |
 | — | 1 | DIP-16 socket (0.3") | |
 | U8 | 1 | **DS3231M+** (or DS3231SN#) | SOIC-16 wide (300 mil) |
@@ -48,5 +48,5 @@ Machine-readable versions: `hardware/fab/laser128-ramcard-bom.csv` and `-cpl.csv
 ## Before ordering
 1. Print `hardware/fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1. Check J1 against a real
    2×15 socket and the stock card: pin 1 position, and 23.0 mm from the J1 bottom pins to the H1 centre.
-2. Measure the Laser's +5 V at J13 pins 1–2. If it is below ~4.8 V, use the AS6C4008, not the CY62148ELL.
+2. Measure the Laser's +5 V at J13 pins 1–2 (should be ~5 V; the MAX693A locks out the SRAM below 4.4 V).
 3. Check height clearance above the card: the PLCC socket with chip, the CR2032 holder, and any TSOP adapter.

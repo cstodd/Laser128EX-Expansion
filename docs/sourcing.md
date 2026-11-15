@@ -43,6 +43,10 @@ Stock figures are snapshots. Check them live before ordering.
   the stock card is ~190 × 92 mm and held 32 DRAMs.
 
 ## Read-path timing note (both options)
+**Update:** the Laser runs expansion-RAM cycles at 2.3 MHz at most (Tech Ref App. A), so CPUP0 high is
+~217 ns, not the ~140 ns assumed below. The 55 ns AS6C4008 has ~74 ns of margin and no faster SRAM is needed.
+The original analysis follows.
+
 At 3.6 MHz, CPUP0 high lasts ~140 ns. The column address appears on ERA shortly before /ECAS↓, roughly mid-phase.
 The read path is UDC → latch/CPLD (7–10 ns) → SRAM tAA (55 ns) → '245 (~10–20 ns). That is similar to the
 stock DRAM's CAS path, and Renée's CPLD + low-power SRAM card worked at 3.6 MHz once reads were held

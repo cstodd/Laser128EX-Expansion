@@ -11,6 +11,8 @@
 module tb;
     // ---------------------------------------------------------------- part delays (ns, max)
     parameter real T_CPLD = 10.0;   // ATF1504AS-10 pin-to-pin (7.5 for -7)
+    parameter real PH_FAST = 217.0; // CPUP0 high in "fast" cycles. Expansion RAM never runs faster
+                                    // than 2.3 MHz (Tech Ref App. A): 217. 140 = hypothetical 3.6 MHz stress.
     localparam real T_574  = 9.0;    // 74AHCT574 clk->Q
     localparam real T_573  = 9.0;    // 74AHCT573 D->Q / LE->Q
     localparam real T_245  = 8.0;    // 74AHCT245 tpd / tPZ / tPHZ
@@ -68,7 +70,7 @@ module tb;
                          output [7:0] rd, input bit refresh);
         real t0, ph, s;
         begin
-            ph = fast ? 140 : 489;
+            ph = fast ? PH_FAST : 489;
             t0 = $realtime;
             era = a[17:9];
             #5  e1moe_n = 0; if (wr) begin rwr_n = 0; memrd = 0; end
@@ -187,7 +189,7 @@ module tb;
         pwr_rst_n = 0; #50 pwr_rst_n = 1;
         if (dbg0) begin errors++; $display("FAIL: reset did not clear RTC mode"); end
 
-        $display("read-data margin at CPU sample point: 3.6 MHz %0.1f ns, 1 MHz %0.1f ns",
+        $display("read-data margin at CPU sample point: fast cycles %0.1f ns, 1 MHz %0.1f ns",
                  min_margin_fast, min_margin_slow);
         $display("SRAM timing violations: %0d", u5.viol + u6.viol);
         errors += u5.viol + u6.viol;

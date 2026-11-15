@@ -20,17 +20,21 @@ delay, and 2× AS6C4008 with datasheet read access times and write-timing checks
 
 ## Results (Nov 2026)
 
-| CPLD | SRAM tAA | Logic tests | 3.6 MHz reads |
-|---|---|---|---|
-| -10 (10 ns) | 55 ns (AS6C4008-55, datasheet max) | pass | **67 of ~130 reads not ready** at the CPU sample point |
-| -7 (7.5 ns) | 55 ns | pass | same |
-| -10 | 45 ns | pass | pass |
-| -7 | 45 ns | pass | **pass, ~9 ns margin** |
+**Key fact (Tech Ref Manual, Appendix A):** the 128EX never runs expansion-RAM cycles at 3.6 MHz. With
+the speed set to 3.6 MHz, the clock drops to 2.3 MHz automatically for every expansion-RAM access, as it
+does for the ROM. So the "fast" bus cycle has CPUP0 high for ~217 ns, not 140 ns. The testbench now
+defaults to 217 ns (`PH_FAST`); 140 ns is kept as a hypothetical stress case.
 
-The critical path is a bank change. Bank bit 0 (SRAM A18) is only known once /ECASn falls, then
-it takes CPLD → SRAM tAA → '245. The Laser edge times are read off a figure that is not to scale, so the absolute
-margins are estimates. Real AS6C4008s at 5 V and room temperature are normally faster than the 55 ns
-spec, which covers 2.7–5.5 V. Treat 3.6 MHz with 55 ns parts as "probably works, verify on the scope".
+| CPUP0 high | CPLD | SRAM tAA | Logic tests | Fast-cycle reads |
+|---|---|---|---|---|
+| **217 ns (real, 2.3 MHz)** | -10 | 55 ns (AS6C4008-55) | pass | **pass, ~74 ns margin** |
+| 217 ns | -7 | 55 ns | pass | pass, ~76 ns |
+| 217 ns | -10 | 45 ns | pass | pass, ~84 ns |
+| 140 ns (stress only) | -10 | 55 ns | pass | 67 reads late (bank change: A18 via CPLD + tAA) |
+
+The Laser edge times are read off Fig. 11-19, which is not to scale. With ~70 ns of margin, though, the
+stock AS6C4008-55 is comfortable and the 45 ns adapter option isn't needed. `CARD.TEST` on the
+software disk checks this in-system at each speed setting.
 
 ## Bugs the simulation caught (fixed)
 1. Bank latch race: a latch gated by "any /ECAS low" sees its data change as the gate closes, which glitched

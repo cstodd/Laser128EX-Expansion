@@ -14,6 +14,24 @@ ProDOS boot disk with the Filer, Copy II+, CiderPress or ADTPro:
 | `SET.CLOCK` | BAS | `RUN SET.CLOCK` once to set the date and time (24-hour). |
 | `CLOCK.SET` | BIN | used by `SET.CLOCK` |
 | `STARTUP` | BAS | example: `10 PRINT CHR$(4);"BRUN CLOCK.MAIN"` |
+| `CARD.TEST` | BAS | `RUN CARD.TEST` to test the card (below). |
+| `CARDTEST` | BIN | machine-language engine used by `CARD.TEST` |
+
+### CARD.TEST
+First pick the CPU speed (1 / 2.3 / 3.6 MHz, set via the `$C074` speed register). Then choose:
+1. **Quick RAM test**: all 1 MB, one 256-byte block at a time: save, write and verify $00, $FF, $55, $AA and an
+   address pattern, then restore. **The RAM disk is kept.** About a minute; one dot per 64K.
+2. **Full address test**: fills all 1 MB with an address-derived pattern and verifies it. This catches
+   shorted or open address lines, which the block test can't. **Erases the RAM disk.**
+3. **Retention check**: after test 2, power the Laser off for a while, power on, boot, and run this.
+   It verifies the pattern survived on the battery.
+4. **Clock test**: shows the DS3231 date and time, checks the seconds advance, and reports the
+   oscillator-stopped flag (the clock lost power since it was last set: check the battery).
+
+On a failure it prints the error count, the first failing address in hex, and the values written and read.
+At the 3.6 MHz setting the Laser itself slows expansion-RAM accesses to 2.3 MHz (Tech Ref App. A), so
+tests at 2.3 and 3.6 MHz exercise the same card timing. Run tests 1 and 2 at 1 MHz and at 3.6 MHz.
+After test 2, don't let anything write to the RAM disk before the retention check.
 
 At boot you should see `LASER 128 CLOCK INSTALLED`. `NOT FOUND` means the card (or its CPLD
 logic) didn't answer; nothing is changed in that case.
@@ -59,7 +77,8 @@ The harness runs the real binaries on a 65C02 emulator, with models of the Laser
 memory and language card, the slinky registers (auto-increment, 1 MB), the card's CPLD (unlock
 key and RTC port, as in `cpld/laser128_ramcard.v`), a bit-level DS3231, and the parts of ProDOS
 the programs use. It covers install, reads from either copy, fallback when a copy is damaged, no
-copies, a card without the RTC, 1 MB address wrap, and setting the clock.
+copies, a card without the RTC, 1 MB address wrap, setting the clock, and the `CARDTEST` engine
+with injected faults (stuck data bit, stuck address line, dead battery, missing card).
 
 ## Not yet verified on hardware
 - The ProDOS 8 version on the target disk must have its clock-driver slot at `$D742` (true for

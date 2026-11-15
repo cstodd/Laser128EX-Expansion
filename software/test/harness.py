@@ -115,6 +115,10 @@ class Card:
         self.mode_next = False
         self.sda_low = self.scl_low = False
         self.accesses = 0
+        self.stuck_mask = 0                         # fault injection: data bits that read as 0
+        self.alias_mask = 0                         # fault injection: address bits stuck at 0
+        self.present = True
+        self.written = None                         # optional histogram of RAM write values
 
     def lines(self):
         scl = 0 if self.scl_low else 1
@@ -128,14 +132,14 @@ class Card:
         if a == 0: return self.addr & 0xFF
         if a == 1: return (self.addr >> 8) & 0xFF
         if a == 2: return 0xF0 | (self.addr >> 16)
-        if not self.enabled:
+        if not self.enabled or not self.present:
             return 0xFF
         self.accesses += 1
         if self.rtc_mode:
             scl, sda = self.lines()
             v = 0xB4 | (scl << 1) | sda
         else:
-            v = self.ram[self.addr]
+            v = self.ram[self.addr & ~self.alias_mask] & ~self.stuck_mask
         self.addr = (self.addr + 1) & 0xFFFFF
         return v
 
@@ -143,7 +147,7 @@ class Card:
         if a == 0: self.addr = (self.addr & 0xFFF00) | v; return
         if a == 1: self.addr = (self.addr & 0xF00FF) | (v << 8); return
         if a == 2: self.addr = (self.addr & 0x0FFFF) | ((v & 15) << 16); return
-        if not self.enabled:
+        if not self.enabled or not self.present:
             return
         self.accesses += 1
         if self.rtc_mode:                           # RTC port; RAM never written
@@ -155,7 +159,9 @@ class Card:
             self.matched = 0
             self._bus()
         else:
-            self.ram[self.addr] = v                 # the write completes as a RAM write
+            self.ram[self.addr & ~self.alias_mask] = v   # the write completes as a RAM write
+            if self.written is not None:
+                self.written[v] += 1
             if self.has_rtc:
                 if v == KEY[self.matched]:
                     if self.matched == 7:
@@ -463,6 +469,61 @@ def main():
     ram0, addr0 = snapshot(M3.card)
     M3.call(0x6000)
     check(M3.mem.main[0x0307] == 0xFF and snapshot(M3.card) == (ram0, addr0), 'no-RTC card: result $FF, RAM intact')
+
+    print('9. CARDTEST engine')
+    T = Machine(seed=9)
+    T.load(os.path.join(BUILD, 'CARDTEST'), 0x6000)
+    P = T.mem.main
+
+    def run(cmd, nreg=2):
+        P[0x0300] = cmd
+        P[0x0309] = nreg
+        T.pd.out = ''
+        T.call(0x6000, limit=60_000_000)
+        return P[0x0301], P[0x0307] | (P[0x0308] << 8)
+
+    T.card.addr = 0x45678
+    ram0, addr0 = snapshot(T.card)
+    r, n = run(1)
+    check(r == 0 and n == 0 and T.pd.out == '..', 'quick test, good card (128K): pass, %d dots' % len(T.pd.out))
+    check(snapshot(T.card) == (ram0, addr0), 'quick test is non-destructive and restores the address')
+    T.card.stuck_mask = 0x08
+    r, n = run(1, nreg=1)
+    T.card.stuck_mask = 0
+    check(r == 1 and n == 65535 and P[0x0305] == 0xAA and P[0x0306] == 0xA2,
+          'stuck data bit D3 detected on the first pattern ($AA read as $%02X), count saturates (%d)' % (P[0x0306], n))
+    T.card.written = [0] * 256                      # count values the quick test writes
+    run(1, nreg=1)
+    w = T.card.written
+    T.card.written = None
+    check(all(w[v] >= 65536 for v in (0x00, 0xFF, 0x55, 0xAA)),
+          'each constant pattern written to all 64K: %s' % {hex(v): w[v] for v in (0x00, 0xFF, 0x55, 0xAA)})
+    r, n = run(2, nreg=1); r2, n2 = run(3, nreg=1)
+    check(r == 0 and r2 == 0 and n2 == 0, 'fill + verify, good card: pass')
+    T.card.alias_mask = 1 << 13
+    r, n = run(2, nreg=1); r2, n2 = run(3, nreg=1)
+    T.card.alias_mask = 0
+    check(r2 == 1 and n2 > 0, 'address line A13 stuck: verify fails (%d errors)' % n2)
+    r, n = run(2, nreg=1)
+    keep = bytes(T.card.ram)
+    T.card.ram[:] = keep                            # power cycle with a good battery
+    r2, n2 = run(3, nreg=1)
+    check(r2 == 0, 'retention check after power cycle (battery OK): pass')
+    T.card.ram[0:65536] = bytes(random.getrandbits(8) for _ in range(65536))   # battery dead
+    r2, n2 = run(3, nreg=1)
+    check(r2 == 1 and n2 > 60000, 'retention check with dead battery: fail (%d errors)' % n2)
+    T.card.addr = 0x0ABCD
+    ram0, addr0 = snapshot(T.card)
+    r, n = run(4)
+    check(r == 0 and list(P[0x0310:0x0317]) == T.rtc.regs[0:7], 'clock registers read: %s' % [hex(x) for x in P[0x0310:0x0317]])
+    check(snapshot(T.card) == (ram0, addr0) and not T.card.rtc_mode, 'clock read: RAM + address intact, locked')
+    T.card.has_rtc = False
+    r, n = run(4)
+    T.card.has_rtc = True
+    check(r == 0xFF and snapshot(T.card)[0][:0] == b'' and not T.card.rtc_mode, 'no RTC: clock read reports $FF')
+    T.card.present = False
+    r, n = run(1)
+    check(r == 0xFF, 'no card: RAM test reports $FF')
 
     print('\n%s' % ('ALL PASS' if not FAILS else '%d FAILED' % len(FAILS)))
     return 1 if FAILS else 0

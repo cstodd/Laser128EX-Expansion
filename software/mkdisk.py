@@ -6,6 +6,8 @@ Copy its files to your ProDOS boot disk (Filer, Copy II+, CiderPress, ADTPro, ..
   CLOCK.MAIN    BIN  BRUN from STARTUP (second copy of the driver in main memory)
   CLOCK.SET     BIN  used by SET.CLOCK
   SET.CLOCK     BAS  RUN it to set the date and time
+  CARD.TEST     BAS  RUN it to test the card (RAM at 1/2.3/3.6 MHz, retention, clock)
+  CARDTEST      BIN  used by CARD.TEST
   STARTUP       BAS  example STARTUP that BRUNs CLOCK.MAIN
 
 The image is read back and checked (directory walk, file contents, BASIC detokenized).
@@ -225,6 +227,56 @@ SET_CLOCK = '''
 170 PRINT "CLOCK SET."
 '''
 
+CARD_TEST = '''
+10 TEXT : HOME : DEF FN B(X) = INT(X / 16) * 10 + X - INT(X / 16) * 16
+20 PRINT "LASER 128 RAM + CLOCK CARD TEST" : PRINT
+30 PRINT CHR$(4);"BLOAD CARDTEST"
+40 PRINT "CPU SPEED: 1) 1 MHZ  2) 2.3 MHZ  3) 3.6 MHZ"
+50 INPUT "CHOOSE (1-3): ";S : IF S < 1 OR S > 3 THEN 50
+60 SP = 0 : IF S = 2 THEN SP = 128
+70 IF S = 3 THEN SP = 192
+80 POKE 49268,SP
+90 PRINT : PRINT "1) QUICK RAM TEST (KEEPS RAM DISK)"
+100 PRINT "2) FULL ADDRESS TEST (ERASES RAM DISK)"
+110 PRINT "3) RETENTION CHECK (AFTER 2 + POWER OFF)"
+120 PRINT "4) CLOCK TEST"
+130 PRINT "5) CHANGE SPEED  6) QUIT"
+140 INPUT "CHOOSE (1-6): ";C : IF C < 1 OR C > 6 THEN 140
+150 IF C = 6 THEN END
+160 IF C = 5 THEN 40
+170 IF C = 4 THEN 400
+180 IF C = 2 THEN INPUT "ERASE ALL RAM DISK DATA (Y/N)? ";A$ : IF A$ <> "Y" THEN 90
+190 POKE 768,C : POKE 777,0 : PRINT "TESTING ";
+200 CALL 24576
+210 IF C = 2 AND PEEK(769) = 0 THEN POKE 768,3 : CALL 24576
+220 PRINT : R = PEEK(769)
+230 IF R = 255 THEN PRINT "CARD NOT RESPONDING" : GOTO 90
+240 IF R = 0 THEN PRINT "PASS" : GOTO 300
+250 E = PEEK(775) + 256 * PEEK(776)
+260 PRINT "FAIL: ";E;" ERRORS"; : IF E = 65535 THEN PRINT " OR MORE";
+270 PRINT : N = PEEK(770) + 256 * PEEK(771) + 65536 * PEEK(772)
+280 PRINT "FIRST AT $"; : GOSUB 600 : PRINT ": WROTE ";PEEK(773);", READ ";PEEK(774)
+290 GOTO 90
+300 IF C = 2 THEN PRINT "TEST PATTERN LEFT IN RAM. TO CHECK THE" : PRINT "BATTERY: POWER OFF, WAIT, THEN RUN 3."
+310 IF C > 1 THEN PRINT "RAM DISK ERASED: REFORMAT IT OR REBOOT."
+320 GOTO 90
+400 POKE 768,4 : CALL 24576 : IF PEEK(769) <> 0 THEN PRINT "CLOCK NOT FOUND" : GOTO 90
+410 GOSUB 500 : S0 = PEEK(784)
+420 FOR I = 1 TO 600 : POKE 768,4 : CALL 24576 : IF PEEK(784) <> S0 THEN 450
+430 NEXT I
+440 PRINT "CLOCK NOT RUNNING (SECONDS NOT CHANGING)" : GOTO 460
+450 PRINT "CLOCK RUNNING" : GOSUB 500
+460 IF PEEK(799) > 127 THEN PRINT "NOTE: OSCILLATOR STOPPED SINCE THE CLOCK" : PRINT "WAS SET (BATTERY?) - RUN SET.CLOCK."
+470 GOTO 90
+500 M = PEEK(789) : IF M > 127 THEN M = M - 128
+510 H = PEEK(786) : IF H > 63 THEN H = H - 64
+520 PRINT 2000 + FN B(PEEK(790));"-"; : V = FN B(M) : GOSUB 700 : PRINT "-"; : V = FN B(PEEK(788)) : GOSUB 700
+530 PRINT " "; : V = FN B(H) : GOSUB 700 : PRINT ":"; : V = FN B(PEEK(785)) : GOSUB 700 : PRINT ":"; : V = FN B(PEEK(784)) : GOSUB 700 : PRINT
+540 RETURN
+600 H$ = "0123456789ABCDEF" : FOR K = 4 TO 0 STEP - 1 : P = 16 ^ K : D = INT(N / P) : N = N - D * P : PRINT MID$(H$,D + 1,1); : NEXT K : RETURN
+700 PRINT RIGHT$("0" + STR$(V),2); : RETURN
+'''
+
 STARTUP = '''
 10 PRINT CHR$(4);"BRUN CLOCK.MAIN"
 '''
@@ -237,13 +289,15 @@ def main():
         ('CLOCK.SYSTEM', 0xFF, 0x2000, rd('CLOCK.SYSTEM')),
         ('CLOCK.MAIN', 0x06, 0x6000, rd('CLOCK.MAIN')),
         ('CLOCK.SET', 0x06, 0x6000, rd('CLOCK.SET')),
+        ('CARDTEST', 0x06, 0x6000, rd('CARDTEST')),
+        ('CARD.TEST', 0xFC, 0x0801, tokenize(CARD_TEST)),
         ('SET.CLOCK', 0xFC, 0x0801, tokenize(SET_CLOCK)),
         ('STARTUP', 0xFC, 0x0801, tokenize(STARTUP)),
     ]
     img = build_image('LASERCLOCK', files)
     out = os.path.join(DIST, 'LASERCLOCK.po')
     open(out, 'wb').write(img)
-    for n in ('CLOCK.SYSTEM', 'CLOCK.MAIN', 'CLOCK.SET'):
+    for n in ('CLOCK.SYSTEM', 'CLOCK.MAIN', 'CLOCK.SET', 'CARDTEST'):
         shutil.copy(os.path.join(BUILD, n), os.path.join(DIST, n))
     # verify
     back = read_image(img)
@@ -253,7 +307,7 @@ def main():
         good = got == (ft, aux, data)
         ok &= good
         print('%-13s type $%02X aux $%04X %5d bytes %s' % (name, ft, aux, len(data), 'ok' if good else 'MISMATCH'))
-    for name, src in (('SET.CLOCK', SET_CLOCK), ('STARTUP', STARTUP)):
+    for name, src in (('SET.CLOCK', SET_CLOCK), ('CARD.TEST', CARD_TEST), ('STARTUP', STARTUP)):
         print('--- %s (detokenized from the image)' % name)
         print(detokenize(back[name][2]))
     print('wrote', out)

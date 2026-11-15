@@ -8,6 +8,7 @@ Outputs in build/:
   CLOCK.SYSTEM             ProDOS SYS file ($2000)
   CLOCK.MAIN               BIN file ($6000), BRUN from STARTUP
   CLOCK.SET                BIN file ($6000), BLOAD + CALL 24576 from SET.CLOCK
+  CARDTEST                 BIN file ($6000), engine for the CARD.TEST program
 """
 import os
 import subprocess
@@ -50,8 +51,9 @@ def main():
     sysf = asm('clocksys.s', 'sys.o', 'CLOCK.SYSTEM', cfg('sys', 'SYS', 0x2000, 0x1000))
     mainf = asm('clockmain.s', 'main.o', 'CLOCK.MAIN', cfg('main', 'BIN', 0x6000, 0x1000))
     setf = asm('clockset.s', 'set.o', 'CLOCK.SET', cfg('set', 'BIN', 0x6000, 0x1000))
-    print('body %d bytes (%d relocations), stub %d/125 bytes, CLOCK.SYSTEM %d, CLOCK.MAIN %d, CLOCK.SET %d bytes'
-          % (len(b10), len(rel), len(stub), len(sysf), len(mainf), len(setf)))
+    testf = asm('cardtest.s', 'test.o', 'CARDTEST', cfg('test', 'BIN', 0x6000, 0x0F00))
+    print('body %d bytes (%d relocations), stub %d/125 bytes, CLOCK.SYSTEM %d, CLOCK.MAIN %d, CLOCK.SET %d, CARDTEST %d bytes'
+          % (len(b10), len(rel), len(stub), len(sysf), len(mainf), len(setf), len(testf)))
 
 
 if __name__ == '__main__':
