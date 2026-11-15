@@ -25,8 +25,8 @@ against the Technical Reference Manual.
 | U1 | **ATF1508AS-7AX100** (or -10AU100) | TQFP-100, 0.5 mm | 5 V native, 128 MC, 80 I/O. The PLCC-84 parts went EOL in Oct 2025, so this is the only actively made 5 V option. Buy spares. |
 | U2 | **AS6C8008-55ZIN** | TSOP-II-44 | 1M×8, 2.7–5.5 V, low standby current. One chip, so one chip enable. |
 | U3 | **74HCT245** | DIP-20 (socketed) | Data buffer. DIR and /OE come from the CPLD, not straight from J13, so the timing can be tuned. |
-| U4 | **DS1210** (or MXD1210) | DIP-8 | SRAM battery switch plus /CE write-protect at power-fail. Check the TOL pin setting against the measured Laser +5 V. |
-| U5 | **DS3231** (SN) | SOIC-16W | I²C RTC with internal TCXO, ±2 ppm, no crystal. This avoids Renée's 7 s/day drift. |
+| U4 | **DS1210** (or MXD1210) | DIP-8 | SRAM battery switch plus /CE write-protect at power-fail. **TOL tied to VCCO** (trip 4.25–4.49 V; TOL=GND trips at up to 4.74 V, too close to a sagging Laser rail). VCCO supplies up to 80 mA (the SRAM needs ≤60 mA); CE→CEO delay ≤20 ns. Ground the unused VBAT2. |
+| U5 | **DS3231** (SN) | SOIC-16W | I²C RTC with internal TCXO, ±2 ppm, no crystal. This avoids Renée's 7 s/day drift. Pins 5–12 **must be grounded**. Draws 0.84 µA typ / 3 µA max from the battery while keeping time. |
 | BT1 | CR2032 holder | — | Backs both the DS3231 VBAT and the DS1210 BAT. |
 | J1 | 2×15 socket, 2.54 mm | custom footprint | Mates with the Laser's J13 pins. **U-numbering** (below). |
 | J2 | JTAG header | per programmer | FT232H or ATDH1150USB. Pinout to be chosen. |
@@ -51,6 +51,12 @@ as the factory card had (R118–R133, plus the R138/L132 ferrite on D0 in rev C)
   silkscreen line at that corner.
 - The stock KiCad 2×15 footprint numbers odd/even across the rows, so it **must not** be used.
 - Before ordering, print 1:1 and check it against the socket or the original card.
+
+Battery life estimate with the Laser off: SRAM ~6 µA typ + DS3231 ~0.84 µA + DS1210 0.1 µA ≈ 7 µA, so a
+220 mAh CR2032 lasts about 3 years of continuous off-time.
+
+**Architecture under review:** see [`sourcing.md`](sourcing.md). The 1 MB SRAM is going EOL and a socketable
+PLCC-44 option exists.
 
 ## 3. Clock integration: RTC port behind an unlock key
 
