@@ -35,9 +35,11 @@ def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     # script never touches them; power nets are put in the Power class by editing the DSN.
     board.GetDesignSettings().m_TrackMinWidth = mm(0.15)   # router squeezes 0.187 mm between TSOP pads
 
-    # remove old tracks/vias so the run is reproducible
-    for t in list(board.GetTracks()):
-        board.Remove(t)
+    incremental = bool(os.environ.get('ROUTE_INCREMENTAL'))
+    if not incremental:
+        # remove old tracks/vias so the run is reproducible
+        for t in list(board.GetTracks()):
+            board.Remove(t)
 
     # Fill the GND pours first so the DSN carries GND as a plane: Freerouting then drops a via
     # to the plane instead of spending 0.6 mm tracks on every ground pin.
@@ -48,7 +50,7 @@ def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         raise SystemExit('DSN export failed')
     import_only = bool(os.environ.get('ROUTE_IMPORT_ONLY'))
-    move_power_nets(dsn)
+    move_power_nets(dsn, gnd_as_signal=incremental)
     cmd = [java, '-jar', jar, '-de', dsn, '-do', ses,
            '--gui.enabled=false', '--api_server.enabled=false',
            '--router.autorouter.max_passes=%d' % passes, '--router.optimizer.enabled=false',
@@ -63,6 +65,9 @@ def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
         print('freerouting timed out after %ds; using its last saved result if any' % TIMEOUT)
     if not os.path.exists(ses):
         raise SystemExit('no session file produced')
+    if incremental:          # the SES holds the complete routing, old + new
+        for t in list(board.GetTracks()):
+            board.Remove(t)
     segs, vias = import_ses(board, ses)
     print('imported %d track segments, %d vias' % (len(segs), len(vias)))
 
@@ -76,13 +81,19 @@ def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     print('routed; DRC report:', rpt)
 
 
-def move_power_nets(dsn):
+def move_power_nets(dsn, gnd_as_signal=False):
     """KiCad 7's DSN exporter ignores per-net classes set from Python; move the power nets
     from the default class into the Power class by editing the DSN text."""
     s = open(dsn).read()
     for n in POWER_NETS:
         s = re.sub(r'(\(class kicad_default[^()]*?)\s%s(?=[\s)])' % re.escape(n), r'\1', s, count=1)
-    s = s.replace('(class Power', '(class Power ' + ' '.join(POWER_NETS), 1)
+    power = [n for n in POWER_NETS if not (gnd_as_signal and n == 'GND')]
+    if gnd_as_signal:
+        # continuation pass: route GND as an ordinary 0.25 mm net (no plane) so isolated ground
+        # pins get real tracks to the stitching vias / pour
+        s = re.sub(r'\(plane GND \(polygon[^()]*\)\s*\)', '', s)
+        s = s.replace('(class kicad_default ""', '(class kicad_default "" GND', 1)
+    s = s.replace('(class Power', '(class Power ' + ' '.join(power), 1)
     # 4-layer stackup: In1 is the solid GND plane - no signal routing on it
     s = re.sub(r'(\(layer In1\.Cu\s*\(type )signal\)', r'\1power)', s)
     open(dsn, 'w').write(s)
