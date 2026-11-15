@@ -20,6 +20,7 @@ OUT = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
 FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'lib', 'Laser128.pretty')}
 STOCK_FP = '/usr/share/kicad/footprints'
 OX, OY = 50.0, 50.0          # board origin on the KiCad page
+LAYERS = int(os.environ.get('PCB_LAYERS', '2'))   # 4: In1 = GND plane, In2 = signal
 W, H = 130.0, 90.0           # board size (right/bottom edges fixed by J1/H1)
 XS = 30.0                    # left strip added for the SMD SRAM alternates
 
@@ -86,7 +87,7 @@ def main(netfile):
             pads[(find1(x, 'ref')[1], find1(x, 'pin')[1])] = name
 
     board = pcbnew.BOARD()
-    board.SetCopperLayerCount(2)
+    board.SetCopperLayerCount(LAYERS)
     ds = board.GetDesignSettings()
     ds.m_TrackMinWidth = mm(0.2)
     ds.m_MinClearance = mm(0.2)
@@ -148,7 +149,7 @@ def main(netfile):
             pad.SetNet(nets['GND'])
 
     # GND pours on both layers (filled after routing)
-    for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
+    for layer in ((pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.B_Cu) if LAYERS == 4 else (pcbnew.F_Cu, pcbnew.B_Cu)):
         z = pcbnew.ZONE(board)
         z.SetLayer(layer)
         z.SetNet(nets['GND'])

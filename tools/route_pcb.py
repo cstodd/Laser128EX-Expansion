@@ -93,7 +93,7 @@ def import_ses(board, ses):
     routes = find1(t, 'routes')
     res = find1(routes, 'resolution')
     per_mm = {'um': 1000.0, 'mm': 1.0, 'mil': 1000 / 25.4, 'inch': 1 / 25.4}[str(res[1])] * float(res[2])
-    layers = {'F.Cu': pcbnew.F_Cu, 'B.Cu': pcbnew.B_Cu}
+    layers = {'F.Cu': pcbnew.F_Cu, 'B.Cu': pcbnew.B_Cu, 'In1.Cu': pcbnew.In1_Cu, 'In2.Cu': pcbnew.In2_Cu}
     padstacks = {}
     for ps in find(find1(routes, 'library_out') or [], 'padstack'):
         m = re.search(r'_(\d+):(\d+)_um', ps[1])
@@ -124,7 +124,7 @@ def import_ses(board, ses):
             via.SetPosition(xy(v[2], v[3]))
             via.SetWidth(pcbnew.FromMM(dia / 1000.0))
             via.SetDrill(pcbnew.FromMM(drill / 1000.0))
-            via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
+            via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)   # through vias only
             via.SetNet(ni)
             board.Add(via)
             vias.append(via)
