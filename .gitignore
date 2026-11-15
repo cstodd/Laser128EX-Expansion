@@ -1,0 +1,8 @@
+# autorouter intermediates (tools/route_pcb.py)
+hardware/*.dsn
+hardware/*.ses
+# KiCad local files
+*-backups/
+*.kicad_prl
+fp-info-cache
+_autosave-*
