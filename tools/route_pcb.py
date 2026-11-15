@@ -20,36 +20,28 @@ from sexp import parse, find, find1  # noqa: E402
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
 POWER_NETS = ('GND', '+5V', 'VBB', 'VBAT')
-TIMEOUT = int(os.environ.get('ROUTE_TIMEOUT', '900'))
-JOB_TIMEOUT = os.environ.get('ROUTE_JOB_TIMEOUT', '00:12:00')   # freerouting stops itself and saves
+TIMEOUT = int(os.environ.get('ROUTE_TIMEOUT', '1500'))
+JOB_TIMEOUT = os.environ.get('ROUTE_JOB_TIMEOUT', '00:22:00')   # freerouting stops itself and saves
 
 
 def mm(v):
     return pcbnew.FromMM(v)
 
 
-def main(jar, java='java', passes=25):
+def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     board = pcbnew.LoadBoard(PCB)
-    ns = board.GetDesignSettings().m_NetSettings
-    dc = ns.m_DefaultNetClass
+    # Net classes (Default 0.25 mm, Power 0.6 mm) live in hardware/laser128-ramcard.kicad_pro.
+    # Creating/assigning NETCLASS objects from KiCad 7 Python corrupts the SWIG wrappers, so this
+    # script never touches them; power nets are put in the Power class by editing the DSN.
     board.GetDesignSettings().m_TrackMinWidth = mm(0.15)   # router squeezes 0.187 mm between TSOP pads
-    dc.SetTrackWidth(mm(0.25))
-    dc.SetClearance(mm(0.2))
-    dc.SetViaDiameter(mm(0.7))
-    dc.SetViaDrill(mm(0.35))
-    pc = pcbnew.NETCLASS('Power')
-    pc.SetTrackWidth(mm(0.6))
-    pc.SetClearance(mm(0.25))
-    pc.SetViaDiameter(mm(0.9))
-    pc.SetViaDrill(mm(0.45))
-    ns.m_NetClasses['Power'] = pc
-    for name, net in board.GetNetsByName().items():
-        if str(name) in POWER_NETS:
-            net.SetNetClass(pc)
 
     # remove old tracks/vias so the run is reproducible
     for t in list(board.GetTracks()):
         board.Remove(t)
+
+    # Fill the GND pours first so the DSN carries GND as a plane: Freerouting then drops a via
+    # to the plane instead of spending 0.6 mm tracks on every ground pin.
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
 
     base = PCB[:-len('.kicad_pcb')]
     dsn, ses = base + '.dsn', base + '.ses'
@@ -71,19 +63,10 @@ def main(jar, java='java', passes=25):
         print('freerouting timed out after %ds; using its last saved result if any' % TIMEOUT)
     if not os.path.exists(ses):
         raise SystemExit('no session file produced')
-    ntracks, nvias = import_ses(board, ses)
-    print('imported %d track segments, %d vias' % (ntracks, nvias))
+    segs, vias = import_ses(board, ses)
+    print('imported %d track segments, %d vias' % (len(segs), len(vias)))
 
-    # drop vias with no track at all (router leftovers); GND vias may legitimately
-    # connect a single track to the pour on the other layer, so keep those
-    tracks = list(board.GetTracks())
-    segs = [x for x in tracks if x.GetClass() == 'PCB_TRACK']
-    for v in [x for x in tracks if x.GetClass() == 'PCB_VIA']:
-        if v.GetNetname() == 'GND':
-            continue
-        if not any(s.GetNetCode() == v.GetNetCode() and
-                   (s.GetStart() == v.GetPosition() or s.GetEnd() == v.GetPosition()) for s in segs):
-            board.Remove(v)
+    # No via clean-up: DRC reports any dangling via ('via_dangling') for manual removal.
 
     filler = pcbnew.ZONE_FILLER(board)
     filler.Fill(board.Zones())
@@ -115,14 +98,13 @@ def import_ses(board, ses):
     for ps in find(find1(routes, 'library_out') or [], 'padstack'):
         m = re.search(r'_(\d+):(\d+)_um', ps[1])
         padstacks[ps[1]] = (int(m.group(1)), int(m.group(2))) if m else (700, 350)
-    nets = board.GetNetsByName()
 
     def xy(x, y):
         return pcbnew.VECTOR2I(pcbnew.FromMM(float(x) / per_mm), pcbnew.FromMM(-float(y) / per_mm))
 
-    nt = nv = 0
+    segs, vias = [], []
     for net in find(find1(routes, 'network_out'), 'net'):
-        ni = nets[net[1]]
+        ni = board.FindNet(net[1])
         for w in find(net, 'wire'):
             path = find1(w, 'path')
             layer, width, pts = layers[str(path[1])], float(path[2]), path[3:]
@@ -135,7 +117,7 @@ def import_ses(board, ses):
                 tr.SetLayer(layer)
                 tr.SetNet(ni)
                 board.Add(tr)
-                nt += 1
+                segs.append(tr)
         for v in find(net, 'via'):
             dia, drill = padstacks.get(v[1], (700, 350))
             via = pcbnew.PCB_VIA(board)
@@ -145,8 +127,8 @@ def import_ses(board, ses):
             via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
             via.SetNet(ni)
             board.Add(via)
-            nv += 1
-    return nt, nv
+            vias.append(via)
+    return segs, vias
 
 
 if __name__ == '__main__':
