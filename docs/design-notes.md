@@ -32,6 +32,15 @@ against the Technical Reference Manual.
 | J2 | JTAG header | per programmer | FT232H or ATDH1150USB. Pinout to be chosen. |
 | J3 | Debug header | 0.1" | Spare CPLD I/O. Renée regretted leaving these off. |
 
+**SRAM ordering warning (from Alliance datasheets):** the original **AS6C8008-55ZIN** runs on 2.7–5.5 V
+and is the part we need. The newer **AS6C8008B** is **3.3 V only**: 2.7–3.6 V, absolute max 4.6 V.
+On this 5 V card it would be destroyed. Pinout (TSOP-II-44, same for both): 1 A4, 2 A3, 3 A2, 4 A1, 5 A0,
+6 CE#, 7–8 NC, 9 DQ0, 10 DQ1, 11 Vcc, 12 Vss, 13 DQ2, 14 DQ3, 15–16 NC, 17 WE#, 18 A19, 19 A18, 20 A17,
+21 A16, 22 A15, 23 A14, 24 A13, 25 A12, 26 A11, 27 A10, 28 A9, 29–30 NC, 31 DQ4, 32 DQ5, 33 Vcc,
+34 Vss, 35 DQ6, 36 DQ7, 37–38 NC, 39 A8, 40 CE2, 41 OE#, 42 A7, 43 A6, 44 A5.
+CE2 (active high) is tied to the battery-backed VCCO rail. Operating current is 30 mA typ / 60 mA max at minimum
+cycle time; standby (ISB1) is 6 µA typ / 50 µA max. Data retention works down to 1.5 V.
+
 Optional insurance: series-resistor footprints (or 0 Ω links) on the strobes and data,
 as the factory card had (R118–R133, plus the R138/L132 ferrite on D0 in rev C).
 
