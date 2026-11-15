@@ -83,6 +83,8 @@ def move_power_nets(dsn):
     for n in POWER_NETS:
         s = re.sub(r'(\(class kicad_default[^()]*?)\s%s(?=[\s)])' % re.escape(n), r'\1', s, count=1)
     s = s.replace('(class Power', '(class Power ' + ' '.join(POWER_NETS), 1)
+    # 4-layer stackup: In1 is the solid GND plane - no signal routing on it
+    s = re.sub(r'(\(layer In1\.Cu\s*\(type )signal\)', r'\1power)', s)
     open(dsn, 'w').write(s)
 
 

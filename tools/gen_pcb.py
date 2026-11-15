@@ -21,8 +21,9 @@ FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'lib', 'Laser128.pretty')}
 STOCK_FP = '/usr/share/kicad/footprints'
 OX, OY = 50.0, 50.0          # board origin on the KiCad page
 LAYERS = int(os.environ.get('PCB_LAYERS', '2'))   # 4: In1 = GND plane, In2 = signal
-W, H = 130.0, 90.0           # board size (right/bottom edges fixed by J1/H1)
-XS = 30.0                    # left strip added for the SMD SRAM alternates
+SMD_ALT = os.environ.get('SMD_ALT', '1') == '1'   # on-board TSOP-II alternates U9/U10
+XS = 30.0 if SMD_ALT else 8.0     # left strip: SMD SRAM alternates, or just room for H2/H3
+W, H = 100.0 + XS, 90.0           # board size (right/bottom edges fixed by J1/H1)
 
 # ref: (x, y, rotation_deg) of footprint origin (pad 1 for DIP/headers/J1)
 PLACE = {
@@ -49,7 +50,9 @@ PLACE_LEFT = {
     'C14': (3.5, 61.0, 0), 'C15': (3.5, 65.0, 0),
 }
 PLACE = {r: (x + XS, y, a) for r, (x, y, a) in PLACE.items()}
-PLACE.update(PLACE_LEFT)
+if SMD_ALT:
+    PLACE.update(PLACE_LEFT)
+SKIP = set() if SMD_ALT else set(PLACE_LEFT)
 HOLE = (96.0 + XS, 86.0)
 STANDOFFS = [(4.0, 4.0), (4.0, 86.0)]   # left-side support holes (user standoffs, position not critical)
 
@@ -113,6 +116,7 @@ def main(netfile):
         s.SetWidth(mm(0.1))
         board.Add(s)
 
+    comps = {r: c for r, c in comps.items() if r not in SKIP}
     missing = [r for r in comps if r not in PLACE]
     if missing:
         raise SystemExit('no placement for: %s' % missing)
