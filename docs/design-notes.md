@@ -1,109 +1,98 @@
-# Laser 128 / 128EX Battery-Backed SRAM Expansion + Clock — Design Notes
+# Laser 128EX Battery-Backed SRAM Expansion + Clock — Design Notes
 
-Status: **architecture draft**. Everything marked *(verify)* needs to be checked
-against the Laser 128 Technical Reference Manual or a real card before layout.
+Status: **parts locked, moving to KiCad symbols/footprints, then CPLD logic.**
+Interface facts (pinout, timing) are in [`laser-expansion-interface.md`](laser-expansion-interface.md).
+The decisions below come from the earlier design conversation (Claude.ai, Nov 2026) and were re-checked
+against the Technical Reference Manual.
 
-## 1. How the stock Laser expansion works
+## 1. How it works
 
-Source: Renée Harke's posts (2019-12-31 and 2021-01-05, reneeharke.com).
+- The stock card (VTech 702175) is only DRAM: 32 × 41256 in four 256 KB banks. The Laser
+  motherboard holds the slinky address register and auto-increment (`$C0D0–$C0D3`) and drives
+  the card with multiplexed DRAM signals: ERA0–8, /RASB, /ECAS1–4, /RWR, MEMRD, /E1MOE and D0–7.
+- Our card latches the row on /RASB↓ and the column plus bank on /ECASn↓, which gives a
+  20-bit SRAM address. RAS-only refresh cycles are ignored. The existing Laser firmware, the ProDOS
+  RAM disk and the built-in diagnostics work unchanged.
+- J13 has no spare signals, so the **real-time clock is reached through the RAM data port**
+  (`$C0D3`) after an unlock sequence (§3).
+- Target: **Laser 128EX**, including 2.3 and 3.6 MHz. The J13 pinout is identical on the New Laser 128,
+  so the card should work there too.
 
-- The stock card (VTech 702175 rev B/C) is **only DRAM**: 32 × 41256
-  (256K×1) for 1 MB, in four 256 KB banks. The 128EX shipped with 256 KB populated.
-- The Laser motherboard has the slinky-style logic: the address
-  registers, auto-increment, and the data port. It drives the card with
-  **multiplexed DRAM signals**: RA0–RA8, RAS/CAS strobes, write enable, and
-  the data bus through a '245 whose enable comes from the motherboard.
-- Software sees it like an Apple IIc memory expansion card. ProDOS 8 builds a
-  RAM disk from it, and the built-in diagnostics test it with `C50AG` from the
-  monitor (Renée used this command; the slot it implies is *(verify)*).
-- Rev C adds a series resistor plus ferrite on one data line for RF/ringing.
-  Values aren't in the manual's BOM.
+## 2. Locked parts
 
-Consequence: our card never decodes $C0xx registers itself. It emulates
-1 MB of DRAM, so it works with the existing Laser firmware and every
-slinky-aware program with no changes.
+| Ref | Part | Package | Notes |
+|---|---|---|---|
+| U1 | **ATF1508AS-7AX100** (or -10AU100) | TQFP-100, 0.5 mm | 5 V native, 128 MC, 80 I/O. The PLCC-84 parts went EOL in Oct 2025, so this is the only actively made 5 V option. Buy spares. |
+| U2 | **AS6C8008-55ZIN** | TSOP-II-44 | 1M×8, 2.7–5.5 V, low standby current. One chip, so one chip enable. |
+| U3 | **74HCT245** | DIP-20 (socketed) | Data buffer. DIR and /OE come from the CPLD, not straight from J13, so the timing can be tuned. |
+| U4 | **DS1210** (or MXD1210) | DIP-8 | SRAM battery switch plus /CE write-protect at power-fail. Check the TOL pin setting against the measured Laser +5 V. |
+| U5 | **DS3231** (SN) | SOIC-16W | I²C RTC with internal TCXO, ±2 ppm, no crystal. This avoids Renée's 7 s/day drift. |
+| BT1 | CR2032 holder | — | Backs both the DS3231 VBAT and the DS1210 BAT. |
+| J1 | 2×15 socket, 2.54 mm | custom footprint | Mates with the Laser's J13 pins. **U-numbering** (below). |
+| J2 | JTAG header | per programmer | FT232H or ATDH1150USB. Pinout to be chosen. |
+| J3 | Debug header | 0.1" | Spare CPLD I/O. Renée regretted leaving these off. |
 
-## 2. Proposed architecture
+Optional insurance: series-resistor footprints (or 0 Ω links) on the strobes and data,
+as the factory card had (R118–R133, plus the R138/L132 ferrite on D0 in rev C).
 
-```
- Laser expansion connector
-   RA0-RA8, /RAS*, /CAS*, R/W, D0-D7, buffer enable
-        │
-        ▼
- ┌──────────────┐  A0-A19   ┌─────────────────┐
- │  CPLD        │──────────▶│ 1 MB low-power  │
- │ ATF1504AS/   │  /CE,/OE, │ SRAM (5 V)      │◀── VCCO (battery-backed)
- │ ATF1508AS 5V │  /WE      └─────────────────┘
- │              │──A0,A2,/CE,/OE,/WE──▶ DS1315 phantom clock ── 32.768 kHz xtal
- └──────────────┘                         │  VBAT (CR2032)
-        │ D0-D7                            └─ VCCO powers SRAM, CEO gates SRAM /CE
-        ▼
-      74HCT245 (or the CPLD directly, if the bus timing allows)
-```
+### J1 footprint (confirmed with Renée's kit socket and the original card photo)
+- 2.54 mm pitch, 2.54 mm row spacing. The socket's solder pins measure 36.35 mm end to end.
+- Pins 1–15 run down the row facing the **board interior**; pins 30 down to 16 run down the row at the
+  **board edge**, so pin 30 sits beside pin 1. Pin 1 is the square pad, marked by the extra
+  silkscreen line at that corner.
+- The stock KiCad 2×15 footprint numbers odd/even across the rows, so it **must not** be used.
+- Before ordering, print 1:1 and check it against the socket or the original card.
 
-### CPLD
-- **ATF1504AS (64 macrocells) or ATF1508AS (128 MC)**, Microchip, 5 V native,
-  still in production, PLCC-44 (socketable) or TQFP-44.
-  Being a native 5 V part avoids the 3.3 V level shifting Renée needed with her first SRAM.
-- Job: latch the row address on /RAS↓ and the column on /CAS↓, decode which
-  bank's /RAS (or /CAS) fired, and drive A0–A19 plus /CE /OE /WE.
-- 128EX accelerated mode (Renée's finding): **end writes early, end reads late**.
-  The Laser turns off the '245 enable and the RAM strobes at different times.
-- Toolchain: WinCUPL, or the open prjbureau / yosys flow for ATF15xx. Program over JTAG
-  (ATDH1150USB, or an FT232H/OpenOCD-style cable using SVF).
+## 3. Clock integration: RTC port behind an unlock key
 
-### SRAM
-- Low-power 5 V-capable CMOS SRAM with µA-level standby current, for example
-  Alliance **AS6C8008** (1M×8, TSOP-44) or **2 × AS6C4008** (512K×8, DIP-32 / SOP-32).
-  55 ns is far faster than the Laser needs.
+The CPLD gives the DS3231's SDA/SCL a tiny bit-bang port. Writing bit 0 = 1 pulls SDA low,
+writing bit 1 = 1 pulls SCL low, and reading bit 0 returns SDA. A custom 6502 driver handles I²C in software.
 
-### Real-time clock: how it integrates
-The Laser has no free internal slot for a ThunderClock-style card, so the clock
-has to sit *behind the memory interface*. That's what A2Heaven's RamExpress II+ does,
-and the Applied Engineering **RamExpress + DClock** pair before it.
+**Change from the earlier plan:** that plan put the port in a fixed address window at the top of the 1 MB.
+The Laser firmware's ProDOS RAM disk uses the whole expansion RAM, so a fixed window would
+corrupt the top of the RAM disk. RAM-disk writes landing there would also toggle SDA/SCL at random,
+which could write garbage into the clock. Instead the CPLD uses a **phantom-style unlock**, the same idea as Dallas's
+DS1315 but implemented in the CPLD:
 
-- A Dallas "phantom" clock (DS1215, today **DS1315**) sits on the RAM's chip-enable
-  path and normally lets every access through to the RAM.
-- A fixed 64-bit pattern, written one bit per access through the RAM interface, makes
-  the next 64 accesses read or write the clock registers instead of RAM.
-  After that it drops back to being RAM.
-- The DS1315 runs in **RAM mode**. Pattern and clock bits move on **data bit 0** (D in, Q out),
-  using the card's /WE and /OE, and the DS1315 is selected whenever the SRAM is.
-  Address bits are irrelevant, which suits the slinky's auto-incrementing address register:
-  the driver just accesses `$C0D3` 64 times. Signal path: CPLD /CE → DS1315 /CEI;
-  DS1315 /CEO → SRAM /CE; D and Q on card-side D0. *(Confirm against the DClock driver's
-  access sequence and the DS1315 datasheet's RAM-mode timing at 3.6 MHz.)*
-- Software: the **AE DClock ProDOS driver** (Renée confirmed it works on the Laser).
-  A ProDOS clock-driver patch or a small boot-time loader sets the date.
-- Bonus: the DS1315 is also the **battery switch**. Its VCCO output powers the
-  SRAM from the CR2032 when the Laser is off, and its CEO holds the SRAM
-  deselected below the power-fail threshold. The result is a RAM disk that survives a power cycle.
+- The CPLD watches card data on every expansion-RAM **write**. A specific 8-byte key written
+  in consecutive accesses (any address) switches the card into RTC mode. Any wrong byte resets the matcher.
+  Random data matches with probability 2⁻⁶⁴.
+- In RTC mode, accesses to `$C0D3` hit the RTC port and **never** the SRAM: /CE is held high,
+  so RAM contents are untouched even though the address auto-increments.
+- A write of a "lock" value, or any /RASB with no ECAS for longer than N cycles, drops back to RAM mode.
+  Exact rules to be set in the CPLD spec.
+- Cost: the CPLD needs card-side D0–7 as inputs (8 pins plus a small state machine). It fits easily in 128 MC.
+- The driver saves the slinky address registers, sends the key, does the I²C transfer, locks, and
+  restores the registers. RAM-disk contents are never disturbed.
 
-Known issue to design around: Renée's clock lost about 7 s/day, which she suspected
-came from a crystal ESR/load-capacitance mismatch. Use a crystal that meets the DS1315's
-specified load (6 pF *(verify)*), keep the crystal traces short with a ground guard, and
-consider a through-hole footprint so different crystals can be tried.
+## 4. Power and battery backup
+- Normal: +5 V from J13 pins 1–2 feeds everything. The DS1210 VCCO feeds the SRAM.
+- Laser off: the CR2032 feeds the DS3231 VBAT (timekeeping) and the DS1210 BAT. The DS1210 VCCO keeps the SRAM
+  alive and its CEO holds the SRAM /CE high. The CPLD and '245 are unpowered; the SRAM sees their
+  pins near 0 V, which is safe because /CE is high.
+- To verify: DS1210 VCCO current capability vs. AS6C8008 active current, the DS1210 TOL setting,
+  and the coin-cell life estimate (SRAM standby plus DS3231 timekeeping current).
 
-## 3. Resolved from the Tech Ref Manual (see `laser-expansion-interface.md`)
+## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
+- /E1MOE rises exactly at the CPUP0 fall, while /RASB, /ECAS and /RWR are still low.
+- SRAM /WE = /RWR·/ECAS·/E1MOE, so the write ends on /E1MOE↑ (early) before data floats.
+- SRAM /OE and the '245 enable are held until /E1MOE↑ (late).
+- '245 DIR follows MEMRD (high = card → CPU).
 
-- J13/J17 is a 2×15 header on a 0.1" grid with the full pinout extracted. It is **identical on the New Laser 128 and the 128EX**,
-  so one card fits both.
-- Bank select uses **four /ECAS lines** with one common /RASB. Refresh is RAS-only, which the SRAM ignores.
-- 128EX timing: /E1MOE rises at the CPUP0 fall while RAS, CAS and RWR are still low. End writes on /E1MOE↑
-  and hold /OE until /E1MOE↑.
+## 6. Toolchain
+- CPLD logic in portable Verilog, simulated with Icarus Verilog.
+- Fitting: Quartus II (MAX7000S target) → POF2JED → `.jed`, or WinCUPL/`fit1508`. The
+  ATF15xx open flow (prjbureau) is an alternative.
+- Programming: ATDH1150USB or ATMISP7 with an FT232H breakout via SVF.
+- KiCad files are generated as KiCad 7 format and open in KiCad 8 and 9.
 
-## 4. Open items
-
-1. **Mechanical**: measure a real card's outline, mounting holes, J17 position and which side J17 sits on.
-   The scan-based estimates are about 190 × 92 mm.
-2. DS1315 availability, RAM-mode timing margins at 3.6 MHz, and VCCO current capacity for the SRAM.
-3. DClock driver: obtain it and confirm the access sequence.
-4. Decisions from the earlier Claude conversation, still to merge.
-
-## 5. Deliverables plan
-
-- `cpld/`: CUPL (or Verilog for the open flow) plus a testbench driven by
-  RAS/CAS/RA waveforms, simulated before hardware.
-- `hardware/`: a KiCad 8 project with schematic, PCB matching the stock card's
-  outline and connector, BOM, and JLCPCB-ready gerbers plus drill and position files.
-- `software/`: notes on, or a port of, the DClock ProDOS driver and a set-clock utility.
+## 7. Task list
+1. KiCad: symbols (J1, DS1210, AS6C8008, ATF1508AS if not in the stock library) and footprints (J1).
+2. KiCad schematic → ERC.
+3. CPLD: Verilog plus testbench (1 MHz and 3.6 MHz waveforms, refresh, unlock/RTC mode).
+4. CPLD pin assignment, back-annotated into the schematic.
+5. Board outline, mounting holes and J1 position, **measured from an original card**.
+6. PCB layout → DRC → gerbers, drill, BOM and position files.
+7. Order boards; assemble the TQFP/TSOP (or have them factory placed).
+8. 6502: RTC driver (unlock, I²C, ProDOS clock hook) and a set-clock utility.
+9. 6502: RAM test (the built-in `C50AG` diagnostics should also pass).
