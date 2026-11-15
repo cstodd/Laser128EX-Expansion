@@ -6998,7 +6998,7 @@
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
           (reference "C12")
           (unit 1)))))
-  (label "VBB"
+  (label "+5V"
     (at 248.92 259.08 90)
     (fields_autoplaced)
     (effects
@@ -7015,24 +7015,24 @@
       (justify right bottom))
     (uuid "f967ef2d-615c-50bd-9a9f-ef32c8885cde"))
   (symbol
-    (lib_id "Device:C")
+    (lib_id "Device:C_Polarized")
     (at 248.92 262.89 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
     (uuid "8f63259e-5621-5413-b5db-c5dadeca7d54")
-    (property "Reference" "C14"
+    (property "Reference" "C13"
       (at 248.92 248.92 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "100n"
+    (property "Value" "22u"
       (at 248.92 276.86 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+    (property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
       (at 248.92 262.89 0)
       (effects
         (font
@@ -7049,112 +7049,6 @@
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
-          (reference "C14")
-          (unit 1)))))
-  (label "VBB"
-    (at 259.08 259.08 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify left bottom))
-    (uuid "a36d3aa0-a1fb-5fd5-9fe7-139110ca3782"))
-  (label "GND"
-    (at 259.08 266.7 270)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right bottom))
-    (uuid "757d429e-ac19-580f-9a46-699595776847"))
-  (symbol
-    (lib_id "Device:C")
-    (at 259.08 262.89 0)
-    (unit 1)
-    (in_bom yes)
-    (on_board yes)
-    (dnp no)
-    (uuid "ef2b62d8-c9f7-54e2-959e-393011da342f")
-    (property "Reference" "C15"
-      (at 259.08 248.92 0)
-      (effects
-        (font
-          (size 1.27 1.27))))
-    (property "Value" "100n"
-      (at 259.08 276.86 0)
-      (effects
-        (font
-          (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
-      (at 259.08 262.89 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (property "Datasheet" "~"
-      (at 259.08 262.89 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (pin "1"
-      (uuid "519b2fe8-552e-5b83-82c9-98e261bcf069"))
-    (pin "2"
-      (uuid "80768979-0a5e-57ee-ad16-a9cc6ed9cc82"))
-    (instances
-      (project "laser128-ramcard"
-        (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
-          (reference "C15")
-          (unit 1)))))
-  (label "+5V"
-    (at 279.4 259.08 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify left bottom))
-    (uuid "cb971f2c-19fc-548f-8b00-fac18d47d371"))
-  (label "GND"
-    (at 279.4 266.7 270)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1.27 1.27))
-      (justify right bottom))
-    (uuid "53be0a6b-6cd0-5789-8390-30b8880af86c"))
-  (symbol
-    (lib_id "Device:C_Polarized")
-    (at 279.4 262.89 0)
-    (unit 1)
-    (in_bom yes)
-    (on_board yes)
-    (dnp no)
-    (uuid "709fc08e-3c8f-5da8-bff1-0b5068767bf8")
-    (property "Reference" "C13"
-      (at 279.4 248.92 0)
-      (effects
-        (font
-          (size 1.27 1.27))))
-    (property "Value" "22u"
-      (at 279.4 276.86 0)
-      (effects
-        (font
-          (size 1.27 1.27))))
-    (property "Footprint" "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
-      (at 279.4 262.89 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (property "Datasheet" "~"
-      (at 279.4 262.89 0)
-      (effects
-        (font
-          (size 1.27 1.27)) hide))
-    (pin "1"
-      (uuid "ae6da478-b6a1-50ca-b56f-8a486a2675e0"))
-    (pin "2"
-      (uuid "783dd631-4434-54da-b164-e2b32fa6280a"))
-    (instances
-      (project "laser128-ramcard"
-        (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
           (reference "C13")
           (unit 1)))))
   (label "+5V"
@@ -7164,7 +7058,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "858fd5c0-6be4-5e6d-9be9-ffbf362bce24"))
+    (uuid "a36d3aa0-a1fb-5fd5-9fe7-139110ca3782"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 40.64 279.4 0)
@@ -7172,7 +7066,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "e0d2b3d7-cd56-5283-9fc2-4c756e1bd180")
+    (uuid "757d429e-ac19-580f-9a46-699595776847")
     (property "Reference" "#FLG01"
       (at 40.64 275.59 0)
       (effects
@@ -7194,7 +7088,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "b521101b-3843-5aef-8eb9-0f57896f8e8d"))
+      (uuid "ef2b62d8-c9f7-54e2-959e-393011da342f"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -7207,7 +7101,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "2e6ae88e-1a50-5893-b106-685b7c4c2c23"))
+    (uuid "519b2fe8-552e-5b83-82c9-98e261bcf069"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 55.88 279.4 0)
@@ -7215,7 +7109,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "871b2163-9ca8-5388-a26b-4592faca3ff9")
+    (uuid "80768979-0a5e-57ee-ad16-a9cc6ed9cc82")
     (property "Reference" "#FLG02"
       (at 55.88 275.59 0)
       (effects
@@ -7237,7 +7131,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "11f1540e-bfa7-5279-a829-51bfc2bee3d4"))
+      (uuid "cb971f2c-19fc-548f-8b00-fac18d47d371"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -7250,7 +7144,7 @@
       (font
         (size 1.27 1.27))
       (justify right bottom))
-    (uuid "e61b51cb-302c-5e42-a3fe-c287b541f204"))
+    (uuid "53be0a6b-6cd0-5789-8390-30b8880af86c"))
   (symbol
     (lib_id "power:PWR_FLAG")
     (at 71.12 279.4 0)
@@ -7258,7 +7152,7 @@
     (in_bom no)
     (on_board no)
     (dnp no)
-    (uuid "66beed2a-c632-5b1a-b0fa-562d3f6a970b")
+    (uuid "709fc08e-3c8f-5da8-bff1-0b5068767bf8")
     (property "Reference" "#FLG03"
       (at 71.12 275.59 0)
       (effects
@@ -7280,7 +7174,7 @@
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid "67f78cc7-2534-59d1-9841-778f663f3e76"))
+      (uuid "ae6da478-b6a1-50ca-b56f-8a486a2675e0"))
     (instances
       (project "laser128-ramcard"
         (path "/6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3"
@@ -7292,42 +7186,42 @@
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "0c6bb588-0304-51f1-a52e-0364240afa72"))
+    (uuid "783dd631-4434-54da-b164-e2b32fa6280a"))
   (text "Row register U2 (574) captures ERA0-7 on /RASB fall; column latch U3 (573) is transparent until the first /ECASn fall. CPLD holds ERA8 (MA8/MA17) and bank bits."
     (at 25.4 19.05 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "0da7a06d-c62e-5096-ad36-9556e654a5b6"))
+    (uuid "858fd5c0-6be4-5e6d-9be9-ffbf362bce24"))
   (text "SRAM U5/U6: AS6C4008-55PCN, or CY62148ELL-45ZSXI on a TSOP-II-32 to DIP-32 adapter (~9 ns more margin at 3.6 MHz)."
     (at 25.4 22.86 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "2029e98d-9853-5647-b173-92552c2de76a"))
+    (uuid "e0d2b3d7-cd56-5283-9fc2-4c756e1bd180"))
   (text "U5 = bank 0 (512K), U6 = bank 1. Both CE# from MAX693A CE OUT (battery write-protect); CPLD selects chip with OEn/WEn."
     (at 25.4 26.67 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "fd644c80-ea5b-5d51-8aae-d489c27729b4"))
+    (uuid "b521101b-3843-5aef-8eb9-0f57896f8e8d"))
   (text "RTC: DS3231 I2C bit-banged through the CPLD, reachable via $C0D3 only after the 8-byte unlock key."
     (at 25.4 30.48 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "8b7125f2-2de8-5b5d-8748-7efb68e4f435"))
+    (uuid "2e6ae88e-1a50-5893-b106-685b7c4c2c23"))
   (text "U2/U3: use 74AHCT574 (fast). Do not substitute 74LS. U5/U6: AS6C4008 (2.7-5.5V) - NOT 3.3V-only parts."
     (at 25.4 34.29 0)
     (effects
       (font
         (size 1.27 1.27))
       (justify left bottom))
-    (uuid "197751b2-c839-54e5-b40d-86d0e59e50ad"))
+    (uuid "871b2163-9ca8-5388-a26b-4592faca3ff9"))
   (sheet_instances
     (path "/"
       (page "1"))))

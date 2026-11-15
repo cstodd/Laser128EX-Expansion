@@ -202,10 +202,6 @@ for ref in ('C10', 'C11'):   # SRAM decoupling on the battery-backed rail
     x += 10.16
 part('C12', 'Device:C', '1u', FP_C, {1: 'VBB', 2: 'GND'}, (x, 262.89))      # ceramic: no leakage on VBB
 x += 10.16
-for ref in ('C14', 'C15'):   # decoupling for the SMD SRAM alternatives U9/U10
-    part(ref, 'Device:C', '100n', FP_C, {1: 'VBB', 2: 'GND'}, (x, 262.89))
-    x += 10.16
-x += 10.16
 part('C13', 'Device:C_Polarized', '22u', FP_CP, {1: '+5V', 2: 'GND'}, (x, 262.89))
 
 # power flags (J1 pins are passive; battery is passive)

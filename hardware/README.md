@@ -1,15 +1,34 @@
 # Hardware (KiCad)
 
-`laser128-ramcard.kicad_sch` is **generated**. Edit `tools/gen_sch.py` (the pin→net table) and re-run it;
-don't hand-edit the schematic, or the next regeneration will overwrite your changes. When the layout starts, the
-schematic will be frozen and maintained in KiCad directly.
+`laser128-ramcard.kicad_sch` and `laser128-ramcard.kicad_pcb` were **generated** by the scripts in `tools/`.
+As of rev 0.1 the routed board is the master: make further changes in KiCad directly (or regenerate
+everything and re-route; see below).
+
+Status (rev 0.1): **fully routed, 2 layers, 108 × 90 mm.** DRC: 0 unconnected, 0 clearance errors
+(2 starved-thermal warnings on GND pads that also have their own tracks). Every board pad's net matches the
+schematic netlist. Fabrication outputs are in `fab/`; the ordering list is in `docs/ordering.md`.
+Previews: `render-top.png`, `render-bottom.png` (bottom mirrored).
+
+Notes on this route:
+- Signal tracks are 0.25 mm (0.187 mm in a few places). Power nets (+5V, VBB, VBAT, GND) are also routed at
+  0.25 mm, which is ample for the card's <200 mA. GND also has pours on both layers with 174 stitching vias.
+- J1's socket body goes on the **bottom** side (marked on the bottom silkscreen).
 
 ```sh
 python3 tools/gen_lib.py      # hardware/lib/Laser128.kicad_sym + Laser128.pretty
 python3 tools/gen_sch.py      # hardware/laser128-ramcard.kicad_sch
 kicad-cli sch export netlist -o /tmp/l128.net hardware/laser128-ramcard.kicad_sch
-python3 tools/check_netlist.py /tmp/l128.net
+python3 tools/check_netlist.py /tmp/l128.net             # ERC substitute
+/usr/bin/python3 tools/gen_pcb.py /tmp/l128.net          # outline, holes, placement, pours (unrouted)
+ROUTE_GND_SIGNAL=1 /usr/bin/python3 tools/route_pcb.py freerouting-2.5.0-executable.jar <java25>
+/usr/bin/python3 tools/stitch_gnd.py 5                   # GND stitching vias
+/usr/bin/python3 tools/tidy_silk.py                      # silkscreen clean-up + DRC
+/usr/bin/python3 tools/export_fab.py                     # hardware/fab/
 ```
+Freerouting 2.5.0 is `app.freerouting:freerouting:2.5.0` (executable jar) from Maven Central and needs Java 25.
+`route_pcb.py` turns off its analytics, GUI and API server, and caps the run with `job_timeout`.
+Routing lessons: GND has to be routed as a normal net (as a plane, ground pins get boxed in), and the
+registers' D inputs must face J1.
 
 The files are KiCad 7 format and open in KiCad 8 and 9 (KiCad offers to upgrade them on save).
 `laser128-ramcard.pdf` is a plot of the current schematic.
@@ -26,7 +45,7 @@ The files are KiCad 7 format and open in KiCad 8 and 9 (KiCad offers to upgrade 
 
 | Pin | Signal | Dir | | Pin | Signal | Dir |
 |---|---|---|---|---|---|---|
-| 1 (GCLR) | /ECAS1 | in | | 21 | COLCLK | out |
+| 1 (GCLR) | /ECAS1 | in | | 21 | COL_LE ('573 LE) | out |
 | 2 (GCLK2) | /RASB | in | | 24 | MA18 | out |
 | 43 (GCLK1) | /E1MOE | in | | 25 | /RAM_CE → MAX693A CE IN | out |
 | 44 (OE1) | /ECAS2 | in | | 26 / 27 | /OE0, /OE1 | out |

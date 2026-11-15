@@ -1,6 +1,6 @@
 # Laser 128EX Battery-Backed SRAM Expansion + Clock — Design Notes
 
-Status: **architecture B locked; schematic v0.1 generated (hardware/); CPLD logic next.**
+Status: **rev 0.1 complete: schematic, routed 2-layer board (DRC clean), Gerbers, CPLD logic + simulation. Next: fit the CPLD (Windows tools), order boards, write the 6502 RTC driver.**
 Interface facts (pinout, timing) are in [`laser-expansion-interface.md`](laser-expansion-interface.md).
 The decisions below come from the earlier design conversation (Claude.ai, Nov 2026) and were re-checked
 against the Technical Reference Manual.

@@ -1,130 +1,15 @@
 ** Drc report for /home/user/Laser128EX-Expansion/hardware/laser128-ramcard.kicad_pcb **
-** Created on 2026-11-15 05:49:04 **
+** Created on 2026-11-15 05:54:33 **
 
-** Found 65 DRC violations **
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(88.5000 mm, 123.5000 mm): Reference 'C8'
-    @(76.7000 mm, 125.0000 mm): Arc on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(61.0000 mm, 108.5000 mm): PCB Text 'U5/U6: AS6C4008-55 or 45ns CY62148...' on F.Silkscreen
-    @(105.1600 mm, 94.6700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(100.2000 mm, 71.5000 mm): Reference 'C2'
-    @(99.5700 mm, 95.4900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.0800 mm, 81.6300 mm): Reference 'R5'
-    @(133.8100 mm, 81.3700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(100.2000 mm, 59.5000 mm): Reference 'C1'
-    @(99.5700 mm, 95.4900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(137.0800 mm, 77.6300 mm): Reference 'R4'
-    @(133.8100 mm, 77.3700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(138.0800 mm, 130.6300 mm): Reference 'R2'
-    @(134.8100 mm, 130.3700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(124.0000 mm, 125.9000 mm): Reference 'U8'
-    @(119.8800 mm, 125.3700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(123.8100 mm, 121.1900 mm): Reference 'U2'
-    @(122.5000 mm, 121.5000 mm): Reference 'C5'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(113.1100 mm, 135.8400 mm): Line on F.Silkscreen
-    @(113.5000 mm, 133.5000 mm): Reference 'C9'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(113.5000 mm, 133.5000 mm): Reference 'C9'
-    @(113.1700 mm, 138.3300 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(81.6700 mm, 95.4900 mm): Line on F.Silkscreen
-    @(85.5000 mm, 95.5000 mm): Reference 'C11'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(84.1600 mm, 95.4300 mm): Line on F.Silkscreen
-    @(85.5000 mm, 95.5000 mm): Reference 'C11'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(85.5000 mm, 95.5000 mm): Reference 'C11'
-    @(84.1600 mm, 54.6700 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(73.5000 mm, 95.5000 mm): Reference 'C12'
-    @(60.6700 mm, 95.4900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(73.5000 mm, 95.5000 mm): Reference 'C12'
-    @(63.1600 mm, 95.4300 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(61.0000 mm, 105.0000 mm): PCB Text 'Laser 128/128EX 1MB RAM + Clock  r...' on F.Silkscreen
-    @(102.6700 mm, 94.6100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(61.0000 mm, 108.5000 mm): PCB Text 'U5/U6: AS6C4008-55 or 45ns CY62148...' on F.Silkscreen
-    @(102.6700 mm, 94.6100 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(107.8100 mm, 121.1900 mm): Reference 'U3'
-    @(106.5000 mm, 121.5000 mm): Reference 'C6'
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(64.5000 mm, 95.5000 mm): Reference 'C10'
-    @(60.6700 mm, 95.4900 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(64.5000 mm, 95.5000 mm): Reference 'C10'
-    @(63.1600 mm, 95.4300 mm): Line on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; Severity: warning
-    @(64.5000 mm, 95.5000 mm): Reference 'C10'
-    @(63.1600 mm, 54.6700 mm): Line on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; Severity: warning
-    @(61.0000 mm, 108.5000 mm): PCB Text 'U5/U6: AS6C4008-55 or 45ns CY62148...' on F.Silkscreen
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
-    @(111.6500 mm, 68.1900 mm): PTH pad 10 [GND] of U1
+** Found 34 DRC violations **
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
     @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
     @(155.2700 mm, 82.5200 mm): PTH pad 28 [GND] of J1
 [starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
     Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
-    @(138.5400 mm, 57.0000 mm): PTH pad 2 [GND] of J2
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
     @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(119.3500 mm, 132.6350 mm): Pad 5 [GND] of U8 on F.Cu
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
-    @(111.6200 mm, 96.0000 mm): PTH pad 10 [GND] of U3
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(111.6200 mm, 118.8600 mm): PTH pad 1 [GND] of U3
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(111.6200 mm, 96.0000 mm): PTH pad 10 [GND] of U3
-[starved_thermal]: Thermal relief connection to zone incomplete (zone min spoke count 2; actual 1)
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(101.6200 mm, 137.0000 mm): PTH pad 4 [GND] of U7
+    @(138.0000 mm, 118.8600 mm): PTH pad 10 [GND] of U4
 [lib_footprint_issues]: The current configuration does not include the library 'Capacitor_THT'.
     Local override; Severity: warning
     @(102.7000 mm, 74.0000 mm): Footprint C2
@@ -221,47 +106,8 @@
 [lib_footprint_issues]: The current configuration does not include the library 'Package_DIP'.
     Local override; Severity: warning
     @(94.0000 mm, 137.0000 mm): Footprint U7
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; Severity: warning
-    @(50.0000 mm, 50.0000 mm): Line on Edge.Cuts
-    @(54.0000 mm, 49.8000 mm): Reference 'H2'
-[via_dangling]: Via is not connected or connected on only one layer
-    Local override; Severity: warning
-    @(114.8744 mm, 97.6170 mm): Via [MA12] on F.Cu - B.Cu
 
-** Found 8 unconnected pads **
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(155.2700 mm, 100.3000 mm): PTH pad 21 [ERA7] of J1
-    @(127.6200 mm, 98.5400 mm): Track [ERA7] on B.Cu, length 1.1839 mm
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(121.8100 mm, 63.1100 mm): PTH pad 42 [GND] of U1
-    @(123.4500 mm, 59.4500 mm): Via [GND] on F.Cu - B.Cu
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(88.0000 mm, 98.0000 mm): PTH pad 2 [GND] of C11
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(124.3500 mm, 78.3500 mm): PTH pad 30 [GND] of U1
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(116.7300 mm, 80.8900 mm): PTH pad 22 [GND] of U1
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on F.Cu
-    @(111.6200 mm, 96.0000 mm): PTH pad 10 [GND] of U3
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
-    @(127.6200 mm, 96.0000 mm): PTH pad 10 [GND] of U2
-[unconnected_items]: Missing connection between items
-    Local override; Severity: error
-    @(116.7300 mm, 80.8900 mm): PTH pad 22 [GND] of U1
-    @(50.3000 mm, 50.3000 mm): Zone [GND] on B.Cu
+** Found 0 unconnected pads **
 
 ** Found 0 Footprint errors **
 
