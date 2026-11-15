@@ -32,6 +32,7 @@ def main(jar, java='java', passes=25):
     board = pcbnew.LoadBoard(PCB)
     ns = board.GetDesignSettings().m_NetSettings
     dc = ns.m_DefaultNetClass
+    board.GetDesignSettings().m_TrackMinWidth = mm(0.15)   # router squeezes 0.187 mm between TSOP pads
     dc.SetTrackWidth(mm(0.25))
     dc.SetClearance(mm(0.2))
     dc.SetViaDiameter(mm(0.7))
@@ -54,6 +55,7 @@ def main(jar, java='java', passes=25):
     dsn, ses = base + '.dsn', base + '.ses'
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         raise SystemExit('DSN export failed')
+    import_only = bool(os.environ.get('ROUTE_IMPORT_ONLY'))
     move_power_nets(dsn)
     cmd = [java, '-jar', jar, '-de', dsn, '-do', ses,
            '--gui.enabled=false', '--api_server.enabled=false',
@@ -63,7 +65,8 @@ def main(jar, java='java', passes=25):
            '--usage_and_diagnostic_data.disable_analytics=true']
     print(' '.join(cmd))
     try:
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
+        if not import_only:
+          subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         print('freerouting timed out after %ds; using its last saved result if any' % TIMEOUT)
     if not os.path.exists(ses):
@@ -71,13 +74,15 @@ def main(jar, java='java', passes=25):
     ntracks, nvias = import_ses(board, ses)
     print('imported %d track segments, %d vias' % (ntracks, nvias))
 
-    # drop vias that only touch one layer's copper (router leftovers)
+    # drop vias with no track at all (router leftovers); GND vias may legitimately
+    # connect a single track to the pour on the other layer, so keep those
     tracks = list(board.GetTracks())
     segs = [x for x in tracks if x.GetClass() == 'PCB_TRACK']
     for v in [x for x in tracks if x.GetClass() == 'PCB_VIA']:
-        lay = {s.GetLayer() for s in segs if s.GetNetCode() == v.GetNetCode() and
-               (s.GetStart() == v.GetPosition() or s.GetEnd() == v.GetPosition())}
-        if len(lay) < 2:
+        if v.GetNetname() == 'GND':
+            continue
+        if not any(s.GetNetCode() == v.GetNetCode() and
+                   (s.GetStart() == v.GetPosition() or s.GetEnd() == v.GetPosition()) for s in segs):
             board.Remove(v)
 
     filler = pcbnew.ZONE_FILLER(board)
@@ -85,8 +90,6 @@ def main(jar, java='java', passes=25):
     board.Save(PCB)
     rpt = base + '.drc.rpt'
     pcbnew.WriteDRCReport(board, rpt, pcbnew.EDA_UNITS_MILLIMETRES, True)
-    for f in (dsn, ses):
-        os.remove(f)
     print('routed; DRC report:', rpt)
 
 
