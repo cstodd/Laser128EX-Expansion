@@ -57,9 +57,11 @@ Pin constraints: `hardware/README.md`. JTAG programming: ATDH1150USB, or ATMISP 
   no longer be programmed in-circuit. Recovery needs 12 V on OE1/VPP (pin 44), which this board wires to
   J1 as /ECAS2, so the chip would have to be pulled and erased in a standalone programmer.
 - **Power-down pins off** (PD1 = pin 11, PD2 = pin 25): both are used as ordinary I/O (XD1, /RAM_CE).
-- **Check the latches** in the fitter report. `bank[1:0]` and `ma8` are level-sensitive. They should use
-  the macrocell's latch mode. If the flow builds them as combinational feedback loops instead, rewrite them
-  with the device latch primitive, since loops can glitch.
+- **Latches:** the design no longer relies on latch inference. `ma8` is a flip-flop. The two bank bits are
+  set/reset latches written out as `Q = S | (Q & ~R)`, which is glitch-free as a plain sum of products.
+  Synthesis reports two "logic loop" / combinational-feedback warnings for `bank[0]` and `bank[1]`:
+  **these are intended.** In the fitter report, check that each bank bit is one macrocell with feedback and
+  that the equation still has both terms.
 - Expected size: roughly 35–45 of 64 macrocells (not yet fitted).
 
 On the first board, scope /ECAS against /E1MOE at the fast-cycle boundary. The logic assumes the

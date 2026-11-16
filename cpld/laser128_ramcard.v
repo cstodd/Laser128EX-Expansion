@@ -7,8 +7,7 @@
 // This CPLD turns that into SRAM cycles:
 //   * ROWCLK = /RASB fall   -> external 74AHCT574 captures row ERA0-7 (MA9-16); ERA8 -> MA17 here
 //   * COL_LE = no /ECAS low -> external 74AHCT573 is transparent until the first /ECASn fall,
-//     then holds column ERA0-7 (MA0-7); ERA8 -> MA8 latched the same way here. Transparent
-//     means the column reaches the SRAM as soon as the Laser drives it, ahead of /ECAS.
+//     then holds column ERA0-7 (MA0-7). ERA8 -> MA8 is registered here on that same edge.
 //   * bank = which /ECASn fired: bank[0] -> MA18, bank[1] selects U5 (0) / U6 (1)
 //   * RAS-only refresh (no /ECAS) never touches the SRAM
 //   * 128EX timing (Tech Ref Fig. 11-19): /E1MOE rises at the CPUP0 fall while /RASB,
@@ -60,17 +59,23 @@ module laser128_ramcard (
     assign col_le = ~cas_any;         // '573 transparent until /ECAS falls, then holds
 
     always @(negedge rasb_n) ma17 <= era8;      // row bit 8
-    always @* if (~cas_any) ma8 = era8;          // column bit 8, transparent latch like U3
+    // column bit 8: a flip-flop on the first /ECASn fall, not a transparent latch. A gated D
+    // latch built from product terms needs a redundant consensus term to be glitch-free, and
+    // fitters tend to minimise that term away. A flip-flop has no such hazard. MA8 is then valid
+    // one CPLD delay after /ECAS - the same as MA18, which already sets the worst-case path.
+    always @(posedge cas_any) ma8 <= era8;
 
-    // bank: set/reset latches. Each bit is set by the /ECAS lines of the banks where it is 1 and
-    // cleared by those where it is 0; with every /ECAS high nothing is asserted and the bit holds.
-    // (A gated latch on cas_any would race when /ECAS rises: the gate closes as the
-    // decoder input goes to 'none', which glitched A18 at the end of 1 MHz writes in simulation.)
-    reg [1:0] bank;
-    always @* begin
-        if (~ecas2_n | ~ecas4_n) bank[0] = 1'b1; else if (~ecas1_n | ~ecas3_n) bank[0] = 1'b0;
-        if (~ecas3_n | ~ecas4_n) bank[1] = 1'b1; else if (~ecas1_n | ~ecas2_n) bank[1] = 1'b0;
-    end
+    // bank: set/reset latches written out as the sum-of-products the macrocell will implement,
+    // Q = S | (Q & ~R). This form is glitch-free by construction: when S releases, the holding
+    // term Q & ~R is already true. Each bit is set by the /ECAS lines of the banks where it is 1
+    // and cleared by those where it is 0; with every /ECAS high it holds. (Only one /ECAS is
+    // ever low, so S and R never overlap.) A latch gated by cas_any would race as /ECAS rises:
+    // that glitched A18 at the end of 1 MHz writes in simulation.
+    wire [1:0] bank;
+    wire b0_set = ~ecas2_n | ~ecas4_n, b0_clr = ~ecas1_n | ~ecas3_n;
+    wire b1_set = ~ecas3_n | ~ecas4_n, b1_clr = ~ecas1_n | ~ecas2_n;
+    assign bank[0] = b0_set | (bank[0] & ~b0_clr);
+    assign bank[1] = b1_set | (bank[1] & ~b1_clr);
     assign ma18 = bank[0];
 
     // ------------------------------------------------------------------ access qualification
