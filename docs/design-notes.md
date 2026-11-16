@@ -307,6 +307,7 @@ be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK gli
 
 ### Plan
 1. ~~Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.~~ (done)
-2. Driver rev02 in the emulator harness (DS3234 model behind the CPLD port model): size ≤ 125, interrupts-off window,
-   RAM-disk byte and address restored.
+2. ~~Driver rev02 in the emulator harness~~ (done: **122 bytes**, fits the slot; interrupts never disabled; `software/rev02/README.md`).
+   Remaining software: rev02 CLOCK.SYSTEM installer, CLOCK.SET, CARD.TEST clock test.
+   **Board note: DIN/DOUT line needs a pull-DOWN** (the driver relies on it to send read address 00h).
 3. If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.
