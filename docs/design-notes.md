@@ -85,12 +85,11 @@ DS1315 but implemented in the CPLD:
   restores the registers. RAM-disk contents are never disturbed.
 
 ## 4. Power and battery backup
-- Normal: +5 V from J13 pins 1–2 feeds everything. The DS1210 VCCO feeds the SRAM.
-- Laser off: the CR2032 feeds the DS3231 VBAT (timekeeping) and the DS1210 BAT. The DS1210 VCCO keeps the SRAM
-  alive and its CEO holds the SRAM /CE high. The CPLD and '245 are unpowered; the SRAM sees their
-  pins near 0 V, which is safe because /CE is high.
-- Checked: the DS1210 VCCO supplies ≤80 mA, against one active AS6C4008 (≤~60 mA) plus one idle chip. TOL→VCCO.
-  The coin cell lasts ~3 years with the Laser off (§2).
+- Normal: +5 V from J13 pins 1–2 feeds everything. The MAX693A VOUT feeds the SRAM.
+- Laser off: the CR2032 feeds the DS3231 VBAT (timekeeping) and the MAX693A BATT input. VOUT switches to the
+  battery and keeps the SRAM alive; the MAX693A's CE gate holds both SRAM CE# high below its 4.40 V threshold.
+  The CPLD and '245 are unpowered; the SRAM sees their pins near 0 V, which is safe because CE# is high.
+- Battery life: roughly 10–13 µA with the Laser off, about 2 years per CR2032 (§2, `ordering.md`).
 
 ## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
 - Expansion-RAM cycles never run faster than **2.3 MHz**: at the 3.6 MHz setting the Laser slows to 2.3 MHz for
@@ -103,19 +102,89 @@ DS1315 but implemented in the CPLD:
 
 ## 6. Toolchain
 - CPLD logic in portable Verilog, simulated with Icarus Verilog.
-- Fitting: WinCUPL/`fit1504` (Microchip, free), or Quartus II (EPM7064S target) → POF2JED → `.jed`.
-  The ATF15xx open flow (prjbureau/yosys) is an alternative.
-- Programming: ATDH1150USB or ATMISP7 with an FT232H breakout via SVF.
-- KiCad files are generated as KiCad 7 format and open in KiCad 8 and 9.
+- Fitting (done, Nov 2026): Yosys + hoglet67/atf15xx_yosys + Atmel `fit1504.exe` under Wine → `cpld/fit/laser128_ramcard.jed`.
+  Checked three ways: RTL testbench, the fitter's equations, and the .jed decoded with prjbureau's fuse database
+  (`cpld/fit/README.md`).
+- Programming: ATDH1150USB + ATMISP, or an FT232H/USB-Blaster + OpenOCD via SVF.
+- PCB: generated in KiCad 7, now maintained in KiCad 10 (`hardware/README.md`).
+- 6502: ca65/ld65, tested on a py65 65C02 emulator harness; disk image built by `software/mkdisk.py`.
 
 ## 7. Task list
-1. ~~KiCad symbols and footprints~~ (done: `hardware/lib`)
-2. ~~KiCad schematic~~ (done: v0.1; netlist checks pass, `tools/check_netlist.py`)
-3. CPLD: Verilog plus testbench (1 MHz and 3.6 MHz waveforms, refresh, unlock/RTC mode).
-4. ~~Confirm the ATF1504AS PLCC-44 pinout~~ (done: matches the datasheet).
-4b. ~~Replace the DS1210 with a MAX693A~~ (done). The DS3231M+ is accepted.
-5. ~~Board outline / hole / J1 position~~ (measured; see mechanical.md). The 100×90 board is placed (hardware/placement-preview.png).
-6. PCB layout → DRC → gerbers, drill, BOM and position files.
-7. Order boards and parts; assemble (all THT except the DS3231 SOIC).
-8. ~~6502: RTC driver and set-clock utility~~ (done: `software/`, emulator-tested; dual copy aux + main).
-9. 6502: RAM test (the built-in `C50AG` diagnostics should also pass).
+1. ~~KiCad symbols, footprints, schematic~~ (done)
+2. ~~CPLD Verilog + testbench~~ (done), ~~fitted and verified~~ (done)
+3. ~~PCB layout, DRC, Gerbers, drill, BOM, placement~~ (done; KiCad 10, 100 × 90 mm)
+4. ~~6502 clock driver, set-clock utility, card test, disk image~~ (done)
+5. Order boards and parts; assemble; program the CPLD; bring-up with `CARD.TEST` (tests 1, 2, 5 at 1 and 3.6 MHz).
+6. AppleWorks 5.1 support (§8.3).
+7. Driver: shorten the interrupts-off window for interrupt-driven serial (§8.2).
+
+## 8. Software compatibility: comparison with AE's DClock, GBBS Pro, AppleWorks (Nov 2026)
+
+### 8.1 How DClock did it (AE DClock User's Manual v1.0, 1988)
+- Hardware: a Dallas **DS1215** phantom clock plugged into a DRAM socket on the IIc memory card (Ram Express or
+  Apple's card), coexisting with the DRAM for **bit 0 of the third bank** (App. B, p. 14).
+- Unlock: one read, then **64 writes** to that bit carrying `$5CA3 3AC5 5CA3 3AC5` (LSB first); a wrong bit or an
+  intervening read aborts. Then the 8 BCD registers are read or written as one 64-bit block, one bit per access.
+  AE quotes false-trigger odds under 1 in 10^19.
+- Ours is the same idea: a 64-bit key arriving through ordinary expansion-RAM accesses (8 bytes instead of 64 bits),
+  with the same false-trigger odds. The difference is after the key: DClock's chip shifts its bits out
+  directly, while ours bit-bangs an I²C conversation (start/stop, ACKs, address and register pointer) with the
+  DS3231. That is why our driver is ~365 bytes and doesn't fit in ProDOS's 125-byte clock slot.
+- DClock's AppleWorks patch ("ClockWorks", Ch. 2) did not do the time reading. DCLOCK.SYSTEM made DClock a ProDOS
+  clock; ClockWorks added a live date/time on AppleWorks' bottom line (replacing "Apple-? for Help") and `@` to
+  fill DATE/TIME database categories. It was built into the AW 2 Expander. A live display under AppleWorks
+  implies DClock's driver survived AppleWorks, i.e. fitted in the ProDOS slot (an inference; the manual
+  doesn't say where the driver lives).
+
+### 8.2 GBBS Pro (source: github.com/callapple/GBBS-2.x)
+**Expected to work, with the time advancing.** Configure GBBS with the **ProDOS** clock (`CONFIG/CLOCKS/PRODOS.S`),
+which just calls MLI GET_TIME and reads `$BF90-$BF93`.
+- GBBS is started from BASIC.SYSTEM (`-ACOS`, per CONFIG's closing instructions), so CLOCK.SYSTEM's chain to
+  BASIC.SYSTEM is right. Put `-ACOS` in STARTUP after `BRUN CLOCK.MAIN` (the main copy is lost when ACOS
+  loads, which is fine).
+- ACOS never touches the aux-memory switches (no RAMRD/RAMWRT/AUXMOVE anywhere in ACOS or the GBBS
+  segments; only the Thunderclock driver does), so our **aux copy at $0C00 survives**. ACOS puts code in the
+  language card at `$D500+` in bank 2 (`$C083`); ProDOS's clock slot at `$D742` is in bank 1, so the stub
+  survives too.
+- **Caveat: interrupts.** Since 1991 the GBBS SSC driver is interrupt-driven with a ring buffer
+  (`CONFIG/MODEMS/HAYES.SSC.S`). Our driver runs with interrupts off for ~2 ms; at 9600 baud and above (~1 ms per
+  character, one-byte receive register) a character arriving then can be lost. Fix (task 7): keep `sei` only
+  around the parts that touch RAM-disk bytes (save, key, restore) and let the I²C transfer run with interrupts on.
+  RTC mode is only entered after the key, and an interrupt handler that touched the expansion RAM mid-transfer
+  would hit the RTC port. GBBS's handlers don't, but that case should still be handled before relaxing `sei`.
+- Not yet tested on hardware or in an emulator.
+
+### 8.3 AppleWorks 5.1 (target: the last 8-bit version)
+Facts (AppleWorks 5 Delta manual):
+- AW5 needs 256K; IIc-class machines need a slinky card (`SEG.XM`, "Apple Memory"). On a Laser 128EX our 1 MB card
+  is what lets AW5 run, and AW5 uses it as desktop memory.
+- AW5 reads the clock continuously: main-menu clock display, time-based screen blanking, and AfterWork modules
+  that need a clock.
+
+Today: AW5 takes over main and aux memory, so both copies of our driver body get overwritten. The stub's
+signature/checksum check skips them safely, so the date/time stays frozen at AW5's launch. AW5's timed
+features would stop working.
+
+Plan for a patch:
+1. The stub already accepts a body at any page (`stub+5` main page, `stub+6` aux page) and the body is relocatable.
+   So the patch only needs **two pages AW5 will never use**, plus a small loader that copies the body there and
+   pokes the page number into the stub.
+2. Find those two pages: AW5's memory map (main, aux, language-card banks, what SEG.XM keeps in main memory).
+   Sources to read: Lissner's AW 2.0 program/source notes (on the Asimov mirror; older version, but documents
+   the hooks and memory structure), the TimeOut programmer documentation in
+   `documentation/applications/appleworks/time_out/`, and the AW5 disk images.
+3. Candidate approaches, in order of preference:
+   - **Reserve two pages through AW5 itself** (lower its memory top, or a TimeOut module allocated as permanent
+     and resident in main memory), then point the stub at them.
+   - A small patch to AW5's startup (APLWORKS.SYSTEM) that does the same before AW5 sizes memory.
+   - Last resort: rework the driver to fit the 125-byte slot (would need hardware help, see below).
+4. Interaction to verify: AW5 uses the slinky card itself. Our driver saves and restores the slinky address and
+   the 8 bytes under the key, and ProDOS calls the clock from AW5's main code, not inside its RAM transfers, so
+   this should be safe, but it must be tested.
+5. Test plan: AW5.1 on real hardware or an emulator with the user's ROMs (none available here). Check that the
+   main-menu clock advances, a file saved later carries the later time, and screen blanking triggers.
+
+Hardware alternative for a future revision: a 3-wire RTC (e.g. DS1302: one command byte, then a plain bit stream,
+no ACK/addressing) behind the same key would make a driver small enough for ProDOS's slot, as DClock's was. That
+would make AppleWorks and anything else work with no patch, but the DS1302 is crystal-based (more drift than the
+DS3231's TCXO) and the board would change.
