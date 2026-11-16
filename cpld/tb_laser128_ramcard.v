@@ -150,25 +150,64 @@ module tb;
     reg [7:0]  v;
     integer i, k;
 
+    // RAM-mode write to a random address in any of the four banks (the real driver writes the key at
+    // whatever the slinky address happens to be). The shadow copy is kept up to date.
+    task automatic wram(input bit fast, input [7:0] val);
+        reg [19:0] a;
+        begin a = $urandom & 20'hFFFFF; shadow[a] = val; wr8(fast, a, val); end
+    endtask
+
+    // Quiet-bus check: once /E1MOE has been high for 30 ns (CPLD delay plus margin), SRAM CE and the
+    // '245 enable must both be off. A '245 left enabled would drive the Laser's data bus during
+    // other devices' read cycles, which the card-cycle tests alone can't see.
+    // (e1hi is set by the edge events themselves, so the check can't race the timestamp update)
+    real t_e1hi = 0; integer quiet_viol = 0; reg quiet_seen = 0, e1hi = 1;
+    always @(posedge e1moe_n) begin t_e1hi = $realtime; quiet_seen = 0; e1hi = 1; end
+    always @(negedge e1moe_n) e1hi = 0;
+    always #1 if (pwr_rst_n === 1'b1 && e1hi && $realtime > t_e1hi + 30 && !quiet_seen
+                  && (ce_d !== 1'b1 || boe_d !== 1'b1)) begin
+        quiet_seen = 1; quiet_viol++;
+        if (quiet_viol <= 5) $display("FAIL quiet bus: /E1MOE high since %0.1f but CE=%b '245 /G=%b at %0.1f",
+                                      t_e1hi, ce_d, boe_d, $realtime);
+    end
+
     initial begin
         #10 pwr_rst_n = 0; #190 pwr_rst_n = 1;  // MAX693A /RESET pulse at power-up
 
-        // 1. random writes / reads at both speeds, all four banks
+        // 1. random writes / reads at both speeds, all four banks. Read back in a different order
+        //    from the writes: A18 comes from a latch that holds the previous access's bank bit, so
+        //    a fault there only shows when the preceding access differs between write and read.
         for (i = 0; i < 400; i++) begin
             addrs[i] = $urandom & 20'hFFFFF;
             v = $urandom;
             shadow[addrs[i]] = v;
             wr8(i & 1, addrs[i], v);
         end
-        for (i = 0; i < 400; i++) expect8(i % 3 == 0, addrs[i], shadow[addrs[i]], "ram readback");
+        for (i = 0; i < 400; i++) begin
+            k = (i * 7919 + 123) % 400;         // a permutation of 0..399
+            expect8(i % 3 == 0, addrs[k], shadow[addrs[k]], "ram readback");
+        end
+
+        // 1b. bank aliasing: the same offset in all four banks holds four different values
+        for (i = 0; i < 64; i++) begin : alias_test
+            reg [17:0] off; integer b;
+            off = $urandom;
+            for (b = 0; b < 4; b++) begin
+                v = $urandom; shadow[{b[1:0], off}] = v; wr8(i & 1, {b[1:0], off}, v);
+            end
+            for (b = 0; b < 4; b++) begin
+                k = (b * 3 + i) % 4;            // read the four banks in a rotating order
+                expect8(!(i & 1), {k[1:0], off}, shadow[{k[1:0], off}], "bank alias");
+            end
+        end
 
         // 2. near-miss key (7 good bytes + bad) must not unlock
-        for (k = 0; k < 7; k++) wr8(1, 20'h10000 + k, KEY[63-8*k -: 8]);
-        wr8(1, 20'h10007, 8'h00);
+        for (k = 0; k < 7; k++) wram(1, KEY[63-8*k -: 8]);
+        wram(1, 8'h00);
         if (dbg0) begin errors++; $display("FAIL: unlocked by a wrong 8th byte"); end
 
         // 3. correct key -> RTC mode
-        for (k = 0; k < 8; k++) wr8(1, 20'h20000 + k, KEY[63-8*k -: 8]);
+        for (k = 0; k < 8; k++) wram(1, KEY[63-8*k -: 8]);
         if (!dbg0) begin errors++; $display("FAIL: key did not unlock"); end
 
         // 4. RTC port: in RTC mode writes must not touch RAM and reads return {SIG,scl,sda}
@@ -185,7 +224,7 @@ module tb;
         for (i = 0; i < 8; i++) expect8(1, addrs[i], shadow[addrs[i]], "ram after rtc");
 
         // 6. power-on reset clears RTC mode
-        for (k = 0; k < 8; k++) wr8(0, 20'h30000 + k, KEY[63-8*k -: 8]);
+        for (k = 0; k < 8; k++) wram(0, KEY[63-8*k -: 8]);
         if (!dbg0) begin errors++; $display("FAIL: key did not unlock at 1 MHz"); end
         pwr_rst_n = 0; #50 pwr_rst_n = 1;
         if (dbg0) begin errors++; $display("FAIL: reset did not clear RTC mode"); end
@@ -206,9 +245,9 @@ module tb;
                     nxt = (i == kb[s]) ? s + 1 : (i == kb[0]) ? 1 : 0;
                     for (j = 0; j < ((nxt == 8) ? 1 : 8); j++) begin
                         pwr_rst_n = 0; #20 pwr_rst_n = 1;
-                        for (k = 0; k < s; k++) wr8(1, 20'h40000 + k, kb[k]);
-                        wr8(1, 20'h40008, i[7:0]);
-                        if (nxt < 8) for (k = j; k < 8; k++) wr8(1, 20'h40010 + k, kb[k]);
+                        for (k = 0; k < s; k++) wram(1, kb[k]);
+                        wram(1, i[7:0]);
+                        if (nxt < 8) for (k = j; k < 8; k++) wram(1, kb[k]);
                         if (dbg0 !== (nxt == 8 || j == nxt || j == 0)) begin
                             errors++; n7++;
                             if (n7 <= 5) $display("FAIL key matcher: state %0d byte %02h tail %0d -> rtc_mode %b, want %b",
@@ -223,7 +262,8 @@ module tb;
         $display("read-data margin at CPU sample point: fast cycles %0.1f ns, 1 MHz %0.1f ns",
                  min_margin_fast, min_margin_slow);
         $display("SRAM timing violations: %0d", u5.viol + u6.viol);
-        errors += u5.viol + u6.viol;
+        $display("quiet-bus violations: %0d", quiet_viol);
+        errors += u5.viol + u6.viol + quiet_viol;
         if (errors == 0) $display("PASS");
         else             $display("FAILED with %0d errors", errors);
         $finish;
