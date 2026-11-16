@@ -304,6 +304,17 @@ def route(jar, java='java', passes=30):
     os.remove(dsn); os.remove(ses)
     print('routed: %d tracks/vias new or re-routed, all %d protected items unchanged' % (len(after - before), len(before)))
 
+def rip(*names):
+    """Remove every track and via of the named nets (e.g. ones a protected route pass couldn't complete)."""
+    board = pcbnew.LoadBoard(PCB)
+    names = set(n if n.startswith('/') else '/' + n for n in names)
+    tracks = list(board.GetTracks())
+    gone = [t for t in tracks if str(t.GetNetname()) in names or (t.Type() != pcbnew.PCB_VIA_T and t.GetLength() < 1000)]
+    for t in gone:
+        board.Remove(t)
+    board.Save(PCB)
+    print('ripped %d items on %s' % (len(gone), ', '.join(sorted(names))))
+
 def strip():
     """Fresh-route preparation: remove all tracks and vias except GND vias (stitching / island vias)."""
     board = pcbnew.LoadBoard(PCB)
@@ -316,7 +327,9 @@ def strip():
     print('stripped: kept %d GND vias, removed %d items' % (len(keep), len(tracks) - len(keep)))
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'move':
+    if sys.argv[1] == 'rip':
+        rip(*sys.argv[2:])
+    elif sys.argv[1] == 'move':
         move()
     elif sys.argv[1] == 'strip':
         strip()
