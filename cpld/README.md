@@ -62,7 +62,10 @@ Pin constraints: `hardware/README.md`. JTAG programming: ATDH1150USB, or ATMISP 
   Synthesis reports two "logic loop" / combinational-feedback warnings for `bank[0]` and `bank[1]`:
   **these are intended.** In the fitter report, check that each bank bit is one macrocell with feedback and
   that the equation still has both terms.
-- Expected size: roughly 35–45 of 64 macrocells (not yet fitted).
+- **Fitted (Nov 2026):** 38/64 macrocells, 9 flip-flops, 31/32 I/O, JTAG on, PD1/PD2 off, every pin as on
+  the PCB. Both bank bits came out as one macrocell each with both terms intact
+  (`ma18 = !ecas2_n # !ecas4_n # (ecas1_n & ecas3_n & ma18)`). The fitted equations pass the full testbench
+  with the same 14 ns margin as the RTL. Programming file: `fit/laser128_ramcard.jed`; see `fit/README.md`.
 
 On the first board, scope /ECAS against /E1MOE at the fast-cycle boundary. The logic assumes the
 previous cycle's /ECAS has gone high before the next /E1MOE falls.
