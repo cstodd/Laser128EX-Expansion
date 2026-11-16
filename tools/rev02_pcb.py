@@ -149,19 +149,21 @@ def prep():
     print('U8 swapped; %d pad nets changed; %d track/via items removed (SDA/SCL/MEMRD + dangling +5V/VBAT)' % (changed, removed))
 
 # Step 1b ('move'): the DS3234 cluster goes next to the CPLD so RTC_CS_n / RTC_SCLK / RTC_DIO are short and
-# don't need the two long corridors to the bottom of the board. Room comes from the JTAG pull-ups R3-R5 and C3:
-# all five resistors become the vertical (2.54 mm pitch) DIN0207 footprint. Targets are courtyard centres in
-# board coordinates (mm from the lower-left board corner, y up) and orientation in degrees.
+# don't need the two long corridors to the bottom of the board. U8 (SMD, so B.Cu stays free under it) takes the
+# JTAG pull-ups' spot right of the CPLD; R3-R5 stay horizontal (tracks pass between their pads) and stack below
+# it; R1/R2 (vertical DIN0207) and the two disc caps sit in the gap between the CPLD and the RAMs. The x 85-93
+# strip in front of J1 stays clear for the edge-connector fan-out. Targets are courtyard centres in board
+# coordinates (mm from the lower-left board corner, y up) and orientation in degrees.
 RVERT = ('Resistor_THT', 'R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical')
 PLACE = {
-    'U8': (None, 79.0, 55.3, 0),     # SOIC-20W: pin 1 (CS) and pins 17-20 (DIN/SCLK/DOUT) face the CPLD
-    'C3': (None, 87.6, 50.0, 90),    # CPLD decoupling, moved from under U8's new spot
-    'C9': (None, 87.6, 58.0, 90),    # U8 decoupling
-    'R2': (RVERT, 91.1, 51.4, 90),
-    'R1': (RVERT, 91.1, 58.0, 90),
-    'R3': (RVERT, 76.0, 64.6, 0),
-    'R4': (RVERT, 82.0, 64.6, 0),
-    'R5': (RVERT, 88.0, 64.6, 0),
+    'U8': (None, 79.1, 61.1, 90),    # SOIC-20W: DIN/SCLK/DOUT (17-20) top-left, CS (1) bottom-left, toward U1
+    'R3': (None, 79.05, 47.27, 0),
+    'R4': (None, 79.05, 50.37, 0),
+    'R5': (None, 79.05, 53.47, 0),
+    'R1': (RVERT, 69.0, 53.0, 0),
+    'R2': (RVERT, 69.0, 49.0, 0),
+    'C9': (None, 61.5, 53.0, 0),     # U8 decoupling
+    'C3': (None, 61.5, 49.0, 0),     # CPLD decoupling
 }
 
 def crtyd_offset(lib, name, rot):
@@ -244,12 +246,6 @@ def move():
         board.Remove(tracks[i])
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     board.Save(PCB)
-    # J1's back-silk 'J1 SOCKET THIS SIDE' slides 7.6 mm down the connector, clear of R2's pads (text edit:
-    # footprint graphics aren't iterable from Python here)
-    s = open(PCB).read()
-    a = '(fp_text user "J1 SOCKET THIS SIDE"\n\t\t\t(at -2.6 17.78 90)'
-    if a in s:
-        open(PCB, 'w').write(s.replace(a, a.replace('17.78', '25.4')))
     print('moved %s; %d track/via items removed' % (', '.join(PLACE), len(kill)))
 
 def touches_pad(board, pt, netname):
