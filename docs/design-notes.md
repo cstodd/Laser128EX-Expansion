@@ -311,3 +311,18 @@ be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK gli
    Rev 0.2 CLOCK.SYSTEM, CLOCK.SET (incl. BB_TD option), CARD.TEST and disk image `software/rev02/dist/LASERCLOCK2.po`: done, emulator-tested.
    **Board note: DIN/DOUT line needs a pull-DOWN** (the driver relies on it to send read address 00h).
 3. If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.
+
+### Board refactor status (rev 0.2 PCB, `hardware/rev02`, scripted in `tools/rev02_sch.py` / `tools/rev02_pcb.py`)
+- Schematic done (DS3234SN#, R1 1k series DIN/DOUT link, R2 47k pull-down, CPLD pins 34/36/39); ERC clean.
+- PCB `prep`: U8 → SOIC-20W, rev 0.2 nets, stale copper removed. Routing U8 at its old spot (bottom of the
+  board) failed: three SPI nets need to get from the CPLD to the bottom and only two corridors exist (the old
+  SDA/SCL routes).
+- PCB `move` (option 1): U8 rotated 90° just right of the CPLD (old R3–R5 spot; SMD, so B.Cu passes under it),
+  R3–R5 horizontal stacked below it, R1/R2 vertical DIN0207 (2.54 mm) and C3/C9 between the CPLD and the RAMs;
+  the x 85–93 mm strip in front of J1 is kept clear. A first try that put R1/R2/C3/C9 in that strip walled off
+  J1's fan-out and was dropped.
+- All four RTC nets route easily now. **Open:** Freerouting (protected-incremental and full re-routes) leaves
+  two or more CPLD↔J1 nets unrouted: best result so far is **ECAS3_n (U1-4 → J1-26) and ERA8 (U1-8 → J1-10)**,
+  both leaving the PLCC socket's top row. Hand-routing these two in KiCad is the likely quickest finish;
+  otherwise keep iterating placement. Also still to do: silk cleanup (J2 ref over U8 pads, R1/R2 refs), GND
+  pour islands / starved thermals, DRC 0/0, fab outputs, `hardware/rev02/README.md`.
