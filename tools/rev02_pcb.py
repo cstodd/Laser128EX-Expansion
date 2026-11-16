@@ -58,6 +58,7 @@ def prep():
     pos = old.GetPosition(); pos.y += mm(0.5)          # 0.5 mm down: the longer body clears C5's courtyard
     new.SetPosition(pos); new.SetOrientation(old.GetOrientation())
     new.SetReference('U8'); new.SetValue('DS3234SN#')
+    board.FindFootprintByReference('R1').SetValue('1k'); board.FindFootprintByReference('R2').SetValue('47k')
     new.SetPath(old.GetPath()); new.SetSheetname(old.GetSheetname()); new.SetSheetfile(old.GetSheetfile())
     new.Reference().SetPosition(old.Reference().GetPosition())
     board.Remove(old); board.Add(new)
@@ -150,5 +151,57 @@ def prep():
 def touches_pad(board, pt, netname):
     return any(p.GetNetname() == netname and p.HitTest(pt) for fp in board.GetFootprints() for p in fp.Pads())
 
+def key(t):
+    if t.Type() == pcbnew.PCB_VIA_T:
+        return ('via', t.GetPosition().x, t.GetPosition().y, t.GetWidth(pcbnew.F_Cu), str(t.GetNetname()))
+    return ('trk', t.GetStart().x, t.GetStart().y, t.GetEnd().x, t.GetEnd().y, t.GetLayer(), t.GetWidth(), str(t.GetNetname()))
+
+def route(jar, java='java', passes=30):
+    passes = int(passes)
+    board = pcbnew.LoadBoard(PCB)
+    # Optional window (board mm, origin top-left of the outline) where existing routing may be moved:
+    # ROUTE_WINDOW="x1,y1,x2,y2". Everything else is protected and must come back unchanged.
+    bb = board.GetBoardEdgesBoundingBox(); ox, oy = bb.GetX(), bb.GetY()   # plain ints (SWIG temporaries go stale)
+    win = None
+    if os.environ.get('ROUTE_WINDOW'):
+        x1, y1, x2, y2 = (mm(float(v)) for v in os.environ['ROUTE_WINDOW'].split(','))
+        win = pcbnew.BOX2I(pcbnew.VECTOR2I(ox + int(x1), oy + int(y1)), pcbnew.VECTOR2I(int(x2 - x1), int(y2 - y1)))
+    def inwin(t):
+        if win is None: return False
+        pts = [t.GetPosition()] if t.Type() == pcbnew.PCB_VIA_T else [t.GetStart(), t.GetEnd()]
+        return any(win.Contains(p) for p in pts)
+    tracks = list(board.GetTracks())
+    before = set(key(t) for t in tracks if not inwin(t))
+    for t in tracks:
+        t.SetLocked(not inwin(t))              # locked = exported as protected wires: Freerouting never moves them
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    dsn, ses = os.path.join(HW, 'rev02.dsn'), os.path.join(HW, 'rev02.ses')
+    for f in (dsn, ses):
+        if os.path.exists(f): os.remove(f)
+    if not pcbnew.ExportSpecctraDSN(board, dsn):
+        raise SystemExit('DSN export failed')
+    cmd = [java, '-jar', jar, '-de', dsn, '-do', ses, '--gui.enabled=false', '--api_server.enabled=false',
+           '--router.autorouter.max_passes=%d' % passes, '--router.optimizer.enabled=false',
+           '--router.automatic_neckdown=false', '--router.copper_to_edge_clearance_um=%s' % os.environ.get('ROUTE_EDGE_UM', '600'),
+           '--router.job_timeout=00:15:00', '--usage_and_diagnostic_data.disable_analytics=true']
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1200)
+    if not os.path.exists(ses):
+        raise SystemExit('no session file')
+    if not pcbnew.ImportSpecctraSES(board, ses):
+        raise SystemExit('SES import failed')
+    after = set(key(t) for t in board.GetTracks())
+    lost = before - after
+    if lost:
+        raise SystemExit('import lost %d original tracks/vias: not saving (e.g. %s)' % (len(lost), sorted(lost)[:3]))
+    for t in board.GetTracks():
+        t.SetLocked(False)
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    board.Save(PCB)
+    os.remove(dsn); os.remove(ses)
+    print('routed: %d tracks/vias new or re-routed, all %d protected items unchanged' % (len(after - before), len(before)))
+
 if __name__ == '__main__':
-    {'prep': prep}[sys.argv[1]]()
+    if sys.argv[1] == 'prep':
+        prep()
+    else:
+        route(*sys.argv[2:])

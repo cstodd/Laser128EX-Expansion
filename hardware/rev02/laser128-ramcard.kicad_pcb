@@ -8123,7 +8123,7 @@
 				)
 			)
 		)
-		(property "Value" "4.7k"
+		(property "Value" "1k"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "c750aa60-819c-4fa4-85b5-b05330a75ee2")
@@ -9527,7 +9527,7 @@
 				)
 			)
 		)
-		(property "Value" "4.7k"
+		(property "Value" "47k"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "ea48273b-e1b3-42b7-bbfc-d001720bc169")
@@ -14641,6 +14641,30 @@
 		(layer "B.Cu")
 		(net "/TCK")
 		(uuid "e53e320e-77dd-4753-afad-854f034f15e6")
+	)
+	(segment
+		(start 94 137)
+		(end 75.3019 137)
+		(width 0.2)
+		(layer "F.Cu")
+		(net "/VBAT")
+		(uuid "0161ed97-296d-484c-94c4-fade5aff74fd")
+	)
+	(segment
+		(start 75.3019 137)
+		(end 63.3019 125)
+		(width 0.2)
+		(layer "F.Cu")
+		(net "/VBAT")
+		(uuid "49aa573c-242e-40ca-92e9-2abea65c2522")
+	)
+	(segment
+		(start 61.5 125)
+		(end 63.3019 125)
+		(width 0.2)
+		(layer "F.Cu")
+		(net "/VBAT")
+		(uuid "bdd6a83c-9a4e-43ef-a29a-fb655cf15763")
 	)
 	(segment
 		(start 129.8238 115.2181)
@@ -23709,30 +23733,6 @@
 		(layer "F.Cu")
 		(net "/D0")
 		(uuid "f6ba4596-19c5-4359-9b37-89adcced0086")
-	)
-	(segment
-		(start 94 137)
-		(end 75.3019 137)
-		(width 0.2)
-		(layer "F.Cu")
-		(net "/VBAT")
-		(uuid "0161ed97-296d-484c-94c4-fade5aff74fd")
-	)
-	(segment
-		(start 75.3019 137)
-		(end 63.3019 125)
-		(width 0.2)
-		(layer "F.Cu")
-		(net "/VBAT")
-		(uuid "49aa573c-242e-40ca-92e9-2abea65c2522")
-	)
-	(segment
-		(start 61.5 125)
-		(end 63.3019 125)
-		(width 0.2)
-		(layer "F.Cu")
-		(net "/VBAT")
-		(uuid "bdd6a83c-9a4e-43ef-a29a-fb655cf15763")
 	)
 	(zone
 		(net "/GND")
