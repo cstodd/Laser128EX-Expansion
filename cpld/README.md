@@ -17,6 +17,8 @@ delay, and 2× AS6C4008 with datasheet read access times and write-timing checks
 - the correct key unlocks, and the RTC port's SDA/SCL drive and read-back work;
 - clock-mode accesses never touch RAM, including the lock write;
 - the power-on reset clears clock mode.
+- the key matcher, exhaustively: every state (0–7 bytes matched) × every byte value, 2048 cases, each
+  checked by which key tails then unlock. It takes ~45 s; add `+quick` to the `vvp` command to skip it.
 
 ## Results (Nov 2026)
 
@@ -48,9 +50,20 @@ If it fails, fit the 45 ns SRAM on a TSOP-to-DIP adapter or a -7 CPLD.
    was written into RAM. Mode changes now apply when the write cycle ends.
 
 ## Fitting and programming
-Not done here (Windows tools). Either use WinCUPL/`fit1504` via the Yosys→EDIF flow
-(github: hoglet67/atf15xx_yosys), or Quartus II 13.0sp1 targeting EPM7064SLC44 followed by POF2JED.
-Pin constraints: `hardware/README.md`. JTAG programming: ATDH1150USB, or ATMISP + FT232H via SVF.
+**Done: `fit/laser128_ramcard.jed`** is the programming file (both the -10JU44 and the -7JX44; same fuses).
+Flow, all on Linux: Yosys → hoglet67/atf15xx_yosys → Atmel `fit1504.exe` under Wine. `fit/build.sh` reruns it
+and has three checks, each of which must pass before the .jed is accepted:
+1. **RTL testbench** (`tb_laser128_ramcard.v`) on the source design.
+2. **Post-fit:** the fitter's own equation listing, turned back into Verilog (`fit/fit2v.py`), on the same testbench.
+3. **Fuse-level:** the .jed itself, decoded with Project Bureau's open fuse database (`fit/jed2v.py`), on the
+   same testbench. This one doesn't trust the fitter at all.
+
+All three pass with identical results. Details, the one prjbureau database gap (MC46) and how it was
+handled, and tool setup: `fit/README.md`. Pin constraints: `fit/pins.txt` (matches `hardware/README.md`).
+JTAG programming via J2: ATDH1150USB + ATMISP (loads the .jed directly), or FT232H/USB-Blaster + OpenOCD
+with an SVF made by ATMISP.
+
+The fallback flow (Quartus II 13.0sp1 for EPM7064SLC44, then POF2JED) wasn't needed.
 
 **Fitter settings that matter:**
 - **Keep JTAG enabled** (`-strategy JTAG on` / the ISP device variant). A design fitted with JTAG off can
@@ -62,10 +75,10 @@ Pin constraints: `hardware/README.md`. JTAG programming: ATDH1150USB, or ATMISP 
   Synthesis reports two "logic loop" / combinational-feedback warnings for `bank[0]` and `bank[1]`:
   **these are intended.** In the fitter report, check that each bank bit is one macrocell with feedback and
   that the equation still has both terms.
-- **Fitted (Nov 2026):** 38/64 macrocells, 9 flip-flops, 31/32 I/O, JTAG on, PD1/PD2 off, every pin as on
+- **Result (Nov 2026):** 38/64 macrocells, 9 flip-flops, 31/32 I/O, JTAG on, PD1/PD2 off, every pin as on
   the PCB. Both bank bits came out as one macrocell each with both terms intact
-  (`ma18 = !ecas2_n # !ecas4_n # (ecas1_n & ecas3_n & ma18)`). The fitted equations pass the full testbench
-  with the same 14 ns margin as the RTL. Programming file: `fit/laser128_ramcard.jed`; see `fit/README.md`.
+  (`ma18 = !ecas2_n # !ecas4_n # (ecas1_n & ecas3_n & ma18)`), read both from the fitter report and from the
+  decoded fuses. MEMRD's pin 39 has its output permanently off in the fuses.
 
 On the first board, scope /ECAS against /E1MOE at the fast-cycle boundary. The logic assumes the
 previous cycle's /ECAS has gone high before the next /E1MOE falls.
