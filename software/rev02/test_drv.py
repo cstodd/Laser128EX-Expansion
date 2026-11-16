@@ -89,13 +89,11 @@ class Machine2(H.Machine):
         self.mpu.sp = 0xF0
 
 def build():
-    b = os.path.join(HERE, 'build'); os.makedirs(b, exist_ok=True)
-    subprocess.check_call(['ca65', '-l', b + '/clkdrv.lst', '-o', b + '/clkdrv.o', HERE + '/clkdrv.s'])
-    open(b + '/drv.cfg', 'w').write('MEMORY { M: start = $D742, size = $7D, fill = no; }\nSEGMENTS { DRV: load = M, type = rw; }\n')
-    subprocess.check_call(['ld65', '-C', b + '/drv.cfg', '-o', b + '/clkdrv.bin', '-Ln', b + '/clkdrv.lbl', b + '/clkdrv.o'])
+    subprocess.check_call([sys.executable, os.path.join(HERE, 'build.py')], stdout=subprocess.DEVNULL)
+    b = os.path.join(HERE, 'build')
     drv = open(b + '/clkdrv.bin', 'rb').read()
-    lbl = {l.split()[2].lstrip('.'): int(l.split()[1], 16) for l in open(b + '/clkdrv.lbl')}
-    return drv, (lbl['KEYOP_OFS'], lbl['KEYREV_OFS'])
+    info = dict(l.split(' = ') for l in open(b + '/drvinfo.inc').read().split('\n') if l)
+    return drv, (int(info['KEYOP_OFS']), int(info['KEYREV_OFS']))
 
 def install(M, drv, ofs, slot=H.STUB):
     """What CLOCK.SYSTEM (rev02) will do: copy into the slot, patch the key pointer, DATETIME = JMP."""
@@ -155,6 +153,65 @@ def main():
     M = Machine2(has_rtc=False, seed=9); install(M, drv, ofs); M.card.addr = 0x45678; ram0 = bytes(M.card.ram)
     clock_call(M)
     H.check(bytes(M.card.ram) == ram0 and not M.card.rtc_mode, 'card without RTC: returns, RAM disk unchanged')
+    B = os.path.join(HERE, 'build')
+    snap = lambda c: (bytes(c.ram), c.addr)
+    print('CLOCK.SYSTEM (rev 0.2)')
+    M = Machine2(seed=11); M.card.addr = 0x2468A; ram0 = snap(M.card)
+    aux0, dev0 = bytes(M.mem.aux), bytes(M.mem.main[0xBF26:0xBF40])
+    M.load(B + '/CLOCK.SYSTEM', 0x2000); M.call(0x2000, stop_pc=0x2000)
+    H.check('INSTALLED' in M.pd.out and 'NOT' not in M.pd.out, 'message: %r' % M.pd.out.strip())
+    H.check(M.pd.loaded == 0x2000 and M.mpu.pc == 0x2000, 'chained to BASIC.SYSTEM')
+    H.check(M.mem.main[0xBF06] == 0x4C and M.mem.main[0xBF98] & 1, 'DATETIME = JMP, MACHID clock bit set')
+    slot = M.mem.main[0xBF07] | (M.mem.main[0xBF08] << 8)
+    inst = bytes(M.mem.lc1[slot - 0xD000:slot - 0xD000 + len(drv)])
+    op, kr = ofs
+    want = bytearray(drv); want[op], want[op + 1] = (slot + kr) & 0xFF, (slot + kr) >> 8
+    H.check(inst == bytes(want), 'driver in the ProDOS slot at $%04X, key pointer patched' % slot)
+    H.check(snap(M.card) == ram0 and not M.card.rtc_mode, 'RAM disk + slinky address unchanged by the probe')
+    H.check(bytes(M.mem.aux) == aux0 and bytes(M.mem.main[0xBF26:0xBF40]) == dev0, '/RAM and all aux memory left alone')
+    M.mem.main[0xBF90:0xBF94] = bytes(4)
+    clock_call(M)
+    H.check(M.prodos_date() == (26, 11, 15, 21, 47), 'clock call after install: %r' % (M.prodos_date(),))
+
+    M = Machine2(seed=12); M.mem.main[0xBF98] |= 1
+    M.load(B + '/CLOCK.SYSTEM', 0x2000); M.call(0x2000, stop_pc=0x2000)
+    H.check('ALREADY' in M.pd.out and M.mem.main[0xBF06] != 0x4C, 'another clock active: leaves it alone')
+    M = Machine2(has_rtc=False, seed=13); M.card.addr = 0x13579; ram0 = snap(M.card)
+    M.load(B + '/CLOCK.SYSTEM', 0x2000); M.call(0x2000, stop_pc=0x2000)
+    H.check('NOT FOUND' in M.pd.out and M.mem.main[0xBF06] != 0x4C, 'no RTC: NOT FOUND, nothing installed')
+    H.check(snap(M.card) == ram0, 'no RTC: RAM disk + address unchanged')
+
+    print('CLOCK.SET (rev 0.2)')
+    M = Machine2(seed=14); install(M, drv, ofs); M.card.addr = 0x0BEEF; ram0 = snap(M.card)
+    M.rtc.regs[0x0F] = 0x88                                  # OSF set, 32 kHz on
+    M.load(B + '/CLOCK.SET', 0x6000)
+    P = M.mem.main
+    P[0x300:0x309] = bytes([28, 10, 9, 13, 7, 0, 2, 0, 1])  # 2028-10-09 13:07:00, Monday, BB_TD on
+    M.call(0x6000)
+    H.check(P[0x307] == 0, 'result 0')
+    H.check(M.rtc.regs[0:7] == [0x00, 0x07, 0x13, 2, 0x09, 0x10, 0x28], 'DS3234 00h-06h: %s' % [hex(x) for x in M.rtc.regs[0:7]])
+    H.check(M.rtc.regs[0x0F] == 0 and M.rtc.regs[0x13] == 1, '0Fh = 00h (OSF cleared), 13h BB_TD = 1')
+    H.check(snap(M.card) == ram0 and not M.card.rtc_mode, 'RAM disk + address unchanged')
+    clock_call(M)
+    H.check(M.prodos_date() == (28, 10, 9, 13, 7), 'driver reads the new time: %r' % (M.prodos_date(),))
+    P[0x308] = 0; M.call(0x6000)
+    H.check(M.rtc.regs[0x13] == 0, 'BB_TD = 0 when not requested')
+    M = Machine2(has_rtc=False, seed=15); M.card.addr = 0x0BEEF; ram0 = snap(M.card)
+    M.load(B + '/CLOCK.SET', 0x6000); M.call(0x6000)
+    H.check(M.mem.main[0x307] == 0xFF and snap(M.card) == ram0, 'no RTC: result $FF, RAM disk unchanged')
+
+    print('CARDTEST clock read (rev 0.2)')
+    M = Machine2(seed=16); M.card.enabled = True; M.card.addr = 0x0ABCD; ram0 = snap(M.card)
+    M.rtc.regs[0x0F] = 0x80
+    M.load(B + '/CARDTEST', 0x6000); P = M.mem.main
+    P[0x300] = 4; M.call(0x6000, limit=5_000_000)
+    H.check(P[0x301] == 0 and list(P[0x310:0x320]) == M.rtc.regs[0:16], 'registers 00h-0Fh -> $0310 (OSF bit visible)')
+    H.check(snap(M.card) == ram0 and not M.card.rtc_mode, 'RAM disk + address unchanged')
+    P[0x300] = 1; P[0x309] = 1; P[0x30A] = 0; M.call(0x6000, limit=60_000_000)
+    H.check(P[0x301] == 0 and snap(M.card) == ram0, 'quick RAM test (64K): pass, non-destructive')
+    M = Machine2(has_rtc=False, seed=17); M.card.enabled = True
+    M.load(B + '/CARDTEST', 0x6000); M.mem.main[0x300] = 4; M.call(0x6000, limit=5_000_000)
+    H.check(M.mem.main[0x301] == 0xFF, 'no RTC: clock read reports $FF')
     print('worst-case cycles per clock call: %d (~%.1f ms at 1 MHz), interrupts left enabled throughout' % (worst, worst / 1000))
     print('\n%s' % ('ALL PASS' if not H.FAILS else '%d FAILED' % len(H.FAILS)))
     return 1 if H.FAILS else 0

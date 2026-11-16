@@ -23,14 +23,24 @@ Scratch: `$3B-$3D` (ProDOS's own clock driver uses `$3A-$3E`) and `$200-$207` (P
 address's mid/high bytes are kept; its low byte ends at `01` (the RAM-disk firmware sets the address before
 each transfer, as with the DClock driver).
 
-Installer (to do, rev 0.2 CLOCK.SYSTEM): probe for the rev 0.2 RTC, copy the driver to `DATETIME+1`, patch the
-key-table pointer (`KEYOP_OFS` → slot + `KEYREV_OFS`), set `DATETIME` to `JMP`, set the MACHID clock bit, chain.
-Also to do: rev 0.2 CLOCK.SET (SPI writes, 24-hour mode, and the BB_TD / CRATE settings) and CARD.TEST's
-clock test.
+## Programs (`dist/LASERCLOCK2.po`, built by `python3 software/rev02/build.py`)
+| File | Type | What it does |
+|---|---|---|
+| `CLOCK.SYSTEM` | SYS | Put it before BASIC.SYSTEM. Probes for the rev 0.2 card, copies the driver into ProDOS's clock slot (patching its key pointer), sets `DATETIME` and the MACHID clock bit, chains to BASIC.SYSTEM. **Leaves /RAM and all aux memory alone.** If a clock is already active (MACHID bit or `DATETIME` not RTS) it stands aside. |
+| `SET.CLOCK` | BAS | Asks for the date/time and whether to skip temperature compensation on battery (BB_TD), then runs `CLOCK.SET`. |
+| `CLOCK.SET` | BIN | Writes 00h–06h (24-hour), 0Fh = 00h (clears the oscillator-stopped flag, 64 s conversions, 32 kHz output off) and 13h BB_TD from `$0308`. |
+| `CARD.TEST` / `CARDTEST` | BAS / BIN | Same as rev 0.1 (`../rev01/`); the engine's clock read is SPI (registers 00h–0Fh, same layout as the DS3231 for what CARD.TEST shows). |
+
+No `CLOCK.MAIN` or `STARTUP` any more: the whole driver lives in ProDOS's slot.
+`rtcspi.inc` holds the shared SPI routines for the utilities (unlock/lock with a one-byte save, send, receive).
 
 ## Test
 `python3 software/rev02/test_drv.py`: 65C02 emulation (the rev 0.1 harness) with the rev 0.2 CPLD port
 and a DS3234 model. Six dates/times (incl. 2099-12-31 23:59 and months 8–12) at slinky addresses on page
 boundaries and the 1 MB wrap: correct DATE/TIME, RAM disk bit-for-bit unchanged, address mid/high kept,
 card back in RAM mode, no DIO contention, main memory untouched outside the scratch areas, interrupts never
-disabled; plus a card without the RTC (returns, RAM disk unchanged). **ALL PASS.**
+disabled; plus a card without the RTC (returns, RAM disk unchanged). Then the real programs: CLOCK.SYSTEM
+installs (driver bytes and key pointer checked), chains, leaves /RAM, aux memory and the RAM disk alone, stands
+aside for another clock, reports NOT FOUND without the RTC; CLOCK.SET writes 00h–06h, 0Fh and 13h and the driver
+reads the new time back; CARDTEST reads 00h–0Fh and runs a RAM test; no-RTC paths report $FF with the RAM disk
+intact. **ALL PASS.**
