@@ -47,6 +47,13 @@ After test 2, don't let anything write to the RAM disk before the retention chec
 - **`/RAM`**: ProDOS's own 64K RAM disk in the motherboard's auxiliary memory. `CLOCK.SYSTEM` removes it,
   because the clock driver lives in aux memory, and it stays gone until you boot without `CLOCK.SYSTEM`.
   Don't re-enable it with a utility: it would overwrite the driver.
+- This differs from most other ProDOS clock drivers (No-Slot Clock, DClock, Cricket, …): their drivers fit
+  entirely in ProDOS's 125-byte clock slot, so they leave `/RAM` alone. Ours is too large for the slot
+  (I²C plus the unlock key and RAM-disk save/restore), so its body lives in aux memory, and driver v2 still
+  needs `/RAM` gone (it would overwrite aux language card bank 2, where v2 lives; ProDOS TN #26). Removing
+  `/RAM` is also the signal that tells well-behaved programs that something else owns that memory. On
+  this card it's an easy trade: a 64K RAM disk that empties at power-off for a clock plus the 1 MB
+  battery-backed `/RAM5`.
 
 At boot you should see `LASER 128 CLOCK INSTALLED`. `NOT FOUND` means the card (or its CPLD
 logic) didn't answer; nothing is changed in that case.
