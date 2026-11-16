@@ -15,15 +15,15 @@ Board coordinates: origin at the top-left corner, x to the right, y down, viewed
 
 | Item | Position (mm) |
 |---|---|
-| Board outline | **108 × 90** (rev 0.1). Inside the stock envelope; right and bottom edges match the stock card |
-| H1 mounting hole (M3, Laser standoff) | (104.00, 86.00): 4 mm in from the right and bottom edges |
-| H2, H3 (M3, user standoffs/spacers) | (4, 4) and (4, 86): left-side support, position not critical |
-| J1 pin 1 (square pad, interior row) | (102.73, 27.44) |
-| J1 pin 30 | (105.27, 27.44) |
-| J1 pins 15 / 16 | (102.73, 63.00) / (105.27, 63.00): 23.00 mm above H1 |
+| Board outline | **100 × 90** (rev 0.1, KiCad 10). Inside the stock envelope; right and bottom edges match the stock card |
+| H1 mounting hole (M3, Laser standoff) | (96.00, 86.00): 4 mm in from the right and bottom edges |
+| H3 (M3, user standoff/spacer) | (5, 86): left-side support, position not critical (H2 removed) |
+| J1 pin 1 (square pad, interior row) | (94.73, 27.44) |
+| J1 pin 30 | (97.27, 27.44) |
+| J1 pins 15 / 16 | (94.73, 63.00) / (97.27, 63.00): 23.00 mm above H1 |
 | J1 socket body | **underside** (non-component side). Pad numbering is as seen from the component side |
 
-J1's row centreline is x = 104.00, through the H1 centre. The stock card extends a further ~82 mm to the left of our board (x < 0 in these coordinates),
+J1's row centreline is x = 96.00, through the H1 centre. The stock card extends a further ~90 mm to the left of our board (x < 0 in these coordinates),
 space we don't use.
 
 ## Still to confirm

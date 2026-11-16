@@ -1,13 +1,18 @@
 # Hardware (KiCad)
 
-`laser128-ramcard.kicad_sch` and `laser128-ramcard.kicad_pcb` were **generated** by the scripts in `tools/`.
-As of rev 0.1 the routed board is the master: make further changes in KiCad directly (or regenerate
-everything and re-route; see below).
+`laser128-ramcard.kicad_sch` and the first `laser128-ramcard.kicad_pcb` were **generated** by the scripts in
+`tools/` (KiCad 7). **The board is now maintained in KiCad 10** (trimmed to 100 × 90 mm, H2 removed, H3 moved
+to (5, 86), footprints updated to KiCad 10 libraries, island vias added). The `tools/` scripts can't read
+KiCad 10 files; they remain for history and for a full regenerate-and-reroute if ever needed.
 
-Status (rev 0.1): **fully routed, 2 layers, 108 × 90 mm.** DRC: 0 unconnected, 0 clearance errors
+Status (rev 0.1): **fully routed, 2 layers, 100 × 90 mm.** Re-checked from the KiCad 10 board and Gerbers: 282 pads
+match the schematic netlist, J1 pins 15/16 are 23.000 mm above H1 with the J1 centreline through H1, H1 is 4.000 mm
+from the right/bottom edges, 480 drill hits all land on copper on both layers. The fab origin is near the bottom-right
+corner, which is fine since every file shares it. DRC: 0 unconnected, 0 clearance errors
 (2 starved-thermal warnings on GND pads that also have their own tracks). Every board pad's net matches the
 schematic netlist. Fabrication outputs are in `fab/`; the ordering list is in `docs/ordering.md`.
-Previews: `render-top.png`, `render-bottom.png` (bottom mirrored).
+Previews: `render-gerber-top.png` / `render-gerber-bottom.png` (rendered from the Gerbers with gerbonara),
+`render-3D-top.png` / `render-3D-bottom.png` (KiCad 10).
 
 Notes on this route:
 - Signal tracks are 0.25 mm (0.187 mm in a few places). Power nets (+5V, VBB, VBAT, GND) are also routed at

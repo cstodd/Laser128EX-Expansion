@@ -5,7 +5,7 @@ Upload `hardware/fab/laser128-ramcard-gerbers.zip` (Gerbers + Excellon drill) to
 
 | Setting | Value |
 |---|---|
-| Size | 108 × 90 mm |
+| Size | 100 × 90 mm |
 | Layers | 2 |
 | Thickness | 1.6 mm |
 | Copper | 1 oz |
@@ -41,7 +41,7 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | R1, R2 | 2 | 4.7 kΩ ¼ W | I²C pull-ups |
 | R3, R4 | 2 | 10 kΩ ¼ W | JTAG TMS/TDI pull-ups |
 | R5 | 1 | 1 kΩ ¼ W | JTAG TCK pull-down |
-| H1–H3 | — | M3 screws / standoffs | H1 = the Laser's standoff; H2/H3 = your spacers |
+| H1, H3 | — | M3 screws / standoffs | H1 = the Laser's standoff; H3 = your spacer |
 
 Machine-readable versions: `hardware/fab/laser128-ramcard-bom.csv` and `-cpl.csv` (sockets not listed).
 
