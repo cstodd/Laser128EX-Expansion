@@ -4,6 +4,7 @@
 ; intact. Otherwise it returns without touching the date. Never crashes on a stale copy.
         .include "defs.inc"
 ZP      = $42                           ; pointer (saved/restored); clear of the body's $3A-$41
+ZS      = $44                           ; second checksum byte (saved/restored)
 
         .segment "STUB"
 stub:   jmp     start
@@ -16,6 +17,8 @@ start:  php
         lda     ZP
         pha
         lda     ZP+1
+        pha
+        lda     ZS
         pha
         lda     mainpg
         beq     tryaux
@@ -31,6 +34,8 @@ tryaux: lda     auxpg
         jsr     call                    ; body runs from aux; its DATE/TIME writes go to main
 :       sta     RAMRDOFF
 done:   pla
+        sta     ZS
+        pla
         sta     ZP+1
         pla
         sta     ZP
@@ -39,7 +44,8 @@ done:   pla
 
 call:   jmp     (ZP)
 
-; A = first page. Z=1 if it holds an intact body ("CLK1" at +3, all BODY_PAGES pages sum to 0)
+; A = first page. Z=1 if it holds an intact body ("CLK1" at +3 and both 8-bit Fletcher sums over
+; all BODY_PAGES pages are 0). A damaged copy passes with probability 1/65536.
 check:  sta     ZP+1
         lda     #0
         sta     ZP
@@ -50,11 +56,17 @@ check:  sta     ZP+1
         iny
         cpy     #BODY_SIG_OFS+4
         bne     :-
-        ldx     #BODY_PAGES
+        ldx     #BODY_PAGES             ; Fletcher-style: sum1 += byte, sum2 += sum1
         ldy     #0
         tya
+        sta     ZS
 :       clc
         adc     (ZP),y
+        pha
+        clc
+        adc     ZS
+        sta     ZS
+        pla
         iny
         bne     :-
         inc     ZP+1
@@ -62,6 +74,6 @@ check:  sta     ZP+1
         bne     :-
         dec     ZP+1                    ; back to the first page (BODY_PAGES = 2)
         dec     ZP+1
-        cmp     #0
+        ora     ZS                      ; both sums must be 0
 bad:    rts
 sigtab: .byte   "CLK1"

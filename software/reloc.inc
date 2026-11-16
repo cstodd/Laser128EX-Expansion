@@ -1,5 +1,5 @@
 ; Relocate the driver body image (assembled for page $10) into pages X.., linked for page A,
-; then make all BODY_PAGES*256 bytes sum to 0 (last byte adjusts). Uses ZP $06-$09.
+; then set the last two bytes so both Fletcher sums over BODY_PAGES*256 bytes are 0. Uses ZP $06-$09.
 ; reltab: RELCNT entries of (offset low, offset high) for high bytes to relocate.
 RL_SRC  = $06
 RL_DST  = $08
@@ -51,25 +51,41 @@ rl_rel: cpx     #RELCNT*2
         inx
         inx
         bne     rl_rel
-rl_sum: lda     rl_dpg                  ; checksum over all pages
+rl_sum: lda     rl_dpg                  ; Fletcher sums over all pages (last 2 bytes are 0)
         sta     RL_DST+1
         ldx     #BODY_PAGES
         ldy     #0
+        sty     rl_s2
         tya
 :       clc
         adc     (RL_DST),y
+        pha
+        clc
+        adc     rl_s2
+        sta     rl_s2
+        pla
         iny
         bne     :-
         inc     RL_DST+1
         dex
         bne     :-
-        dec     RL_DST+1                ; last byte of the last page
-        dey
-        sec                             ; it was included in the sum: new = old - sum
-        eor     #$FF
-        adc     (RL_DST),y
+        dec     RL_DST+1                ; last page
+        sta     rl_s1
+        sec
+        sbc     rl_s2                   ; byte[N-2] = S1 - S2
+        ldy     #254
+        sta     (RL_DST),y
+        lda     rl_s1
+        asl     a
+        sta     rl_s1
+        lda     rl_s2
+        sec
+        sbc     rl_s1                   ; byte[N-1] = S2 - 2*S1
+        iny
         sta     (RL_DST),y
         rts
+rl_s1:  .byte   0
+rl_s2:  .byte   0
 rl_pg:  .byte   0
 rl_dpg: .byte   0
 rl_cnt: .word   0

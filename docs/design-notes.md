@@ -56,8 +56,8 @@ selects a chip by giving only that one OE# or WE#. The other chip is enabled but
 - The stock KiCad 2×15 footprint numbers odd/even across the rows, so it **must not** be used.
 - Before ordering, print 1:1 and check it against the socket or the original card.
 
-Battery life estimate with the Laser off: SRAM ~6 µA typ + DS3231 ~0.84 µA + DS1210 0.1 µA ≈ 7 µA, so a
-220 mAh CR2032 lasts about 3 years of continuous off-time.
+Battery life estimate with the Laser off: two SRAMs at roughly 4–6 µA each (typical; to be measured) + DS3231
+~0.84 µA + MAX693A <0.1 µA ≈ 10–13 µA, so a 220 mAh CR2032 lasts roughly 2 years of continuous off-time.
 
 **Architecture under review:** see [`sourcing.md`](sourcing.md). The 1 MB SRAM is going EOL and a socketable
 PLCC-44 option exists.
@@ -94,7 +94,8 @@ DS1315 but implemented in the CPLD:
 
 ## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
 - Expansion-RAM cycles never run faster than **2.3 MHz**: at the 3.6 MHz setting the Laser slows to 2.3 MHz for
-  these accesses (Tech Ref App. A). The simulation shows ~74 ns read margin with 55 ns SRAM.
+  these accesses (Tech Ref App. A, p. A-3). With strobes at the delay-line tap times (an inference), the simulation
+  shows ~14 ns worst-case read margin with 55 ns SRAM on a bank change; see `cpld/README.md`.
 - /E1MOE rises exactly at the CPUP0 fall, while /RASB, /ECAS and /RWR are still low.
 - SRAM /WE = /RWR·/ECAS·/E1MOE, so the write ends on /E1MOE↑ (early) before data floats.
 - SRAM /OE and the '245 enable are held until /E1MOE↑ (late).

@@ -42,7 +42,7 @@ def main():
     os.makedirs(B, exist_ok=True)
     b10 = asm('clkbody.s', 'b10.o', 'body10.bin', cfg('b10', 'BODY', 0x1000, 0x200))
     b11 = asm('clkbody.s', 'b11.o', 'body11.bin', cfg('b11', 'BODY', 0x1100, 0x200))
-    assert len(b10) == len(b11) <= 511, 'body must fit in 511 bytes (last byte = checksum): %d' % len(b10)
+    assert len(b10) == len(b11) <= 510, 'body must fit in 510 bytes (last two = checksum): %d' % len(b10)
     rel = [i for i in range(len(b10)) if b10[i] != b11[i]]
     assert all(b11[i] - b10[i] == 1 for i in rel), 'unexpected relocation difference'
     open(os.path.join(B, 'reltab.bin'), 'wb').write(b''.join(bytes([i & 255, i >> 8]) for i in rel))

@@ -1,7 +1,9 @@
 ; CARDTEST: machine-language engine for CARD.TEST (BLOAD CARDTEST, CALL 24576).
 ; Parameter block at $0300:
 ;   $0300 CMD     1 = quick non-destructive RAM test, 2 = fill (destructive), 3 = verify fill,
-;                 4 = read clock registers 0-15 into $0310-$031F
+;                 4 = read clock registers 0-15 into $0310-$031F,
+;                 5 = bank-hop test (non-destructive): every access changes 256K bank, which is
+;                     the card's slowest path (A18 / chip select through the CPLD)
 ;   $0301 RESULT  0 = pass, 1 = errors, $FF = card/clock not responding
 ;   $0302 ERRADR  first failing address L,M,H
 ;   $0305 ERREXP  value written, $0306 ERRGOT value read
@@ -41,7 +43,11 @@ start:  bit     XEN                     ; enable the expansion RAM
         bcc     :+
         jmp     dead
 :
-        lda     NREG
+        lda     CMD
+        cmp     #5
+        bne     :+
+        jmp     dohop
+:       lda     NREG
         and     #$0F
         bne     :+
         lda     #16
@@ -99,7 +105,7 @@ next:   inc     bm
         asl     a
         cmp     endh
         bcc     blk
-        lda     ERRCNT
+fin:    lda     ERRCNT
         ora     ERRCNT+1
         beq     out
         lda     #1
@@ -117,6 +123,99 @@ out:    pla
 
 clock:  jsr     rtcregs
         jmp     out
+
+; ---- bank-hop test: 1024 offsets x 4 banks. Each location is saved, written and read back
+; with two complementary patterns in an order where every access is in a different bank
+; from the one before, then restored.
+dohop:  lda     #0
+        sta     hq
+hq_lp:  lda     #0
+        sta     hi
+hi_lp:  lda     hi
+        sta     am
+        asl     a
+        clc
+        adc     hi
+        clc
+        adc     #1
+        sta     al                      ; low byte = 3*i + 1
+        ldy     #0                      ; save: read twice, the 2nd read is in the same bank
+:       jsr     hset
+        lda     PORT
+        jsr     hset
+        lda     PORT
+        sta     hsave,y
+        iny
+        cpy     #4
+        bne     :-
+        lda     #0
+        jsr     hpass
+        lda     #$FF
+        jsr     hpass
+        ldy     #0                      ; restore
+:       jsr     hset
+        lda     hsave,y
+        sta     PORT
+        iny
+        cpy     #4
+        bne     :-
+        inc     hi
+        bne     hi_lp
+        lda     #'.' | $80
+        jsr     COUT
+        inc     hq
+        lda     hq
+        cmp     #4
+        bne     hq_lp
+        jmp     fin
+
+hpass:  sta     hmask                   ; write 4 banks, then read them in hopping order
+        ldy     #0
+:       jsr     hset
+        jsr     hopval
+        sta     PORT
+        iny
+        cpy     #4
+        bne     :-
+        ldx     #0
+hp_rd:  ldy     horder,x
+        stx     xs
+        jsr     hset
+        jsr     hopval
+        sta     expv
+        lda     PORT
+        cmp     expv
+        beq     :+
+        pha
+        lda     am
+        sta     bm
+        lda     curh
+        sta     bh
+        pla
+        ldx     al
+        jsr     recerr
+:       ldx     xs
+        inx
+        cpx     #8
+        bne     hp_rd
+        rts
+
+hset:   lda     al                      ; address = bank Y (256K) + hq*64K + am*256 + al
+        sta     XAL
+        lda     am
+        sta     XAM
+        tya
+        asl     a
+        asl     a
+        ora     hq
+        sta     XAH
+        sta     curh
+        rts
+
+hopval: lda     al                      ; value differs per bank and per pass
+        eor     htab,y
+        eor     hmask
+        rts
 
 ; ---- block helpers (block = bh:bm, 256 bytes)
 setblk: lda     #0
@@ -321,6 +420,16 @@ restaddr:                               ; slinky address back to the caller's (s
         .include "i2c.inc"
 
 pats:   .byte   $00, $FF, $55, $AA
+htab:   .byte   $00, $FF, $5A, $A5
+horder: .byte   0, 1, 2, 3, 0, 2, 1, 3   ; covers A18-only, chip-only and both changing
+hsave:  .res    4
+hq:     .byte   0
+hi:     .byte   0
+al:     .byte   0
+am:     .byte   0
+curh:   .byte   0
+hmask:  .byte   0
+xs:     .byte   0
 keyrev: .byte   $A9,$72,$C4,$3F,$5B,$D1,$27,$8E
 bm:     .byte   0
 bh:     .byte   0

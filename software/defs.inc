@@ -36,4 +36,4 @@ CROUT    = $FD8E
 
 ; --- body layout (one page)
 BODY_SIG_OFS = 3        ; "CLK1" at body+3
-BODY_PAGES   = 2        ; body occupies 2 pages; whole 512 bytes sum to 0
+BODY_PAGES   = 2        ; body occupies 2 pages; Fletcher sums over the 512 bytes are 0

@@ -4,8 +4,9 @@
 //
 //   iverilog -g2012 -o tb cpld/laser128_ramcard.v cpld/tb_laser128_ramcard.v && vvp tb
 //
-// Laser timing below is read off Fig. 11-19; the figure is not drawn to scale, so edges are
-// approximate. The run reports the read-data margin at the CPU sample point for each speed.
+// Laser timing: 1 MHz edges are read off Fig. 11-19 (not to scale). Fast-cycle strobes are placed
+// at the MMU delay-line tap times (D60/D90/D120, Tech Ref sec. 11.4) - an inference, to be
+// confirmed with a scope. The run reports the read-data margin at the CPU sample point for each speed.
 `timescale 1ns/100ps
 
 module tb;
@@ -76,10 +77,10 @@ module tb;
             #5  e1moe_n = 0; if (wr) begin rwr_n = 0; memrd = 0; end
             if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 15 : 40) 1; end  // 65C02 write data
             if (fast) begin
-                #26 rasb_n = 0;                 // +31
-                #22 era = a[8:0];               // +53 column (AX low)
-                #7  cas_fall(a[19:18]);         // +60
-                #(ph - 60 - T_DSU) s = $realtime;                 // CPU samples read data
+                #55 rasb_n = 0;                 // +60  (delay-line tap D60)
+                #30 era = a[8:0];               // +90  column (AX low, tap D90)
+                #30 cas_fall(a[19:18]);         // +120 (tap D120)
+                #(ph - 120 - T_DSU) s = $realtime;                // CPU samples read data
                 rd = d;
                 if (!wr) chk_margin(fast, s);
                 #(T_DSU) ;                      // +140 CPUP0 fall

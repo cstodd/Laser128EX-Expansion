@@ -119,6 +119,8 @@ class Card:
         self.alias_mask = 0                         # fault injection: address bits stuck at 0
         self.present = True
         self.written = None                         # optional histogram of RAM write values
+        self.hop_fault = False                      # fault injection: A18 late on a bank change
+        self.last_bank = 0
 
     def lines(self):
         scl = 0 if self.scl_low else 1
@@ -139,7 +141,11 @@ class Card:
             scl, sda = self.lines()
             v = 0xB4 | (scl << 1) | sda
         else:
-            v = self.ram[self.addr & ~self.alias_mask] & ~self.stuck_mask
+            a = self.addr & ~self.alias_mask
+            if self.hop_fault and (self.addr >> 18) != self.last_bank:
+                a ^= 0x40000                        # first read after a bank change sees stale A18
+            v = self.ram[a] & ~self.stuck_mask
+            self.last_bank = self.addr >> 18
         self.addr = (self.addr + 1) & 0xFFFFF
         return v
 
@@ -160,6 +166,7 @@ class Card:
             self._bus()
         else:
             self.ram[self.addr & ~self.alias_mask] = v   # the write completes as a RAM write
+            self.last_bank = self.addr >> 18
             if self.written is not None:
                 self.written[v] += 1
             if self.has_rtc:
@@ -354,6 +361,14 @@ class Machine:
         return (hi >> 1, ((hi & 1) << 3) | (lo >> 5), lo & 31, h, mi)
 
 
+def fletcher_ok(buf):
+    s1 = s2 = 0
+    for b in buf:
+        s1 = (s1 + b) & 255
+        s2 = (s2 + s1) & 255
+    return s1 == 0 and s2 == 0
+
+
 # ------------------------------------------------------------------ tests
 FAILS = []
 
@@ -387,7 +402,7 @@ def main():
           'stub in LC bank 1 at $D742, auxpg=$0C, mainpg=0')
     check(M.mem.main[0xBF31] == 1 and 0xBF not in M.mem.main[0xBF32:0xBF34], '/RAM removed from DEVLST')
     check(M.mem.main[0xBF26:0xBF28] == M.mem.main[0xBF10:0xBF12], '/RAM vector = NODEV')
-    check(bytes(M.mem.aux[0x0C00:0x0C07])[3:7] == b'CLK1' and sum(M.mem.aux[0x0C00:0x0E00]) % 256 == 0,
+    check(bytes(M.mem.aux[0x0C00:0x0C07])[3:7] == b'CLK1' and fletcher_ok(M.mem.aux[0x0C00:0x0E00]),
           'aux copy at $0C00: signature and checksum')
     check(snapshot(M.card) == (ram0, addr0), 'RAM disk contents and slinky address unchanged by detection')
     check(not M.card.rtc_mode, 'card left in RAM mode')
@@ -409,7 +424,7 @@ def main():
     M.call(0x6000)
     check('MAIN COPY INSTALLED' in M.pd.out, 'message: %r' % M.pd.out.strip())
     check(M.mem.lc1[0x747] == 0x94, 'stub mainpg = $94 (GETBUFR page)')
-    check(bytes(M.mem.main[0x9403:0x9407]) == b'CLK1' and sum(M.mem.main[0x9400:0x9600]) % 256 == 0,
+    check(bytes(M.mem.main[0x9403:0x9407]) == b'CLK1' and fletcher_ok(M.mem.main[0x9400:0x9600]),
           'main copy at $9400: signature and checksum')
 
     print('4. clock call uses the main copy (aux copy destroyed)')
@@ -429,6 +444,20 @@ def main():
     M2.mem.main[0xBF90:0xBF94] = bytes(4)
     M2.prodos_clock_call()
     check(M2.prodos_date() == (26, 12, 31, 23, 59), 'date/time %r via aux' % (M2.prodos_date(),))
+
+    print('5b. two bytes swapped in the main copy (plain sum unchanged) -> rejected, aux used')
+    M4 = Machine(rtc_time=(2027, 3, 4, 5, 6, 7), seed=4)
+    M4.load(sysf, 0x2000); M4.call(0x2000, stop_pc=0x2000)
+    M4.mem.lc_read = False
+    M4.load(mainf, 0x6000); M4.call(0x6000)
+    g = M4.mem.main
+    k = next(i for i in range(0x9410, 0x9500) if g[i] != g[i + 1])
+    g[k], g[k + 1] = g[k + 1], g[k]
+    check(sum(g[0x9400:0x9600]) % 256 == 0 and not fletcher_ok(g[0x9400:0x9600]), 'swap keeps the simple sum, breaks Fletcher')
+    M4.mem.aux[0x0C00:0x0E00] = bytes(512)                    # no fallback: a bad accept would crash/garble
+    g[0xBF90:0xBF94] = bytes([9, 9, 9, 9])
+    M4.prodos_clock_call()
+    check(bytes(g[0xBF90:0xBF94]) == bytes([9, 9, 9, 9]), 'damaged copy not executed, date untouched')
 
     print('6. both copies gone -> no update, no crash')
     M2.mem.aux[0x0C10] ^= 0xFF
@@ -521,6 +550,20 @@ def main():
     r, n = run(4)
     T.card.has_rtc = True
     check(r == 0xFF and snapshot(T.card)[0][:0] == b'' and not T.card.rtc_mode, 'no RTC: clock read reports $FF')
+    T.card.addr = 0x13579
+    ram0, addr0 = snapshot(T.card)
+    r, n = run(5)
+    check(r == 0 and n == 0 and T.pd.out == '....', 'bank-hop test, good card: pass')
+    check(snapshot(T.card) == (ram0, addr0), 'bank-hop test is non-destructive and restores the address')
+    T.card.hop_fault = True
+    rq, nq = run(1, nreg=0)
+    check(rq == 0, 'slow-bank-change fault: quick test does NOT see it (result %d, %d errors)' % (rq, nq))
+    ram0 = bytes(T.card.ram)
+    r, n = run(5)
+    check(r == 1 and n > 1000, 'slow-bank-change fault: bank-hop test fails (%d errors, first at $%X%02X%02X)'
+          % (n, P[0x0304], P[0x0303], P[0x0302]))
+    check(bytes(T.card.ram) == ram0, 'bank-hop test restores RAM even with the fault present')
+    T.card.hop_fault = False
     T.card.present = False
     r, n = run(1)
     check(r == 0xFF, 'no card: RAM test reports $FF')

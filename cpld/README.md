@@ -20,21 +20,26 @@ delay, and 2× AS6C4008 with datasheet read access times and write-timing checks
 
 ## Results (Nov 2026)
 
-**Key fact (Tech Ref Manual, Appendix A):** the 128EX never runs expansion-RAM cycles at 3.6 MHz. With
-the speed set to 3.6 MHz, the clock drops to 2.3 MHz automatically for every expansion-RAM access, as it
-does for the ROM. So the "fast" bus cycle has CPUP0 high for ~217 ns, not 140 ns. The testbench now
-defaults to 217 ns (`PH_FAST`); 140 ns is kept as a hypothetical stress case.
+**Tech Ref Manual, Appendix A (p. A-3):** the 128EX never runs expansion-RAM cycles at 3.6 MHz. At the
+3.6 MHz setting the clock drops to 2.3 MHz for every expansion-RAM access. So the fast bus cycle has
+CPUP0 high for ~217 ns (`PH_FAST`).
 
-| CPUP0 high | CPLD | SRAM tAA | Logic tests | Fast-cycle reads |
-|---|---|---|---|---|
-| **217 ns (real, 2.3 MHz)** | -10 | 55 ns (AS6C4008-55) | pass | **pass, ~74 ns margin** |
-| 217 ns | -7 | 55 ns | pass | pass, ~76 ns |
-| 217 ns | -10 | 45 ns | pass | pass, ~84 ns |
-| 140 ns (stress only) | -10 | 55 ns | pass | 67 reads late (bank change: A18 via CPLD + tAA) |
+**Strobe positions are an inference.** The MMU builds the fast-mode strobes from a delay line with taps
+D60, D90 and D120. The testbench puts /RASB at +60 ns, the column address at +90 ns and /ECAS at +120 ns.
+That leaves ~97 ns from /ECAS to the CPU's sample point, which fits Renée Harke's observation that 120 ns
+DRAMs (60 ns from CAS) work and 150 ns ones (75 ns) do not.
 
-The Laser edge times are read off Fig. 11-19, which is not to scale. With ~70 ns of margin, though, the
-stock AS6C4008-55 is comfortable and the 45 ns adapter option isn't needed. `CARD.TEST` on the
-software disk checks this in-system at each speed setting.
+| CPLD | SRAM tAA | Logic tests | Fast-cycle read margin (worst-case datasheet delays) |
+|---|---|---|---|
+| -10 | 55 ns (AS6C4008-55) | pass | **~14 ns** |
+| -7 | 55 ns | pass | ~16 ns |
+| -10 | 45 ns (CY62148ELL on adapter) | pass | ~24 ns |
+
+The tight path is the first access after a **bank change**: A18 is only known when /ECASn falls, then
+CPLD → SRAM tAA → '245. Within one bank the address is ready earlier and the margin is larger. Real parts
+at 5 V and room temperature are faster than these worst-case numbers, so expect it to work, but with modest
+margin. `CARD.TEST` option 5 (bank-hop test) exercises exactly this path in-system; run it at 3.6 MHz.
+If it fails, fit the 45 ns SRAM on a TSOP-to-DIP adapter or a -7 CPLD.
 
 ## Bugs the simulation caught (fixed)
 1. Bank latch race: a latch gated by "any /ECAS low" sees its data change as the gate closes, which glitched
@@ -46,3 +51,16 @@ software disk checks this in-system at each speed setting.
 Not done here (Windows tools). Either use WinCUPL/`fit1504` via the Yosys→EDIF flow
 (github: hoglet67/atf15xx_yosys), or Quartus II 13.0sp1 targeting EPM7064SLC44 followed by POF2JED.
 Pin constraints: `hardware/README.md`. JTAG programming: ATDH1150USB, or ATMISP + FT232H via SVF.
+
+**Fitter settings that matter:**
+- **Keep JTAG enabled** (`-strategy JTAG on` / the ISP device variant). A design fitted with JTAG off can
+  no longer be programmed in-circuit. Recovery needs 12 V on OE1/VPP (pin 44), which this board wires to
+  J1 as /ECAS2, so the chip would have to be pulled and erased in a standalone programmer.
+- **Power-down pins off** (PD1 = pin 11, PD2 = pin 25): both are used as ordinary I/O (XD1, /RAM_CE).
+- **Check the latches** in the fitter report. `bank[1:0]` and `ma8` are level-sensitive. They should use
+  the macrocell's latch mode. If the flow builds them as combinational feedback loops instead, rewrite them
+  with the device latch primitive, since loops can glitch.
+- Expected size: roughly 35–45 of 64 macrocells (not yet fitted).
+
+On the first board, scope /ECAS against /E1MOE at the fast-cycle boundary. The logic assumes the
+previous cycle's /ECAS has gone high before the next /E1MOE falls.

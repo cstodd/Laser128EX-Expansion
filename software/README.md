@@ -27,10 +27,14 @@ First pick the CPU speed (1 / 2.3 / 3.6 MHz, set via the `$C074` speed register)
    It verifies the pattern survived on the battery.
 4. **Clock test**: shows the DS3231 date and time, checks the seconds advance, and reports the
    oscillator-stopped flag (the clock lost power since it was last set: check the battery).
+5. **Bank-hop test**: 1024 offsets in each of the four 256K banks, read and written so that *every access
+   is in a different bank from the one before*. That is the card's slowest path (A18 and chip select come
+   through the CPLD only when /ECAS falls), which tests 1 and 2 barely touch because they run sequentially.
+   **The RAM disk is kept.** A few seconds. This is the test that matters at 3.6 MHz.
 
 On a failure it prints the error count, the first failing address in hex, and the values written and read.
 At the 3.6 MHz setting the Laser itself slows expansion-RAM accesses to 2.3 MHz (Tech Ref App. A), so
-tests at 2.3 and 3.6 MHz exercise the same card timing. Run tests 1 and 2 at 1 MHz and at 3.6 MHz.
+tests at 2.3 and 3.6 MHz exercise the same card timing. Run tests 1, 2 and 5 at 1 MHz and at 3.6 MHz.
 After test 2, don't let anything write to the RAM disk before the retention check.
 
 At boot you should see `LASER 128 CLOCK INSTALLED`. `NOT FOUND` means the card (or its CPLD
@@ -38,13 +42,13 @@ logic) didn't answer; nothing is changed in that case.
 
 ## How it works
 - ProDOS only allows a clock driver of 125 bytes (at `$D742`). The work needs ~365 bytes, so a
-  108-byte **stub** goes in ProDOS's slot and calls the **driver body** (2 pages, relocatable).
+  123-byte **stub** goes in ProDOS's slot and calls the **driver body** (2 pages, relocatable).
 - The body exists in two places: **auxiliary memory** `$0C00-$0DFF` (installed by
   `CLOCK.SYSTEM`, which disconnects ProDOS's 64K `/RAM`; the 1 MB card replaces it), and **main
   memory** (two pages reserved through BASIC.SYSTEM by `CLOCK.MAIN`).
 - The stub prefers the main copy, then the aux copy. It runs a copy only if its signature and a
   checksum over both pages are intact, so a copy that another program has overwritten is
-  skipped and never executed. With neither copy present the date simply isn't updated.
+  skipped and never executed (16-bit Fletcher-style check, so a damaged copy slips through 1 time in 65536). With neither copy present the date simply isn't updated.
   - Under BASIC.SYSTEM and most programs the clock works normally.
   - Programs that take over auxiliary *and* that main memory (e.g. AppleWorks) get the correct
     date/time when they start; while they run, the time doesn't advance.
@@ -78,7 +82,7 @@ memory and language card, the slinky registers (auto-increment, 1 MB), the card'
 key and RTC port, as in `cpld/laser128_ramcard.v`), a bit-level DS3231, and the parts of ProDOS
 the programs use. It covers install, reads from either copy, fallback when a copy is damaged, no
 copies, a card without the RTC, 1 MB address wrap, setting the clock, and the `CARDTEST` engine
-with injected faults (stuck data bit, stuck address line, dead battery, missing card).
+with injected faults (stuck data bit, stuck address line, slow bank change, dead battery, missing card).
 
 ## Not yet verified on hardware
 - The ProDOS 8 version on the target disk must have its clock-driver slot at `$D742` (true for
