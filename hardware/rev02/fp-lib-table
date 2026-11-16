@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "Laser128")(type "KiCad")(uri "${KIPRJMOD}/lib/Laser128.pretty")(options "")(descr "Laser 128 RAM card project footprints"))
+)

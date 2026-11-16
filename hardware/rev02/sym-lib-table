@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "Laser128")(type "KiCad")(uri "${KIPRJMOD}/lib/Laser128.kicad_sym")(options "")(descr "Laser 128 RAM card project symbols"))
+)
