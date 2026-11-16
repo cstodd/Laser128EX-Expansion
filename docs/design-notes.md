@@ -207,6 +207,11 @@ DS3231's TCXO) and the board would change.
   $D100-$DFFF, is reserved for third-party RAM-based drivers.** TN #23: ProDOS installs correct IRQ vectors in the
   aux language card at boot.
 
+Note: the card's RAM disk is **`/RAM5`** (Laser port 5 firmware, ProDOS slot 5 drive 1; confirmed by the user and
+Renée's original docs). ProDOS's `/RAM` is the separate 64K aux-memory RAM disk that CLOCK.SYSTEM removes.
+To check later: AppleWorks 5 can use a slinky card as desktop memory. Does it respect files on /RAM5, or treat
+the card as free memory?
+
 ### Design
 1. **Body** at aux LC bank 2 `$D100` (installed by CLOCK.SYSTEM: ALTZP on, LC bank 2 write-enabled, copy,
    restore). It runs with **ALTZP on**, not RAMRD, so interrupts go through the aux-LC vectors ProDOS installs.

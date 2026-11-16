@@ -40,6 +40,14 @@ At the 3.6 MHz setting the Laser itself slows expansion-RAM accesses to 2.3 MHz 
 tests at 2.3 and 3.6 MHz exercise the same card timing. Run tests 1, 2 and 5 at 1 MHz and at 3.6 MHz.
 After test 2, don't let anything write to the RAM disk before the retention check.
 
+### The two RAM disks
+- **`/RAM5`**: the card's 1 MB RAM disk. The Laser ROM's port-5 firmware (`$C500-$C5FF`) drives it, and ProDOS
+  sees it as slot 5, drive 1. It is battery-backed and present with or without the clock software. The
+  "INT/EXT PORT 5" switch under the ROM door must be on **INT**, or the card is disabled.
+- **`/RAM`**: ProDOS's own 64K RAM disk in the motherboard's auxiliary memory. `CLOCK.SYSTEM` removes it,
+  because the clock driver lives in aux memory, and it stays gone until you boot without `CLOCK.SYSTEM`.
+  Don't re-enable it with a utility: it would overwrite the driver.
+
 At boot you should see `LASER 128 CLOCK INSTALLED`. `NOT FOUND` means the card (or its CPLD
 logic) didn't answer; nothing is changed in that case.
 
