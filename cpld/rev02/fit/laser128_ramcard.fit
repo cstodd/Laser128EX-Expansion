@@ -1,0 +1,648 @@
+Atmel ATF1504 Fitter Version 1918 ,running Mon Nov 16 17:16:52 2026
+
+
+
+
+fit1504
+-i laser128_ramcard.edif
+-ifmt edif
+-o laser128_ramcard.jed
+-lib Z:\tmp\claude-0\-home-user-Laser128EX-Expansion\45e86063-ba54-554a-be9f-851d7a59219f\scratchpad\dl\atf15xx_yosys\vendor\aprim.lib
+-tech ATF1504AS
+-device PLCC44
+-tpd 10
+-preassign keep
+-JTAG on
+-pd1 off
+-pd2 off
+-TDI_pullup on
+-TMS_pullup on
+-Verilog_sim verilog
+
+****** Initial fitting strategy and property ******
+ Netlist_in_file = laser128_ramcard.edif
+ Netlist_out_file = laser128_ramcard.tt3
+ Jedec_file = laser128_ramcard.jed
+ Time_file = laser128_ramcard.VO
+ Time_file = laser128_ramcard.SDO
+ Log_file = laser128_ramcard.fit
+ Device_name = PLCC44
+ Tech_name = ATF1504AS 
+ Package_type = PLCC
+ Preassignment = keep 
+ Security_mode = OFF
+ Pin-Keeper = OFF
+ supporter = ABEL
+ optimize = ON
+ Xor_synthesis = OFF
+ Foldback_logic = OFF
+ Cascade_logic = OFF
+ Output_fast = ON
+ SSTL_input = off
+ *******************************
+ Power down pin 1 = OFF
+ Power down pin 2 = OFF
+ power_reset = OFF
+ JTAG = ON
+ TDI pullup = ON
+ TMS pullup = ON
+ MC_power = OFF
+ Open_collector = OFF
+ ITD0 = ON
+ ITD1 = ON
+ ITD2 = ON
+ Fast_inlatch = off
+ TPD = 10
+ Latch_synthesis = off 
+ Push_gate = on 
+ Verilog_sim = on 
+ VHDL_sim = off 
+ Out_Edif = off 
+ Logic Doubling = off 
+ ****** End of fitting strategy and property ******
+Info: laser128_ramcard uses 95% of the pins available in device PLCC44
+  If you wish to have more pins available for future logic changes
+  Atmel  recommends using a larger device
+---------------------------------------------------------
+ Fitter_Pass 1, Preassign = KEEP, LOGIC_DOUBLING : OFF 
+ ... 
+ ## Warning : Placement fail 
+---------------------------------------------------------
+ Fitter_Pass 2, Preassign = KEEP, CASCADE_LOGIC : (TRY) 
+ ... 
+
+Performing global Output Enable pin assignments ...
+
+Performing global pin assignments ...
+--------------------------------------
+
+
+
+Final global control pins assignment (if applicable)...
+-------------------------------------------------------
+rasb_n assigned to pin  2
+
+
+
+Performing input pin pre-assignments ...
+------------------------------------
+rasb_n assigned to pin  2
+e1moe_n assigned to pin  43
+ecas1_n assigned to pin  1
+ecas2_n assigned to pin  44
+dbg0.C equation needs patching.
+rtc_dio.C equation needs patching.
+2 control equations need patching
+
+Attempt to place floating signals ...
+------------------------------------
+xd_2 is placed at pin 12 (MC 1)
+xd_1 is placed at pin 11 (MC 3)
+xd_0 is placed at pin 9 (MC 4)
+era8 is placed at pin 8 (MC 5)
+id00052QN is placed at feedback node 606 (MC 6)
+XXL_246 is placed at feedback node 607 (MC 7)
+TDI is placed at pin 7 (MC 8)
+id00099 is placed at feedback node 608 (MC 8)
+id00101 is placed at feedback node 609 (MC 9)
+id00100 is placed at feedback node 610 (MC 10)
+rwr_n is placed at pin 6 (MC 11)
+XXL_245 is placed at feedback node 611 (MC 11)
+XXL_249 is placed at feedback node 612 (MC 12)
+XXL_247 is placed at feedback node 613 (MC 13)
+ecas4_n is placed at pin 5 (MC 14)
+XXL_248 is placed at feedback node 614 (MC 14)
+id00104 is placed at feedback node 615 (MC 15)
+ecas3_n is placed at pin 4 (MC 16)
+id00102 is placed at feedback node 616 (MC 16)
+col_le is placed at pin 21 (MC 17)
+rowclk is placed at pin 20 (MC 19)
+xd_7 is placed at pin 19 (MC 20)
+xd_6 is placed at pin 18 (MC 21)
+xd_5 is placed at pin 17 (MC 24)
+xd_4 is placed at pin 16 (MC 25)
+bank_1_combQN is placed at feedback node 627 (MC 27)
+Com_Ctrl_242 is placed at feedback node 628 (MC 28)
+dbg0.C is placed at feedback node 629 (MC 29)
+xd_3 is placed at pin 14 (MC 30)
+rtc_dio.C is placed at feedback node 631 (MC 31)
+TMS is placed at pin 13 (MC 32)
+Com_Ctrl_243 is placed at feedback node 632 (MC 32)
+ma18 is placed at pin 24 (MC 33)
+ram_ce_n is placed at pin 25 (MC 35)
+oe0_n is placed at pin 26 (MC 36)
+oe1_n is placed at pin 27 (MC 37)
+we0_n is placed at pin 28 (MC 40)
+we1_n is placed at pin 29 (MC 41)
+buf_oe_n is placed at pin 31 (MC 46)
+TCK is placed at pin 32 (MC 48)
+ma8 is placed at pin 33 (MC 49)
+rtc_cs_n is placed at pin 34 (MC 51)
+rtc_sclk is placed at pin 36 (MC 52)
+ma17 is placed at pin 37 (MC 53)
+TDO is placed at pin 38 (MC 56)
+rtc_dio is placed at pin 39 (MC 57)
+pwr_rst_n is placed at pin 40 (MC 62)
+dbg0 is placed at pin 41 (MC 64)
+FB_244 is placed at foldback expander node 364 (MC 64)
+
+                                                   p  
+                                                   w  
+                        e  e        e  e  e        r  
+                        c  c     r  c  c  1        _  
+                     r  a  a     a  a  a  m        r  
+                     w  s  s     s  s  s  o     d  s  
+                     r  4  3  V  b  1  2  e  G  b  t  
+                     _  _  _  C  _  _  _  _  N  g  _  
+                     n  n  n  C  n  n  n  n  D  0  n  
+                 +------------------------------------+
+                 |   6  5  4  3  2  1 44 43 42 41 40  |
+              TDI| 7                               39 |rtc_dio
+             era8| 8                               38 |TDO
+             xd_0| 9                               37 |ma17
+              GND| 10                              36 |rtc_sclk
+             xd_1| 11            ATF1504           35 |VCC
+             xd_2| 12         44-Lead PLCC         34 |rtc_cs_n
+              TMS| 13                              33 |ma8
+             xd_3| 14                              32 |TCK
+              VCC| 15                              31 |buf_oe_n
+             xd_4| 16                              30 |GND
+             xd_5| 17                              29 |we1_n
+                 |  18 19 20 21 22 23 24 25 26 27 28  |
+                 +------------------------------------+
+                     x  x  r  c  G  V  m  r  o  o  w  
+                     d  d  o  o  N  C  a  a  e  e  e  
+                     _  _  w  l  D  C  1  m  0  1  0  
+                     6  7  c  _        8  _  _  _  _  
+                           l  l           c  n  n  n  
+                           k  e           e           
+                                          _           
+                                          n           
+
+
+
+
+VCC = Supply Voltage pin for the device core
+
+GND = GND pin which must be connected to ground
+
+TMS,TDI,TDO,TDI = JTAG pins reserved for JTAG interface
+
+NC = Unused I/O pins which must be unconnected on the board
+
+Universal-Interconnect-Multiplexer assignments
+------------------------------------------------
+FanIn assignment for block A [25]
+{
+Com_Ctrl_243,Com_Ctrl_242,
+XXL_249,XXL_248,XXL_247,XXL_246,
+dbg0,
+id00101,id00100,id00099,id00102,id00104,id00052QN,
+pwr_rst_n,
+rtc_dio,rtc_dio,
+xd_2,xd_1,xd_6,xd_3,xd_0,xd_1,xd_5,xd_4,xd_7,
+}
+Multiplexer assignment for block A
+xd_2			(MC1	P)   : MUX 1		Ref (A1p)
+xd_1			(MC2	FB)  : MUX 2		Ref (A3fb)
+id00101			(MC8	FB)  : MUX 3		Ref (A9fb)
+xd_6			(MC16	P)   : MUX 5		Ref (B21p)
+xd_3			(MC20	P)   : MUX 6		Ref (B30p)
+id00100			(MC9	FB)  : MUX 7		Ref (A10fb)
+xd_0			(MC4	P)   : MUX 9		Ref (A4p)
+xd_1			(MC3	P)   : MUX 11		Ref (A3p)
+xd_5			(MC17	P)   : MUX 13		Ref (B24p)
+XXL_249			(MC10	FB)  : MUX 15		Ref (A12fb)
+rtc_dio			(MC23	P)   : MUX 16		Ref (D57p)
+Com_Ctrl_243		(MC21	FB)  : MUX 17		Ref (B32fb)
+rtc_dio			(MC22	FB)  : MUX 19		Ref (D57fb)
+dbg0			(MC24	P)   : MUX 20		Ref (D64p)
+XXL_248			(MC12	FB)  : MUX 21		Ref (A14fb)
+XXL_247			(MC11	FB)  : MUX 23		Ref (A13fb)
+id00099			(MC7	FB)  : MUX 24		Ref (A8fb)
+Com_Ctrl_242		(MC19	FB)  : MUX 25		Ref (B28fb)
+pwr_rst_n		(MC25	P)   : MUX 26		Ref (D62p)
+id00102			(MC14	FB)  : MUX 29		Ref (A16fb)
+id00104			(MC13	FB)  : MUX 31		Ref (A15fb)
+xd_4			(MC18	P)   : MUX 34		Ref (B25p)
+xd_7			(MC15	P)   : MUX 35		Ref (B20p)
+XXL_246			(MC6	FB)  : MUX 36		Ref (A7fb)
+id00052QN		(MC5	FB)  : MUX 38		Ref (A6fb)
+
+FanIn assignment for block B [10]
+{
+Com_Ctrl_243,
+bank_1_combQN,
+dbg0,
+ecas2_n,ecas4_n,e1moe_n,ecas3_n,ecas1_n,
+rwr_n,rasb_n,
+}
+Multiplexer assignment for block B
+rwr_n			(MC8	P)   : MUX 0		Ref (A11p)
+Com_Ctrl_243		(MC2	FB)  : MUX 5		Ref (B32fb)
+rasb_n			(MC10	FB)  : MUX 12		Ref (OE2)
+ecas2_n			(MC4	FB)  : MUX 17		Ref (OE1)
+dbg0			(MC3	P)   : MUX 20		Ref (D64p)
+bank_1_combQN		(MC1	FB)  : MUX 23		Ref (B27fb)
+ecas4_n			(MC6	P)   : MUX 32		Ref (A14p)
+e1moe_n			(MC9	FB)  : MUX 33		Ref (GCLK)
+ecas3_n			(MC7	P)   : MUX 36		Ref (A16p)
+ecas1_n			(MC5	FB)  : MUX 38		Ref (GCLR)
+
+FanIn assignment for block C [9]
+{
+bank_1_combQN,
+dbg0,
+ecas2_n,ecas4_n,ecas3_n,e1moe_n,ecas1_n,
+ma18,
+rwr_n,
+}
+Multiplexer assignment for block C
+rwr_n			(MC8	P)   : MUX 0		Ref (A11p)
+ecas2_n			(MC4	FB)  : MUX 13		Ref (OE1)
+dbg0			(MC3	P)   : MUX 20		Ref (D64p)
+ma18			(MC2	P)   : MUX 23		Ref (C33p)
+ecas4_n			(MC6	P)   : MUX 32		Ref (A14p)
+bank_1_combQN		(MC1	FB)  : MUX 33		Ref (B27fb)
+ecas3_n			(MC7	P)   : MUX 36		Ref (A16p)
+e1moe_n			(MC9	FB)  : MUX 37		Ref (GCLK)
+ecas1_n			(MC5	FB)  : MUX 38		Ref (GCLR)
+
+FanIn assignment for block D [15]
+{
+XXL_245,
+dbg0,
+ecas2_n,era8,ecas4_n,e1moe_n,ecas3_n,ecas1_n,
+id00102,id00104,
+pwr_rst_n,
+rtc_dio.C,rtc_dio.C,rwr_n,
+xd_1,
+}
+Multiplexer assignment for block D
+dbg0.C		(MC5	FB)  : MUX 1		Ref (B29fb)
+xd_1			(MC1	FB)  : MUX 2		Ref (A3fb)
+rtc_dio.C		(MC6	FB)  : MUX 3		Ref (B31fb)
+rwr_n			(MC12	P)   : MUX 6		Ref (A11p)
+XXL_245			(MC2	FB)  : MUX 11		Ref (A11fb)
+ecas2_n			(MC8	FB)  : MUX 13		Ref (OE1)
+dbg0			(MC7	P)   : MUX 20		Ref (D64p)
+era8			(MC15	P)   : MUX 21		Ref (A5p)
+id00102			(MC4	FB)  : MUX 29		Ref (A16fb)
+pwr_rst_n		(MC14	P)   : MUX 30		Ref (D62p)
+id00104			(MC3	FB)  : MUX 31		Ref (A15fb)
+ecas4_n			(MC10	P)   : MUX 32		Ref (A14p)
+e1moe_n			(MC13	FB)  : MUX 33		Ref (GCLK)
+ecas3_n			(MC11	P)   : MUX 36		Ref (A16p)
+ecas1_n			(MC9	FB)  : MUX 38		Ref (GCLR)
+
+Creating JEDEC file laser128_ramcard.jed ...
+
+PLCC44 programmed logic:
+-----------------------------------
+ma18 = (!ecas4_n
+	# (ecas1_n & ecas3_n & ma18)
+	# !ecas2_n);
+
+bank_1_combQN = (!ecas4_n
+	# !ecas3_n
+	# (bank_1_combQN & ecas2_n & ecas1_n));
+
+buf_oe_n = e1moe_n;
+
+rowclk = !rasb_n;
+
+dbg0.D = id00102.Q;
+
+!rtc_sclk = (!e1moe_n & rwr_n & dbg0.Q & xd_1.Q);
+
+ma8.D = era8;
+
+ma17.D = era8;
+
+xd_0 = rtc_dio.PIN;
+
+xd_2 = 1;
+
+xd_3 = 0;
+
+xd_4 = 1;
+
+xd_5 = 1;
+
+xd_7 = 1;
+
+xd_6 = 0;
+
+col_le = (ecas2_n & ecas1_n & ecas4_n & ecas3_n);
+
+rtc_cs_n = !xd_1.Q;
+
+!ram_ce_n = (!e1moe_n & !dbg0.Q);
+
+id00104.D = ((!xd_7.PIN & !xd_6.PIN & id00104.Q)
+	# (!dbg0.Q & id00104.Q)
+	# (dbg0.Q & !xd_7.PIN & xd_6.PIN & xd_1.PIN));
+
+rtc_dio.D = XXL_245;
+
+xd_1.D = XXL_246;
+
+!oe0_n = ((!e1moe_n & rwr_n & !dbg0.Q & !bank_1_combQN & !ecas4_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & !bank_1_combQN & !ecas1_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & !bank_1_combQN & !ecas2_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & !bank_1_combQN & !ecas3_n));
+
+!we1_n = ((!e1moe_n & !rwr_n & !dbg0.Q & bank_1_combQN & !ecas4_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & bank_1_combQN & !ecas1_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & bank_1_combQN & !ecas2_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & bank_1_combQN & !ecas3_n));
+
+!oe1_n = ((!e1moe_n & rwr_n & !dbg0.Q & bank_1_combQN & !ecas4_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & bank_1_combQN & !ecas1_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & bank_1_combQN & !ecas2_n)
+	# (!e1moe_n & rwr_n & !dbg0.Q & bank_1_combQN & !ecas3_n));
+
+!we0_n = ((!e1moe_n & !rwr_n & !dbg0.Q & !bank_1_combQN & !ecas4_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & !bank_1_combQN & !ecas1_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & !bank_1_combQN & !ecas2_n)
+	# (!e1moe_n & !rwr_n & !dbg0.Q & !bank_1_combQN & !ecas3_n));
+
+id00052QN = ((xd_7.PIN & xd_0.PIN & id00100.Q & id00101.Q & id00099.Q & !xd_1.PIN & !xd_6.PIN & xd_5.PIN & xd_3.PIN & !xd_4.PIN & !xd_2.PIN)
+	# dbg0.Q);
+
+id00101.D = XXL_247;
+
+id00099.D = XXL_248;
+
+id00100.D = XXL_249;
+
+id00102.D = ((id00102.Q & !id00052QN)
+	# (id00052QN & !dbg0.Q)
+	# (id00102.Q & !xd_7.PIN));
+
+Com_Ctrl_242 = ((ecas1_n & ecas2_n & ecas3_n & ecas4_n)
+	# e1moe_n
+	# rwr_n);
+
+Com_Ctrl_243 = ((dbg0.Q & rwr_n & !e1moe_n & !ecas1_n)
+	# (dbg0.Q & rwr_n & !e1moe_n & !ecas4_n)
+	# (dbg0.Q & rwr_n & !e1moe_n & !ecas3_n)
+	# (dbg0.Q & rwr_n & !e1moe_n & !ecas2_n));
+
+!FB_244 = (ecas3_n & ecas2_n & ecas1_n & ecas4_n);
+
+XXL_245 = ((dbg0.Q & !xd_6.PIN & !xd_7.PIN & xd_0.PIN)
+	# (rtc_dio.Q & xd_7.PIN)
+	# (rtc_dio.Q & xd_6.PIN)
+	# (rtc_dio.Q & !dbg0.Q));
+
+XXL_246 = ((!xd_7.PIN & !xd_6.PIN & xd_1.Q)
+	# (!dbg0.Q & xd_1.Q)
+	# (dbg0.Q & !xd_7.PIN & xd_6.PIN & xd_0.PIN));
+
+XXL_247 = ((id00101.Q & !id00099.Q & !dbg0.Q & xd_0.PIN & !id00100.Q & !xd_6.PIN & xd_5.PIN & xd_1.PIN & xd_3.PIN & xd_4.PIN & xd_2.PIN & !xd_7.PIN)
+	# (id00101.Q & !id00099.Q & !dbg0.Q & !xd_0.PIN & id00100.Q & xd_6.PIN & xd_5.PIN & xd_1.PIN & !xd_3.PIN & xd_4.PIN & !xd_2.PIN & !xd_7.PIN)
+	# (id00101.Q & id00099.Q & !dbg0.Q & !xd_0.PIN & !id00100.Q & xd_6.PIN & !xd_5.PIN & !xd_1.PIN & !xd_3.PIN & !xd_4.PIN & xd_2.PIN & xd_7.PIN)
+	# (!id00101.Q & id00099.Q & !dbg0.Q & xd_0.PIN & id00100.Q & xd_6.PIN & !xd_5.PIN & xd_1.PIN & xd_3.PIN & xd_4.PIN & !xd_2.PIN & !xd_7.PIN));
+
+XXL_248 = ((!dbg0.Q & !xd_0.PIN & !xd_6.PIN & !xd_5.PIN & xd_1.PIN & xd_3.PIN & !xd_4.PIN & xd_2.PIN & xd_7.PIN)
+	# (!dbg0.Q & xd_0.PIN & !id00100.Q & id00101.Q & !id00099.Q & !xd_6.PIN & xd_5.PIN & xd_1.PIN & xd_3.PIN & xd_4.PIN & xd_2.PIN & !xd_7.PIN)
+	# (!dbg0.Q & xd_0.PIN & id00100.Q & !id00101.Q & !id00099.Q & xd_6.PIN & !xd_5.PIN & !xd_1.PIN & !xd_3.PIN & xd_4.PIN & !xd_2.PIN & xd_7.PIN)
+	# (!dbg0.Q & !xd_0.PIN & id00100.Q & id00101.Q & !id00099.Q & xd_6.PIN & xd_5.PIN & xd_1.PIN & !xd_3.PIN & xd_4.PIN & !xd_2.PIN & !xd_7.PIN));
+
+XXL_249 = ((!dbg0.Q & xd_0.PIN & id00100.Q & !id00101.Q & !id00099.Q & xd_6.PIN & !xd_5.PIN & !xd_1.PIN & !xd_3.PIN & xd_4.PIN & !xd_2.PIN & xd_7.PIN)
+	# (!dbg0.Q & !xd_0.PIN & id00100.Q & id00101.Q & !id00099.Q & xd_6.PIN & xd_5.PIN & xd_1.PIN & !xd_3.PIN & xd_4.PIN & !xd_2.PIN & !xd_7.PIN)
+	# (!dbg0.Q & xd_0.PIN & !id00100.Q & !id00101.Q & id00099.Q & !xd_6.PIN & xd_5.PIN & xd_1.PIN & !xd_3.PIN & !xd_4.PIN & xd_2.PIN & !xd_7.PIN)
+	# (!dbg0.Q & !xd_0.PIN & !id00100.Q & id00101.Q & id00099.Q & xd_6.PIN & !xd_5.PIN & !xd_1.PIN & !xd_3.PIN & !xd_4.PIN & xd_2.PIN & xd_7.PIN));
+
+dbg0.C = (e1moe_n
+	# (ecas1_n & ecas4_n & ecas3_n & ecas2_n)
+	# rwr_n);
+
+dbg0.AR = !pwr_rst_n;
+
+ma8.C = FB_244;
+
+ma17.C = !rasb_n;
+
+xd_0.OE = Com_Ctrl_243;
+
+xd_2.OE = Com_Ctrl_243;
+
+xd_3.OE = Com_Ctrl_243;
+
+xd_4.OE = Com_Ctrl_243;
+
+xd_5.OE = Com_Ctrl_243;
+
+xd_7.OE = Com_Ctrl_243;
+
+xd_6.OE = Com_Ctrl_243;
+
+id00104.C = !Com_Ctrl_242;
+
+id00104.AR = !pwr_rst_n;
+
+!rtc_dio.C = ((ecas1_n & ecas2_n & ecas3_n & ecas4_n)
+	# e1moe_n
+	# rwr_n);
+
+rtc_dio.AR = !pwr_rst_n;
+
+rtc_dio.OE = (id00104.Q & xd_1.Q);
+
+xd_1.C = !Com_Ctrl_242;
+
+xd_1.AR = !pwr_rst_n;
+
+xd_1.OE = Com_Ctrl_243;
+
+id00101.C = !Com_Ctrl_242;
+
+id00101.AR = !pwr_rst_n;
+
+id00099.C = !Com_Ctrl_242;
+
+id00099.AR = !pwr_rst_n;
+
+id00100.C = !Com_Ctrl_242;
+
+id00100.AR = !pwr_rst_n;
+
+id00102.C = !Com_Ctrl_242;
+
+id00102.AR = !pwr_rst_n;
+
+
+PLCC44 Pin/Node Placement:
+------------------------------------
+Pin 1  = ecas1_n;
+Pin 2  = rasb_n;
+Pin 4  = ecas3_n; /* MC 16 */
+Pin 5  = ecas4_n; /* MC 14 */
+Pin 6  = rwr_n; /* MC 11 */
+Pin 7  = TDI; /* MC 8 */
+Pin 8  = era8; /* MC 5 */
+Pin 9  = xd_0; /* MC 4 */
+Pin 11 = xd_1; /* MC  3 */
+Pin 12 = xd_2; /* MC  1 */
+Pin 13 = TMS; /* MC 32 */ 
+Pin 14 = xd_3; /* MC 30 */ 
+Pin 16 = xd_4; /* MC 25 */ 
+Pin 17 = xd_5; /* MC 24 */ 
+Pin 18 = xd_6; /* MC 21 */ 
+Pin 19 = xd_7; /* MC 20 */ 
+Pin 20 = rowclk; /* MC 19 */ 
+Pin 21 = col_le; /* MC 17 */ 
+Pin 24 = ma18; /* MC 33 */ 
+Pin 25 = ram_ce_n; /* MC 35 */ 
+Pin 26 = oe0_n; /* MC 36 */ 
+Pin 27 = oe1_n; /* MC 37 */ 
+Pin 28 = we0_n; /* MC 40 */ 
+Pin 29 = we1_n; /* MC 41 */ 
+Pin 31 = buf_oe_n; /* MC 46 */ 
+Pin 32 = TCK; /* MC 48 */ 
+Pin 33 = ma8; /* MC 49 */ 
+Pin 34 = rtc_cs_n; /* MC 51 */ 
+Pin 36 = rtc_sclk; /* MC 52 */ 
+Pin 37 = ma17; /* MC 53 */ 
+Pin 38 = TDO; /* MC 56 */ 
+Pin 39 = rtc_dio; /* MC 57 */ 
+Pin 40 = pwr_rst_n; /* MC 62 */ 
+Pin 41 = dbg0; /* MC 64 */ 
+Pin 43 = e1moe_n;
+Pin 44 = ecas2_n;
+PINNODE 364 = FB_244; /* MC 64 Foldback */
+PINNODE 606 = id00052QN; /* MC 6 Feedback */
+PINNODE 607 = XXL_246; /* MC 7 Feedback */
+PINNODE 608 = id00099; /* MC 8 Feedback */
+PINNODE 609 = id00101; /* MC 9 Feedback */
+PINNODE 610 = id00100; /* MC 10 Feedback */
+PINNODE 611 = XXL_245; /* MC 11 Feedback */
+PINNODE 612 = XXL_249; /* MC 12 Feedback */
+PINNODE 613 = XXL_247; /* MC 13 Feedback */
+PINNODE 614 = XXL_248; /* MC 14 Feedback */
+PINNODE 615 = id00104; /* MC 15 Feedback */
+PINNODE 616 = id00102; /* MC 16 Feedback */
+PINNODE 627 = bank_1_combQN; /* MC 27 Feedback */
+PINNODE 628 = Com_Ctrl_242; /* MC 28 Feedback */
+PINNODE 629 = dbg0.C; /* MC 29 Feedback */
+PINNODE 631 = rtc_dio.C; /* MC 31 Feedback */
+PINNODE 632 = Com_Ctrl_243; /* MC 32 Feedback */
+
+** Resource Usage **
+
+
+DCERP Field = Summary of Allocations.
+|||||
+|||||_Preset [p,-]       ==  p = PT preset, - No Preset.
+||||
+||||__Reset [g,r,-]      ==  g= Global AR, r = PT reset, - No reset.
+|||
+|||___Clock Enable [e,-] ==  e = Product Term, - always enabled.
+||
+||____Clock [c,g,-],     ==  c = Product term, g = Global term, - No Clock.
+|
+|_____Type [C,D,L,T],    ==  Register type C= combin, D=dff, L=latch, T=tff.
+
+For input only = INPUT.
+
+
+SO Pin Options Field = Summary of Allocations.
+||
+||_OpenCol [o,-]      ==  o = Open Collector enabled, - CMOS drive.
+|
+|__Slew [s,f]         ==  Output Slew/Drive rate, s = slow/low, f = fast/hi drive.
+
+
+MCell Pin# Oe   PinDrive  DCERP  FBDrive       DCERP  Foldback  CascadeOut     TotPT SO
+MC1   12   PT   xd_2      C----  --                   --        --             1     f- 
+MC2   0         --               --                   --        --             0     f- 
+MC3   11   PT   xd_1      Dc-r-  --                   --        --             4     f- 
+MC4   9    PT   xd_0      C----  --                   --        --             2     f- 
+MC5   8    --   era8      INPUT  --                   --        --             0     f- 
+MC6   0         --               id00052QN     C----  --        --             2     f- 
+MC7   0         --               XXL_246       C----  --        --             3     f- 
+MC8   7    --   TDI       INPUT  id00099       Dc-r-  --        --             3     f- 
+MC9   0         --               id00101       Dc-r-  --        --             3     f- 
+MC10  0         --               id00100       Dc-r-  --        --             3     f- 
+MC11  6    --   rwr_n     INPUT  XXL_245       C----  --        --             4     f- 
+MC12  0         --               XXL_249       C----  --        --             4     f- 
+MC13  0         --               XXL_247       C----  --        --             4     f- 
+MC14  5    --   ecas4_n   INPUT  XXL_248       C----  --        --             4     f- 
+MC15  0         --               id00104       Dc-r-  NA        --             5     f- 
+MC16  4    --   ecas3_n   INPUT  id00102       Dc-r-  NA        --             5     f- 
+MC17  21   on   col_le    C----  --                   --        --             1     f- 
+MC18  0         --               --                   --        --             0     f- 
+MC19  20   on   rowclk    C----  --                   --        --             1     f- 
+MC20  19   PT   xd_7      C----  --                   --        --             1     f- 
+MC21  18   PT   xd_6      C----  --                   --        --             1     f- 
+MC22  0         --               --                   --        --             0     f- 
+MC23  0         --               --                   --        --             0     f- 
+MC24  17   PT   xd_5      C----  --                   --        --             1     f- 
+MC25  16   PT   xd_4      C----  --                   --        --             1     f- 
+MC26  0         --               --                   --        --             0     f- 
+MC27  0         --               bank_1_combQN C----  --        --             3     f- 
+MC28  0         --               Com_Ctrl_242  C----  --        --             3     f- 
+MC29  0         --               dbg0.C        C----  --        --             3     f- 
+MC30  14   PT   xd_3      C----  --                   --        --             1     f- 
+MC31  0         --               rtc_dio.C     C----  --        --             3     f- 
+MC32  13   --   TMS       INPUT  Com_Ctrl_243  C----  --        --             4     f- 
+MC33  24   on   ma18      C----  --                   --        --             3     f- 
+MC34  0         --               --                   --        --             0     f- 
+MC35  25   on   ram_ce_n  C----  --                   --        --             1     f- 
+MC36  26   on   oe0_n     C----  --                   --        --             4     f- 
+MC37  27   on   oe1_n     C----  --                   --        --             4     f- 
+MC38  0         --               --                   --        --             0     f- 
+MC39  0         --               --                   --        --             0     f- 
+MC40  28   on   we0_n     C----  --                   --        --             4     f- 
+MC41  29   on   we1_n     C----  --                   --        --             4     f- 
+MC42  0         --               --                   --        --             0     f- 
+MC43  0         --               --                   --        --             0     f- 
+MC44  0         --               --                   --        --             0     f- 
+MC45  0         --               --                   --        --             0     f- 
+MC46  31   on   buf_oe_n  C----  --                   --        --             1     f- 
+MC47  0         --               --                   --        --             0     f- 
+MC48  32   --   TCK       INPUT  --                   --        --             0     f- 
+MC49  33   on   ma8       Dc---  --                   --        --             2     f- 
+MC50  0         --               --                   --        --             0     f- 
+MC51  34   on   rtc_cs_n  C----  --                   --        --             1     f- 
+MC52  36   on   rtc_sclk  C----  --                   --        --             1     f- 
+MC53  37   on   ma17      Dg---  --                   --        --             1     f- 
+MC54  0         --               --                   --        --             0     f- 
+MC55  0         --               --                   --        --             0     f- 
+MC56  38   --   TDO       C----  --                   --        --             0     f- 
+MC57  39   PT   rtc_dio   Dc-r-  --                   --        --             4     f- 
+MC58  0         --               --                   --        --             0     f- 
+MC59  0         --               --                   --        --             0     f- 
+MC60  0         --               --                   --        --             0     f- 
+MC61  0         --               --                   --        --             0     f- 
+MC62  40   --   pwr_rst_n INPUT  --                   --        --             0     f- 
+MC63  0         --               --                   --        --             0     f- 
+MC64  41   on   dbg0      Dc-r-  --                   FB_244    --             4     f- 
+MC0   2         rasb_n    INPUT  --                   --        --             0     f- 
+MC0   1         ecas1_n   INPUT  --                   --        --             0     f- 
+MC0   44        ecas2_n   INPUT  --                   --        --             0     f- 
+MC0   43        e1moe_n   INPUT  --                   --        --             0     f- 
+
+Logic Array Block			Macro Cells	I/O Pins	Foldbacks	TotalPT	FanIN		Cascades
+A: MC1	- MC16		14/16(87%)	8/16(50%)	0/16(0%)	47/80(58%)	25/40(62%)	0
+B: MC17	- MC32		12/16(75%)	8/16(50%)	0/16(0%)	23/80(28%)	10/40(25%)	0
+C: MC33	- MC48		7/16(43%)	8/16(50%)	0/16(0%)	21/80(26%)	9/40(22%)	0
+D: MC49	- MC64		7/16(43%)	8/16(50%)	1/16(6%)	13/80(16%)	15/40(37%)	0
+
+Total dedicated input used:	4/4 	(100%)
+Total I/O pins used		32/32 	(100%)
+Total Macro cells used 		40/64 	(62%)
+Total Flip-Flop used 		10/64 	(15%)
+Total Foldback logic used 	1/64 	(1%)
+Total Nodes+FB/MCells 		41/64 	(64%)
+Total cascade used 		0
+Total input pins 			12
+Total output pins 		24
+Total Pts 				104
+Creating pla file laser128_ramcard.tt3 with 0 inputs 0 outputs, 0 pins 0 nodes and 0 pterms...
+
+----------------  End fitter, Design FITS
+$Device PLCC44 fits; JTAG ON; Secure OFF
+FIT1504 completed in 0.00 seconds

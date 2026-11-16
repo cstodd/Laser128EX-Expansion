@@ -53,5 +53,10 @@ for n, r in sorted(comb.items()):
     else: out.append('  assign %s = %s;' % (n, r))
 for n, r in sorted(oe.items()):
     if n.startswith('xd_'): out.append('  wire %s_oe = %s;' % (n, r))
+# a bidirectional pin whose output comes straight from its macrocell's register (no combinational equation)
+for n in BIDI:
+    if n in regs and n not in comb:
+        if n.startswith('xd_'): out.append('  wire %s_v = %s_q;' % (n, n))
+        else: out.append("  assign %s = %s ? %s_q : 1'bz;" % (n, oe.get(n, "1'b1"), n))
 out.append('endmodule')
 print('\n'.join(out))

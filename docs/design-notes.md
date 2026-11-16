@@ -300,8 +300,13 @@ the /RAM removal, the AppleWorks problem and the long interrupts-off window (§9
   BCD + packing ~40, lock + restore ~10 → ~120.
 - No aux memory, no stub/body split, no checksum, no /RAM removal. CLOCK.SYSTEM just probes and installs.
 
+**Prototype result (Nov 2026):** final port design is "writes set registers, **reads are the clock**" (a fast write
+is only ~22 ns wide between /ECAS and /E1MOE, too short for tCL ≥ 110 ns). Fits in 40/64 macrocells; passes the
+rev02 testbench (DS3234 timing model) as RTL, fitter equations and decoded fuses. **Hardware check needed: /RWR must
+be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK glitch). Details: `cpld/rev02/README.md`.
+
 ### Plan
-1. Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.
+1. ~~Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.~~ (done)
 2. Driver rev02 in the emulator harness (DS3234 model behind the CPLD port model): size ≤ 125, interrupts-off window,
    RAM-disk byte and address restored.
 3. If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.
