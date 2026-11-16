@@ -7,8 +7,9 @@ KiCad 10 files; they remain for history and for a full regenerate-and-reroute if
 
 Status (rev 0.1): **fully routed, 2 layers, 100 × 90 mm.** Re-checked from the KiCad 10 board and Gerbers: 282 pads
 match the schematic netlist, J1 pins 15/16 are 23.000 mm above H1 with the J1 centreline through H1, H1 is 4.000 mm
-from the right/bottom edges, 480 drill hits all land on copper on both layers. The fab origin is near the bottom-right
-corner, which is fine since every file shares it. DRC: 0 unconnected, 0 clearance errors
+from the right/bottom edges, 480 drill hits all land on copper on both layers. The fab origin (drill/place
+origin, stored in the board file) is the bottom-left board corner: all Gerber, drill and placement
+coordinates run 0..100 × 0..90 mm. DRC: 0 unconnected, 0 clearance errors
 (2 starved-thermal warnings on GND pads that also have their own tracks). Every board pad's net matches the
 schematic netlist. Fabrication outputs are in `fab/`; the ordering list is in `docs/ordering.md`.
 Previews: `render-gerber-top.png` / `render-gerber-bottom.png` (rendered from the Gerbers with gerbonara),
