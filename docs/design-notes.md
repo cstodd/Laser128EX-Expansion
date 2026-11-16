@@ -25,7 +25,7 @@ parts are scarce at JLCPCB/LCSC, and a socketable CPLD still exists. See [`sourc
 
 | Ref | Part | Package | Notes |
 |---|---|---|---|
-| U1 | **ATF1504AS-10JU44** | PLCC-44 in THT socket | 5 V, 64 MC, 32 I/O + 4 inputs. Active. Pin map in `hardware/README.md`. |
+| U1 | **ATF1504AS-10JU44** | PLCC-44 in THT socket | 5 V, 64 MC, 32 I/O + 4 inputs. Active. Pin map in `hardware/rev01/README.md`. |
 | U2 | **74AHCT574** | DIP-20 | Row register: ERA0–7 → MA9–16, clocked by ROWCLK (/RASB↓). AHCT for speed; not LS/HC. |
 | U3 | **74AHCT574** | DIP-20 | Column register: ERA0–7 → MA0–7, clocked by COLCLK (first /ECASn↓). |
 | U4 | **74HCT245** | DIP-20 | Data buffer. A = card bus XD, B = Laser D. DIR = MEMRD (as on the stock card); /OE from the CPLD. |
@@ -106,7 +106,7 @@ DS1315 but implemented in the CPLD:
   Checked three ways: RTL testbench, the fitter's equations, and the .jed decoded with prjbureau's fuse database
   (`cpld/rev01/fit/README.md`).
 - Programming: ATDH1150USB + ATMISP, or an FT232H/USB-Blaster + OpenOCD via SVF.
-- PCB: generated in KiCad 7, now maintained in KiCad 10 (`hardware/README.md`).
+- PCB: generated in KiCad 7, now maintained in KiCad 10 (`hardware/rev01/README.md`).
 - 6502: ca65/ld65, tested on a py65 65C02 emulator harness; disk image built by `software/rev01/mkdisk.py`.
 
 ## 7. Task list

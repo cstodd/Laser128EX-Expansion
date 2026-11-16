@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Autoroute hardware/laser128-ramcard.kicad_pcb with Freerouting, then fill zones and run DRC.
+"""Autoroute hardware/rev01/laser128-ramcard.kicad_pcb with Freerouting, then fill zones and run DRC.
 
     /usr/bin/python3 tools/route_pcb.py <path/to/freerouting-2.5.0-executable.jar> [java]
 
@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from sexp import parse, find, find1  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
+PCB = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
 POWER_NETS = ('GND', '+5V', 'VBB', 'VBAT')
 TIMEOUT = int(os.environ.get('ROUTE_TIMEOUT', '1500'))
 JOB_TIMEOUT = os.environ.get('ROUTE_JOB_TIMEOUT', '00:22:00')   # freerouting stops itself and saves
@@ -30,7 +30,7 @@ def mm(v):
 
 def main(jar, java='java', passes=int(os.environ.get('ROUTE_PASSES', '60'))):
     board = pcbnew.LoadBoard(PCB)
-    # Net classes (Default 0.25 mm, Power 0.6 mm) live in hardware/laser128-ramcard.kicad_pro.
+    # Net classes (Default 0.25 mm, Power 0.6 mm) live in hardware/rev01/laser128-ramcard.kicad_pro.
     # Creating/assigning NETCLASS objects from KiCad 7 Python corrupts the SWIG wrappers, so this
     # script never touches them; power nets are put in the Power class by editing the DSN.
     board.GetDesignSettings().m_TrackMinWidth = mm(0.15)   # router squeezes 0.187 mm between TSOP pads

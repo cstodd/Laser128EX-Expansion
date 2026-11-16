@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-"""Create hardware/laser128-ramcard.kicad_pcb: outline, mounting hole, placed footprints with
+"""Create hardware/rev01/laser128-ramcard.kicad_pcb: outline, mounting hole, placed footprints with
 nets from the schematic netlist, GND pours. Routing is NOT done here.
 
 Run with the system python that has KiCad's pcbnew module:
-    kicad-cli sch export netlist -o /tmp/l128.net hardware/laser128-ramcard.kicad_sch
+    kicad-cli sch export netlist -o /tmp/l128.net hardware/rev01/laser128-ramcard.kicad_sch
     /usr/bin/python3 tools/gen_pcb.py /tmp/l128.net
 Coordinates are board coordinates (mm, origin top-left, y down); see docs/mechanical.md.
 """
@@ -16,8 +16,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from sexp import parse, find, find1  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-OUT = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
-FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'lib', 'Laser128.pretty')}
+OUT = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
+FPLIBS = {'Laser128': os.path.join(ROOT, 'hardware', 'rev01', 'lib', 'Laser128.pretty')}
 STOCK_FP = '/usr/share/kicad/footprints'
 OX, OY = 50.0, 50.0          # board origin on the KiCad page
 LAYERS = int(os.environ.get('PCB_LAYERS', '2'))   # 4: In1 = GND plane, In2 = signal

@@ -11,7 +11,7 @@ import sys
 import pcbnew
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
+PCB = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
 VIA_D, VIA_DRILL, CLEAR = 0.6, 0.3, 0.3          # mm
 EDGE = 1.5
 

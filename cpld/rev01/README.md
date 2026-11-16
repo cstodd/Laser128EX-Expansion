@@ -59,7 +59,7 @@ and has three checks, each of which must pass before the .jed is accepted:
    same testbench. This one doesn't trust the fitter at all.
 
 All three pass with identical results. Details, the one prjbureau database gap (MC46) and how it was
-handled, and tool setup: `fit/README.md`. Pin constraints: `fit/pins.txt` (matches `hardware/README.md`).
+handled, and tool setup: `fit/README.md`. Pin constraints: `fit/pins.txt` (matches `hardware/rev01/README.md`).
 JTAG programming via J2: ATDH1150USB + ATMISP (loads the .jed directly), or FT232H/USB-Blaster + OpenOCD
 with an SVF made by ATMISP.
 

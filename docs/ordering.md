@@ -1,7 +1,7 @@
 # Ordering: rev 0.1 board and parts
 
 ## PCB
-Upload `hardware/fab/laser128-ramcard-gerbers.zip` (Gerbers + Excellon drill) to JLCPCB or similar.
+Upload `hardware/rev01/fab/laser128-ramcard-gerbers.zip` (Gerbers + Excellon drill) to JLCPCB or similar.
 
 | Setting | Value |
 |---|---|
@@ -43,10 +43,10 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | R5 | 1 | 1 kΩ ¼ W | JTAG TCK pull-down |
 | H1, H3 | — | M3 screws / standoffs | H1 = the Laser's standoff; H3 = your spacer |
 
-Machine-readable BOM: `hardware/fab/laser128-ramcard-bom.csv` (sockets not listed). `all-pos.csv` is KiCad's placement file, only needed for assembly.
+Machine-readable BOM: `hardware/rev01/fab/laser128-ramcard-bom.csv` (sockets not listed). `all-pos.csv` is KiCad's placement file, only needed for assembly.
 
 ## Before ordering
-1. Print `hardware/fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1. Check J1 against a real
+1. Print `hardware/rev01/fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1. Check J1 against a real
    2×15 socket and the stock card: pin 1 position, and 23.0 mm from the J1 bottom pins to the H1 centre.
 2. Measure the Laser's +5 V at J13 pins 1–2 (should be ~5 V; the MAX693A locks out the SRAM below 4.4 V).
 3. Battery: expect roughly 10–13 µA with the Laser off (about 2 years per CR2032).

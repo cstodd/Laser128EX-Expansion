@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Export fabrication outputs for hardware/laser128-ramcard.kicad_pcb into hardware/fab/:
+"""Export fabrication outputs for hardware/rev01/laser128-ramcard.kicad_pcb into hardware/rev01/fab/:
 Gerbers (JLCPCB/Protel naming), Excellon drill (PTH+NPTH merged), BOM CSV, pick-and-place CSV,
 and a zip ready to upload.
 
@@ -12,8 +12,8 @@ import zipfile
 import pcbnew
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
-OUT = os.path.join(ROOT, 'hardware', 'fab')
+PCB = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
+OUT = os.path.join(ROOT, 'hardware', 'rev01', 'fab')
 NAME = 'laser128-ramcard'
 
 LAYERS = [

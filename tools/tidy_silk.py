@@ -9,7 +9,7 @@ import os
 import pcbnew
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PCB = os.path.join(ROOT, 'hardware', 'laser128-ramcard.kicad_pcb')
+PCB = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
 
 
 def main():

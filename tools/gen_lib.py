@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the project's custom KiCad library:
-   hardware/lib/Laser128.kicad_sym  (J1 connector, ATF1504AS PLCC-44)
-   hardware/lib/Laser128.pretty/    (J1 2x15 U-numbered socket footprint)
+   hardware/rev01/lib/Laser128.kicad_sym  (J1 connector, ATF1504AS PLCC-44)
+   hardware/rev01/lib/Laser128.pretty/    (J1 2x15 U-numbered socket footprint)
 """
 import os
 import sys
@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from sexp import S, Sym, dumps, parse, find, find1, walk  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-LIB = os.path.join(ROOT, 'hardware', 'lib')
+LIB = os.path.join(ROOT, 'hardware', 'rev01', 'lib')
 STOCK = '/usr/share/kicad/symbols'
 
 # ---------------------------------------------------------------- J1 (J13 mate)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate hardware/laser128-ramcard.kicad_sch (KiCad 7 format) from an explicit
+"""Generate hardware/rev01/laser128-ramcard.kicad_sch (KiCad 7 format) from an explicit
 pin->net table.  Every pin of every part is either connected by a net label placed on its
 endpoint or marked no-connect; the script refuses to emit a schematic otherwise.
 
@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from sexp import S, Sym, dumps, parse, find, find1, walk  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-HW = os.path.join(ROOT, 'hardware')
+HW = os.path.join(ROOT, 'hardware', 'rev01')
 STOCK = '/usr/share/kicad/symbols'
 PROJECT = 'laser128-ramcard'
 ROOT_UUID = '6c1d0a4e-1a28-4e5b-9f3e-128e0000c0d3'

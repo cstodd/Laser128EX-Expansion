@@ -21,15 +21,15 @@ Notes on this route:
 - J1's socket body goes on the **bottom** side (marked on the bottom silkscreen).
 
 ```sh
-python3 tools/gen_lib.py      # hardware/lib/Laser128.kicad_sym + Laser128.pretty
-python3 tools/gen_sch.py      # hardware/laser128-ramcard.kicad_sch
-kicad-cli sch export netlist -o /tmp/l128.net hardware/laser128-ramcard.kicad_sch
+python3 tools/gen_lib.py      # hardware/rev01/lib/Laser128.kicad_sym + Laser128.pretty
+python3 tools/gen_sch.py      # hardware/rev01/laser128-ramcard.kicad_sch
+kicad-cli sch export netlist -o /tmp/l128.net hardware/rev01/laser128-ramcard.kicad_sch
 python3 tools/check_netlist.py /tmp/l128.net             # ERC substitute
 /usr/bin/python3 tools/gen_pcb.py /tmp/l128.net          # outline, holes, placement, pours (unrouted)
 ROUTE_GND_SIGNAL=1 /usr/bin/python3 tools/route_pcb.py freerouting-2.5.0-executable.jar <java25>
 /usr/bin/python3 tools/stitch_gnd.py 5                   # GND stitching vias
 /usr/bin/python3 tools/tidy_silk.py                      # silkscreen clean-up + DRC
-/usr/bin/python3 tools/export_fab.py                     # hardware/fab/
+/usr/bin/python3 tools/export_fab.py                     # hardware/rev01/fab/
 ```
 Freerouting 2.5.0 is `app.freerouting:freerouting:2.5.0` (executable jar) from Maven Central and needs Java 25.
 `route_pcb.py` turns off its analytics, GUI and API server, and caps the run with `job_timeout`.
