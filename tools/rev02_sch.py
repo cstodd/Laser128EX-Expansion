@@ -124,6 +124,9 @@ def main():
         i = t.index('(property "Reference" "%s"' % ref); s = t.rindex('\n  (symbol', 0, i)
         e = t.index('(property "Value" "4.7k"', s); assert e < i + 2000
         t = t[:e] + '(property "Value" "%s"' % val + t[e + len('(property "Value" "4.7k"'):]
+    # R1-R5 use the vertical DIN0207 footprint so the DS3234 cluster fits beside the CPLD (rev02_pcb.py move)
+    t = t.replace('Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal',
+                  'Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical')
     open(SCH, 'w').write(t)
     # project library
     L = open(LIB).read()

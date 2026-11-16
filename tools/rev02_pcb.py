@@ -148,6 +148,110 @@ def prep():
     board.Save(PCB)
     print('U8 swapped; %d pad nets changed; %d track/via items removed (SDA/SCL/MEMRD + dangling +5V/VBAT)' % (changed, removed))
 
+# Step 1b ('move'): the DS3234 cluster goes next to the CPLD so RTC_CS_n / RTC_SCLK / RTC_DIO are short and
+# don't need the two long corridors to the bottom of the board. Room comes from the JTAG pull-ups R3-R5 and C3:
+# all five resistors become the vertical (2.54 mm pitch) DIN0207 footprint. Targets are courtyard centres in
+# board coordinates (mm from the lower-left board corner, y up) and orientation in degrees.
+RVERT = ('Resistor_THT', 'R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical')
+PLACE = {
+    'U8': (None, 79.0, 55.3, 0),     # SOIC-20W: pin 1 (CS) and pins 17-20 (DIN/SCLK/DOUT) face the CPLD
+    'C3': (None, 87.6, 50.0, 90),    # CPLD decoupling, moved from under U8's new spot
+    'C9': (None, 87.6, 58.0, 90),    # U8 decoupling
+    'R2': (RVERT, 91.1, 51.4, 90),
+    'R1': (RVERT, 91.1, 58.0, 90),
+    'R3': (RVERT, 76.0, 64.6, 0),
+    'R4': (RVERT, 82.0, 64.6, 0),
+    'R5': (RVERT, 88.0, 64.6, 0),
+}
+
+def crtyd_offset(lib, name, rot):
+    """Courtyard centre relative to the footprint origin at orientation rot (board-side wrappers of
+    GetCourtyard()/GraphicalItems() aren't usable from Python in KiCad 10, so ask a fresh library copy)."""
+    f = pcbnew.FootprintLoad('/usr/share/kicad/footprints/%s.pretty' % lib, name)
+    f.SetOrientationDegrees(rot)
+    f.BuildCourtyardCaches()
+    c = f.GetCourtyard(pcbnew.F_CrtYd).BBox()
+    return c, c.GetCenter()
+
+def move():
+    board = pcbnew.LoadBoard(PCB)
+    ox, oy = board.GetDesignSettings().GetAuxOrigin().x, board.GetDesignSettings().GetAuxOrigin().y
+    moved = []
+    for ref, (fpid, cx, cy, rot) in PLACE.items():
+        fp = board.FindFootprintByReference(ref)
+        if fpid:
+            new = pcbnew.FootprintLoad('/usr/share/kicad/footprints/%s.pretty' % fpid[0], fpid[1])
+            new.SetFPID(pcbnew.LIB_ID(*fpid))
+            new.SetReference(ref); new.SetValue(fp.GetValue())
+            new.SetPath(fp.GetPath()); new.SetSheetname(fp.GetSheetname()); new.SetSheetfile(fp.GetSheetfile())
+            for np_ in new.Pads():
+                op = [q for q in fp.Pads() if q.GetNumber() == np_.GetNumber()][0]
+                np_.SetNet(op.GetNet())
+            board.Remove(fp); board.Add(new); fp = new
+        fp.SetOrientationDegrees(rot)
+        lib = fp.GetFPID()
+        c, off = crtyd_offset(str(lib.GetLibNickname()), str(lib.GetLibItemName()), rot)
+        fp.SetPosition(pcbnew.VECTOR2I(ox + mm(cx) - off.x, oy - mm(cy) - off.y))
+        c.Move(fp.GetPosition())
+        moved.append((fp, c))
+    # U8's grounded pads keep solid pour connections
+    for p in board.FindFootprintByReference('U8').Pads():
+        if p.GetNumber() in [str(n) for n in (2, 7, 8, 9, 10, 11, 12, 13, 14, 15)]:
+            p.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
+    tracks = list(board.GetTracks())
+    pads = [p for f in board.GetFootprints() for p in f.Pads()]
+    # the RTC nets and VBAT are re-routed from scratch; any copper crossing a moved part's courtyard goes
+    kill = set(i for i, tr in enumerate(tracks) if str(tr.GetNetname()) in ('/RTC_CS_n', '/RTC_SCLK', '/RTC_DIO', '/RTC_SDIO', '/VBAT'))
+    boxes = []
+    for fp, b in moved:
+        b.Inflate(mm(0.3)); boxes.append(b)
+    for i, tr in enumerate(tracks):
+        if i not in kill and any(tr.HitTest(b, False, 0) for b in boxes):
+            kill.add(i)
+    def connected(pt, netname, me):
+        if any(p.GetNetname() == netname and p.HitTest(pt) for p in pads):
+            return True
+        for j, o in enumerate(tracks):
+            if j == me or j in kill or o.GetNetname() != netname:
+                continue
+            if o.Type() == pcbnew.PCB_VIA_T:
+                if (o.GetPosition() - pt).EuclideanNorm() <= o.GetWidth(pcbnew.F_Cu) // 2:
+                    return True
+            elif o.GetStart() == pt or o.GetEnd() == pt or o.HitTest(pt):
+                return True
+        return False
+    # dangling pass over every net. Segments need both ends connected; non-GND vias need copper on two sides
+    # (GND vias stay: they reach the pours).
+    while True:
+        gone = []
+        for i, tr in enumerate(tracks):
+            if i in kill:
+                continue
+            nn = tr.GetNetname()
+            if tr.Type() == pcbnew.PCB_VIA_T:
+                if str(nn) == '/GND':
+                    continue
+                n = sum(1 for j, s in enumerate(tracks) if j != i and j not in kill and s.Type() != pcbnew.PCB_VIA_T
+                        and s.GetNetname() == nn and tr.GetPosition() in (s.GetStart(), s.GetEnd()))
+                if n <= 1 and not any(p.GetNetname() == nn and p.HitTest(tr.GetPosition()) for p in pads):
+                    gone.append(i)
+            elif not (connected(tr.GetStart(), nn, i) and connected(tr.GetEnd(), nn, i)):
+                gone.append(i)
+        if not gone:
+            break
+        kill.update(gone)
+    for i in sorted(kill):
+        board.Remove(tracks[i])
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    board.Save(PCB)
+    # J1's back-silk 'J1 SOCKET THIS SIDE' slides 7.6 mm down the connector, clear of R2's pads (text edit:
+    # footprint graphics aren't iterable from Python here)
+    s = open(PCB).read()
+    a = '(fp_text user "J1 SOCKET THIS SIDE"\n\t\t\t(at -2.6 17.78 90)'
+    if a in s:
+        open(PCB, 'w').write(s.replace(a, a.replace('17.78', '25.4')))
+    print('moved %s; %d track/via items removed' % (', '.join(PLACE), len(kill)))
+
 def touches_pad(board, pt, netname):
     return any(p.GetNetname() == netname and p.HitTest(pt) for fp in board.GetFootprints() for p in fp.Pads())
 
@@ -183,8 +287,8 @@ def route(jar, java='java', passes=30):
     cmd = [java, '-jar', jar, '-de', dsn, '-do', ses, '--gui.enabled=false', '--api_server.enabled=false',
            '--router.autorouter.max_passes=%d' % passes, '--router.optimizer.enabled=false',
            '--router.automatic_neckdown=false', '--router.copper_to_edge_clearance_um=%s' % os.environ.get('ROUTE_EDGE_UM', '600'),
-           '--router.job_timeout=00:15:00', '--usage_and_diagnostic_data.disable_analytics=true']
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1200)
+           '--router.job_timeout=%s' % os.environ.get('ROUTE_TIMEOUT', '00:15:00'), '--usage_and_diagnostic_data.disable_analytics=true']
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=int(os.environ.get('ROUTE_WALL', '1200')))
     if not os.path.exists(ses):
         raise SystemExit('no session file')
     if not pcbnew.ImportSpecctraSES(board, ses):
@@ -200,8 +304,23 @@ def route(jar, java='java', passes=30):
     os.remove(dsn); os.remove(ses)
     print('routed: %d tracks/vias new or re-routed, all %d protected items unchanged' % (len(after - before), len(before)))
 
+def strip():
+    """Fresh-route preparation: remove all tracks and vias except GND vias (stitching / island vias)."""
+    board = pcbnew.LoadBoard(PCB)
+    tracks = list(board.GetTracks())
+    keep = [t for t in tracks if t.Type() == pcbnew.PCB_VIA_T and str(t.GetNetname()) == '/GND']
+    for t in tracks:
+        if not (t.Type() == pcbnew.PCB_VIA_T and str(t.GetNetname()) == '/GND'):
+            board.Remove(t)
+    board.Save(PCB)
+    print('stripped: kept %d GND vias, removed %d items' % (len(keep), len(tracks) - len(keep)))
+
 if __name__ == '__main__':
-    if sys.argv[1] == 'prep':
+    if sys.argv[1] == 'move':
+        move()
+    elif sys.argv[1] == 'strip':
+        strip()
+    elif sys.argv[1] == 'prep':
         prep()
     else:
         route(*sys.argv[2:])
