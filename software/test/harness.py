@@ -504,9 +504,10 @@ def main():
     T.load(os.path.join(BUILD, 'CARDTEST'), 0x6000)
     P = T.mem.main
 
-    def run(cmd, nreg=2):
+    def run(cmd, nreg=2, first=0):
         P[0x0300] = cmd
         P[0x0309] = nreg
+        P[0x030A] = first
         T.pd.out = ''
         T.call(0x6000, limit=60_000_000)
         return P[0x0301], P[0x0307] | (P[0x0308] << 8)
@@ -541,6 +542,19 @@ def main():
     T.card.ram[0:65536] = bytes(random.getrandbits(8) for _ in range(65536))   # battery dead
     r2, n2 = run(3, nreg=1)
     check(r2 == 1 and n2 > 60000, 'retention check with dead battery: fail (%d errors)' % n2)
+    # Boot after test 2: the firmware reformats the start of the RAM disk. CARD.TEST's retention
+    # check starts at region 1 (FIRST = 1) so that doesn't count; damage beyond 64K still must.
+    r, n = run(2, nreg=2)
+    T.card.ram[0:4096] = bytes(4096)                # boot blocks, directory, bitmap rewritten
+    r2, n2 = run(3, nreg=2)
+    check(r2 == 1 and n2 > 0, 'reformatted first 4K with FIRST = 0: verify reports it (%d errors)' % n2)
+    T.pd.out = ''
+    r2, n2 = run(3, nreg=2, first=1)
+    check(r2 == 0 and T.pd.out == '.', 'retention check with FIRST = 1 skips the reformatted 64K: pass, %d dot' % len(T.pd.out))
+    T.card.ram[0x10000 + 0x1234] ^= 0x40           # a bit lost beyond the first 64K
+    r2, n2 = run(3, nreg=2, first=1)
+    check(r2 == 1 and n2 == 1 and (P[0x0304], P[0x0303], P[0x0302]) == (0x01, 0x12, 0x34),
+          'retention check with FIRST = 1 still finds a lost bit at $11234 (%d error)' % n2)
     T.card.addr = 0x0ABCD
     ram0, addr0 = snapshot(T.card)
     r, n = run(4)

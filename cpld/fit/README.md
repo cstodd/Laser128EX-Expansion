@@ -32,8 +32,18 @@ What it relies on, and how each was checked:
   prjbureau `notes/xor.txt` is used instead; on = non-inverting.
 - **Cascade direction** (MC n → n+1): not in the database; taken from the fitter report.
 - **Sensitivity:** each of those choices was deliberately broken in turn (polarity swapped, cascade reversed,
-  P/N literal sense swapped, MC46's inferred output enable forced off), and each one fails the testbench. A random
-  campaign of single corrupted product-term fuses is summarised in the commit that added this section.
+  P/N literal sense swapped, MC46's inferred output enable forced off), and each one fails the testbench.
+- **Corrupted-fuse campaign** (40 random single product-term fuses: 20 literals removed, 20 added):
+  - 20 caught by the original testbench;
+  - 5 more caught after the gaps they exposed were closed (key writes in all four banks, RAM read back out of
+    order plus a bank-alias test, and a quiet-bus check that SRAM CE and the '245 are off between card cycles);
+  - 1 (A18 never set by bank 1) inconclusive: with no defined power-up state the simulation drowns in X
+    values and never finishes, so it doesn't pass either;
+  - the other 14 make no functional difference and can't be caught by any test: literals that are
+    always true (an unused routing input, or a foldback line from a macrocell without foldback),
+    terms that can never be true (e.g. "/ECAS4 low while bank bit 1 = 0": /ECAS4 sets that bit
+    combinationally, and the fitter kept these redundant terms), or a hold term for a register that is
+    always 0 outside clock mode.
 
 Only the macrocell features this design uses are modelled (no latches, no flip-flop-feedback XOR); the script
 stops if it meets anything else.

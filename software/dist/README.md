@@ -13,7 +13,7 @@ emulator, then copy its files to your boot disk. It holds all of these:
 | `CLOCK.SYSTEM` | SYS ($FF) | $2000 | 1103 | Startup program: finds the card, installs the clock driver (aux-memory copy), then runs `BASIC.SYSTEM`. Goes before `BASIC.SYSTEM` in the boot directory. |
 | `CLOCK.MAIN` | BIN ($06) | $6000 | 758 | Installs the main-memory copy of the driver body, in two pages reserved through `BASIC.SYSTEM`. `BRUN` it from `STARTUP`. |
 | `CLOCK.SET` | BIN ($06) | $6000 | 314 | Machine-language helper that writes the date and time to the DS3231. Used by `SET.CLOCK`. |
-| `CARDTEST` | BIN ($06) | $6000 | 963 | Machine-language test engine (RAM tests, clock test, bank-hop test). Used by `CARD.TEST`. |
+| `CARDTEST` | BIN ($06) | $6000 | 968 | Machine-language test engine (RAM tests, clock test, bank-hop test). Used by `CARD.TEST`. |
 | `SET.CLOCK` | BAS ($FC) | $0801 | — | Applesoft program: asks for the date and time and sets the clock. |
 | `CARD.TEST` | BAS ($FC) | $0801 | — | Applesoft program: the card test menu. |
 | `STARTUP` | BAS ($FC) | $0801 | — | Example startup: `10 PRINT CHR$(4);"BRUN CLOCK.MAIN"`. |

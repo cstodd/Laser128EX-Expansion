@@ -23,8 +23,11 @@ First pick the CPU speed (1 / 2.3 / 3.6 MHz, set via the `$C074` speed register)
    address pattern, then restore. **The RAM disk is kept.** About a minute; one dot per 64K.
 2. **Full address test**: fills all 1 MB with an address-derived pattern and verifies it. This catches
    shorted or open address lines, which the block test can't. **Erases the RAM disk.**
-3. **Retention check**: after test 2, power the Laser off for a while, power on, boot, and run this.
-   It verifies the pattern survived on the battery.
+3. **Battery check**: after test 2, power the Laser off for a while, power on, boot, and run this.
+   It recalculates the pattern from each address and checks it survived on the battery. It first asks
+   whether test 2 was run before the power-off, and explains the steps if not. It checks 960K and **skips
+   the first 64K**: test 2 wipes the RAM disk's directory, so the Laser firmware reformats the start of the
+   RAM disk at the next boot, overwriting the pattern there.
 4. **Clock test**: shows the DS3231 date and time, checks the seconds advance, and reports the
    oscillator-stopped flag (the clock lost power since it was last set: check the battery).
 5. **Bank-hop test**: 1024 offsets in each of the four 256K banks, read and written so that *every access

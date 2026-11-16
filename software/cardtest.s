@@ -9,6 +9,9 @@
 ;   $0305 ERREXP  value written, $0306 ERRGOT value read
 ;   $0307 ERRCNT  error count (16-bit, stops at $FFFF)
 ;   $0309 NREG    number of 64K regions to test (0 = all 16)
+;   $030A FIRST   first 64K region to test (commands 1-3; normally 0). The retention check uses 1:
+;                 after test 2 the RAM disk's directory is gone, so the Laser firmware reformats the
+;                 start of the RAM disk at the next boot, overwriting the pattern there.
 ;   $0310 CLOCK   DS3231 registers 0-15
 ; Address pattern: byte at H:M:L = L + 7*M + 13*H (detects stuck/shorted address lines).
         .include "defs.inc"
@@ -19,6 +22,7 @@ ERREXP  = $0305
 ERRGOT  = $0306
 ERRCNT  = $0307
 NREG    = $0309
+FIRST   = $030A
 CLOCK   = $0310
 ZTMP    = $3A
 SAVE    = $6F00                         ; block save buffer (above this program)
@@ -58,6 +62,8 @@ start:  bit     XEN                     ; enable the expansion RAM
         sta     endh
         lda     #0
         sta     bm
+        lda     FIRST                   ; start region (0 unless the caller skips some)
+        and     #$0F
         sta     bh
 blk:    lda     CMD
         cmp     #1
