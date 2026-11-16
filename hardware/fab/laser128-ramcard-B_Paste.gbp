@@ -1,12 +1,12 @@
-%TF.GenerationSoftware,KiCad,Pcbnew,7.0.11+dfsg-1build4*%
-%TF.CreationDate,2026-11-15T05:55:14+00:00*%
+%TF.GenerationSoftware,KiCad,Pcbnew,10.0.8*%
+%TF.CreationDate,2026-11-15T22:37:45-07:00*%
 %TF.ProjectId,laser128-ramcard,6c617365-7231-4323-982d-72616d636172,rev?*%
-%TF.SameCoordinates,Original*%
+%TF.SameCoordinates,PX9664fa0PY853a720*%
 %TF.FileFunction,Paste,Bot*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 7.0.11+dfsg-1build4) date 2026-11-15 05:55:14*
+G04 Created by KiCad (PCBNEW 10.0.8) date 2026-11-15 22:37:45*
 %MOMM*%
 %LPD*%
 G01*

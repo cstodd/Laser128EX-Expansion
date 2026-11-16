@@ -1,0 +1,26 @@
+Drill report for laser128-ramcard.kicad_pcb
+Created on 2026-11-15T22:23:01
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'laser128-ramcard-PTH-drl.gbr' contains
+    plated through holes:
+    =============================================================
+    T1  0.300mm  0.0118"  (212 holes))
+    T2  0.800mm  0.0315"  (220 holes))
+    T3  1.000mm  0.0394"  (44 holes))
+    T4  1.500mm  0.0591"  (2 holes))
+    T5  3.200mm  0.1260"  (2 holes))
+
+    Total plated holes count 480
+
+
+Drill file 'laser128-ramcard-NPTH-drl.gbr' contains
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0
