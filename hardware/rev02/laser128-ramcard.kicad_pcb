@@ -840,7 +840,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/DS3234.pdf"
 			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -1912,7 +1912,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.microchip.com/en-us/product/atf1504as"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -4302,7 +4302,7 @@
 		(descr "Through hole IDC box header, 2x05, 2.54mm pitch, DIN 41651 / IEC 60603-13, double rows, https://docs.google.com/spreadsheets/d/16SsEcesNF15N3Lb4niX7dcUr-NY5_MFPQhobNuNppn4/edit#gid=0")
 		(tags "Through hole vertical IDC box header THT 2x05 2.54mm double row")
 		(property "Reference" "J2"
-			(at 0.7525 16.785 0)
+			(at 7.2 12 90)
 			(layer "F.SilkS")
 			(uuid "0f0e9494-005b-4795-9087-41b7f9566217")
 			(effects
@@ -6813,7 +6813,7 @@
 		(descr "Resistor, Axial_DIN0207 series, Axial, Vertical, pin pitch=2.54mm, 0.25W = 1/4W, length*diameter=6.3*2.5mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
 		(tags "Resistor Axial_DIN0207 series Axial Vertical pin pitch 2.54mm 0.25W = 1/4W length 6.3mm diameter 2.5mm")
 		(property "Reference" "R2"
-			(at 1.27 -2.37 0)
+			(at 1.045 2.5 0)
 			(layer "F.SilkS")
 			(uuid "8433c354-7546-4751-9be8-a31f6f577bfe")
 			(effects
@@ -10061,7 +10061,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX691A-MAX800M.pdf"
 			(at 0 0 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -10524,7 +10524,7 @@
 			(justify left)
 		)
 	)
-	(gr_text "Laser 128/128EX 1MB RAM + Clock  rev 0.1"
+	(gr_text "Laser 128/128EX 1MB RAM + Clock  rev 0.2"
 		(at 61 105 0)
 		(layer "F.SilkS")
 		(uuid "a0030059-d280-4aba-a070-1c35cc243da6")

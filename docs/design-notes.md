@@ -321,8 +321,10 @@ be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK gli
   R3–R5 horizontal stacked below it, R1/R2 vertical DIN0207 (2.54 mm) and C3/C9 between the CPLD and the RAMs;
   the x 85–93 mm strip in front of J1 is kept clear. A first try that put R1/R2/C3/C9 in that strip walled off
   J1's fan-out and was dropped.
-- All four RTC nets route easily now. **Open:** Freerouting (protected-incremental and full re-routes) leaves
-  two or more CPLD↔J1 nets unrouted: best result so far is **ECAS3_n (U1-4 → J1-26) and ERA8 (U1-8 → J1-10)**,
-  both leaving the PLCC socket's top row. Hand-routing these two in KiCad is the likely quickest finish;
-  otherwise keep iterating placement. Also still to do: silk cleanup (J2 ref over U8 pads, R1/R2 refs), GND
-  pour islands / starved thermals, DRC 0/0, fab outputs, `hardware/rev02/README.md`.
+- All four RTC nets route easily now. Freerouting couldn't finish two CPLD↔J1 nets (ECAS3_n, ERA8); those,
+  the GND island bridges (U8's ground pins, U1-10) and moving ECAS3_n / E1MOE_n under U8 on B.Cu were done by
+  hand in KiCad 10. Lesson: Freerouting was routing GND as a signal (≈400 mm of GND traces) and the move step
+  originally ripped up everything crossing a moved courtyard, both layers; both made it much harder.
+- **Done:** DRC 0 unconnected / 0 errors, schematic parity clean, J1/H1 geometry unchanged, fab outputs and
+  renders in `hardware/rev02` (status in `hardware/rev02/README.md`). Still open on hardware: the
+  /RWR-before-/E1MOE scope check.

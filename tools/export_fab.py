@@ -1,19 +1,22 @@
 #!/usr/bin/python3
-"""Export fabrication outputs for hardware/rev01/laser128-ramcard.kicad_pcb into hardware/rev01/fab/:
+"""Export fabrication outputs for hardware/<rev>/laser128-ramcard.kicad_pcb into hardware/<rev>/fab/:
 Gerbers (JLCPCB/Protel naming), Excellon drill (PTH+NPTH merged), BOM CSV, pick-and-place CSV,
 and a zip ready to upload.
 
-    /usr/bin/python3 tools/export_fab.py
+    /usr/bin/python3 tools/export_fab.py [rev01|rev02]     (default rev01)
 """
 import csv
 import os
+import subprocess
+import sys
 import zipfile
 
 import pcbnew
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-PCB = os.path.join(ROOT, 'hardware', 'rev01', 'laser128-ramcard.kicad_pcb')
-OUT = os.path.join(ROOT, 'hardware', 'rev01', 'fab')
+REV = sys.argv[1] if len(sys.argv) > 1 else 'rev01'
+PCB = os.path.join(ROOT, 'hardware', REV, 'laser128-ramcard.kicad_pcb')
+OUT = os.path.join(ROOT, 'hardware', REV, 'fab')
 NAME = 'laser128-ramcard'
 
 LAYERS = [
@@ -40,7 +43,7 @@ def main():
     po.SetIncludeGerberNetlistInfo(True)
     po.SetCreateGerberJobFile(False)
     po.SetSubtractMaskFromSilk(True)
-    po.SetUseAuxOrigin(False)
+    po.SetUseAuxOrigin(True)       # Gerbers, drill and placement all on the drill/place origin (bottom-left corner)
     po.SetDrillMarksType(pcbnew.DRILL_MARKS_NO_DRILL_SHAPE)
     po.SetSkipPlotNPTH_Pads(False)
     po.SetPlotValue(True)
@@ -70,16 +73,10 @@ def main():
         for (val, fpn), refs in sorted(groups.items(), key=lambda kv: kv[1][0]):
             w.writerow([val, ','.join(sorted(refs, key=lambda r: (r[0], int(''.join(c for c in r if c.isdigit()) or 0)))), fpn, len(refs)])
 
-    # pick-and-place (all parts; JLCPCB column names)
-    with open(os.path.join(OUT, NAME + '-cpl.csv'), 'w', newline='') as f:
-        w = csv.writer(f)
-        w.writerow(['Designator', 'Val', 'Package', 'Mid X', 'Mid Y', 'Rotation', 'Layer'])
-        ox, oy = 50.0, 50.0
-        for fp in sorted(board.GetFootprints(), key=lambda x: x.GetReference()):
-            p = fp.GetPosition()
-            w.writerow([fp.GetReference(), fp.GetValue(), str(fp.GetFPID().GetUniStringLibItemName()),
-                        '%.3f' % (pcbnew.ToMM(p.x) - ox), '%.3f' % (oy - pcbnew.ToMM(p.y)),
-                        '%.1f' % fp.GetOrientationDegrees(), 'top' if fp.GetLayer() == pcbnew.F_Cu else 'bottom'])
+    # pick-and-place: KiCad's own CSV on the drill/place origin (same format as KiCad's File > Fabrication Outputs)
+    subprocess.check_call(['kicad-cli', 'pcb', 'export', 'pos', '--format', 'csv', '--units', 'mm',
+                           '--use-drill-file-origin', '--side', 'both',
+                           '-o', os.path.join(OUT, NAME + '-all-pos.csv'), PCB], stdout=subprocess.DEVNULL)
 
     zpath = os.path.join(OUT, NAME + '-gerbers.zip')
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
