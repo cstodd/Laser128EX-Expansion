@@ -69,6 +69,10 @@ python3 software/build.py          # -> software/build/
 python3 software/test/harness.py   # 65C02 emulation tests
 python3 software/mkdisk.py         # -> software/dist/ (binaries + LASERCLOCK.po)
 ```
+The BASIC programs (`CARD.TEST`, `SET.CLOCK`, `STARTUP`) are plain Applesoft listings in `software/basic/*.bas`;
+`mkdisk.py` tokenises them onto the disk. Edit those files, then rerun `mkdisk.py`. Write them as you would type them on
+an Apple II: uppercase keywords, ascending line numbers, lines under 40 columns for the menus, and no keywords
+hidden in variable names (`TOTAL` contains `TO`), because the tokeniser treats them exactly as Applesoft does.
 Independent image check with AppleCommander 1.10.1 (`net.sf.applecommander:AppleCommander`, Maven Central):
 ```sh
 javac -cp AppleCommander-1.10.1.jar software/test/CheckImage.java

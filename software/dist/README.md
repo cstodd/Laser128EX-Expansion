@@ -22,7 +22,7 @@ emulator, then copy its files to your boot disk. It holds all of these:
 `CLOCK.SYSTEM`, `CLOCK.MAIN`, `CLOCK.SET` and `CARDTEST` are also here as raw binaries (no file header), the
 same bytes as on the disk. They're for tools that add files to an image one at a time. When adding them by
 hand, set the ProDOS type and load (aux) address from the table above. The three BASIC programs exist only
-on the disk image, because they are stored tokenised.
+on the disk image, because they are stored tokenised; their source listings are in `software/basic/`.
 
 ## Checking
 `mkdisk.py` reads the finished image back and compares every file's type, load address and contents.
