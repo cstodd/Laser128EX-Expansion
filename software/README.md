@@ -57,7 +57,9 @@ logic) didn't answer; nothing is changed in that case.
     date/time when they start; while they run, the time doesn't advance.
 - Each read: save the slinky address and the 8 RAM bytes at it, write the unlock key (it lands in
   those 8 bytes), read DS3231 registers 1-6 over I2C, lock, write the 8 bytes back, restore the
-  address. The RAM disk is never disturbed. Interrupts are off for the ~2 ms this takes.
+  address. The RAM disk is never disturbed. **Interrupts are off for the whole call: measured ~18,300
+  cycles (~18 ms at 1 MHz)**, too long for interrupt-driven serial at high speeds. Driver v2 fixes this
+  (`docs/design-notes.md` §9).
 - The body uses only the stack and zero page `$3A-$41` (saved and restored) as scratch, and writes
   nothing in main memory except `DATE`/`TIME` (`$BF90-$BF93`). That is what lets the same code run
   from auxiliary memory, with reads switched to aux and writes left on main.

@@ -188,3 +188,56 @@ Hardware alternative for a future revision: a 3-wire RTC (e.g. DS1302: one comma
 no ACK/addressing) behind the same key would make a driver small enough for ProDOS's slot, as DClock's was. That
 would make AppleWorks and anything else work with no patch, but the DS1302 is crystal-based (more drift than the
 DS3231's TCXO) and the board would change.
+
+## 9. Driver v2 plan: body in aux language card bank 2 (agreed Nov 2026, in progress)
+
+### Why
+- Measured in the emulator (one ProDOS clock call, aux copy, caller had interrupts enabled): **18,347 cycles with
+  interrupts off** (≈18 ms at 1 MHz). Stub integrity check 14,048; body 4,299. The README's "~2 ms" was wrong.
+  For comparison, the a2stuff DClock driver (125 bytes, in the ProDOS slot) is ≈1.5–2 ms with interrupts off.
+- Interrupt-driven serial (GBBS's SSC driver, ProTERM) loses characters at 9600+ (≈1 ms per character, 1-byte
+  receive register), and even 2400 is marginal at 18 ms. GBBS and ProTERM are system programs, so they use
+  our **aux** copy.
+- The aux copy runs with RAMRD on, and nothing confirms ProDOS's language-card IRQ path is safe in that state, so
+  `cli` can't simply be added there. (The Laser ROM handler in page $C4 does handle any memory configuration,
+  Tech Ref p. 10-6, but during an MLI call the vector comes from ProDOS's language card.)
+- ProDOS 8 TN #23: the MLI keeps interrupts off only briefly at entry, so our window does block interrupts.
+- ProDOS 8 TN #26: with /RAM removed (CLOCK.SYSTEM removes it), applications may use aux memory **above $800**,
+  which is where our aux copy ($0C00) lives. That explains AppleWorks overwriting it. **Aux language card bank 2,
+  $D100-$DFFF, is reserved for third-party RAM-based drivers.** TN #23: ProDOS installs correct IRQ vectors in the
+  aux language card at boot.
+
+### Design
+1. **Body** at aux LC bank 2 `$D100` (installed by CLOCK.SYSTEM: ALTZP on, LC bank 2 write-enabled, copy,
+   restore). It runs with **ALTZP on**, not RAMRD, so interrupts go through the aux-LC vectors ProDOS installs.
+   The long parts can then run with the **caller's interrupt state** (only re-enable if the caller had them on).
+   The body still keeps interrupts off around the parts that touch RAM-disk bytes: save the 8 bytes and the
+   slinky address, send the key, restore.
+2. **Stub** stays in ProDOS's 125-byte slot (main LC bank 1, `$D742`). It can't switch to aux LC bank 2 from there
+   (its own code would vanish), so it uses a **trampoline in the GETLN buffer `$0200`**, which clock drivers may
+   clobber (TN #1: first 17 bytes; a2stuff: `$200-$207`). The trampoline must be ≤17 bytes, for example:
+   `STA $C009` (ALTZPON) / `LDA $C080` (read aux LC bank 2) / `JMP $D100` … and the body JMPs back to
+   `LDA $C088` / `STA $C008` (ALTZPOFF) / `RTS` = 16 bytes; the stub then restores LC bank 1 read+write
+   (`LDA $C08B` ×2, the state the MLI sets).
+3. **Politeness with ALTZP on:** aux ZP and the aux stack belong to whoever uses ALTZP (TN #26 calls aux memory
+   below $800 system-reserved, but apps like AppleWorks may use aux ZP). The body must not leave changes there:
+   - Return to the trampoline by `JMP` (no return address on the aux stack).
+   - Open question A: where the body's scratch lives. With bank 2 **read-only** (`LDA $C080`, one access) the
+     body can't write its own page. Options: (a) write-enable bank 2 (`LDA $C083` ×2: trampoline grows to 19
+     bytes, over TN #1's 17), (b) use aux ZP/stack bytes with save/restore on the aux stack (the aux stack's
+     own contents below SP would still be touched), (c) split the odd-address double read between stub and
+     trampoline (works by the LC latch rules but fragile on clones). To decide first thing.
+4. **Integrity check** (stale-copy protection) stays, but runs with interrupts allowed (no RAMRD needed with
+   ALTZP on). Also make it cheaper: cover only the code bytes, with a faster sum (e.g. `ADC (zp),y / ROL`, about 12
+   cycles per byte, detects every single-byte change).
+5. **Fallbacks:** keep the main-memory copy (CLOCK.MAIN) path. The stub prefers main, then aux LC.
+6. **Harness work:** model ALTZP (aux ZP/stack + aux LC), LC bank 1/2 read/write latches, the trampoline, and
+   IRQ windows. Measure the longest interrupts-off run (target ≲ 1,000 cycles, i.e. under one character time
+   at 9600 baud at 1 MHz) and run the existing 52 checks plus new ones: aux ZP/stack and `$0200-$0210`
+   restored, AppleWorks-style wipe of aux `$0800-$BFFF` survived.
+7. **Hardware/emulator checks** we can't do here: IRQ with ALTZP on during an MLI call on a real Laser (serial
+   receive at 9600 while a program calls GET_TIME in a loop), and whether AppleWorks 5.1 leaves aux LC bank 2
+   `$D100-$DFFF` alone.
+
+References downloaded this session: ProDOS 8 Technical Reference (Asimov mirror), ProDOS 8 TN #1, #12, #23, #26
+(prodos8.com), a2stuff/prodos-drivers (clock driver conventions, DClock driver), GBBS-2.x source, AE DClock manual.
