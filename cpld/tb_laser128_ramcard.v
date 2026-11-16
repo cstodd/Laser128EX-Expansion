@@ -190,6 +190,36 @@ module tb;
         pwr_rst_n = 0; #50 pwr_rst_n = 1;
         if (dbg0) begin errors++; $display("FAIL: reset did not clear RTC mode"); end
 
+        // 7. key matcher, exhaustive: every state s (0-7 bytes matched) x every byte value. The
+        //    state after the byte is identified by finding which key tails KEY[j..7] unlock: the tail
+        //    j = expected next state must, and so must j = 0 (the whole key, which restarts the matcher
+        //    from any state); no other may. Key bytes are distinct, so only the right state accepts a
+        //    given tail.
+        //    Catches a wrong or missing literal in any key-matcher product term. Skip with +quick.
+        if (!$test$plusargs("quick")) begin : exhaustive
+            integer s, j, nxt, n7;
+            reg [7:0] kb [0:7];
+            n7 = 0;
+            for (k = 0; k < 8; k++) kb[k] = KEY[63-8*k -: 8];
+            for (s = 0; s < 8; s++)
+                for (i = 0; i < 256; i++) begin
+                    nxt = (i == kb[s]) ? s + 1 : (i == kb[0]) ? 1 : 0;
+                    for (j = 0; j < ((nxt == 8) ? 1 : 8); j++) begin
+                        pwr_rst_n = 0; #20 pwr_rst_n = 1;
+                        for (k = 0; k < s; k++) wr8(1, 20'h40000 + k, kb[k]);
+                        wr8(1, 20'h40008, i[7:0]);
+                        if (nxt < 8) for (k = j; k < 8; k++) wr8(1, 20'h40010 + k, kb[k]);
+                        if (dbg0 !== (nxt == 8 || j == nxt || j == 0)) begin
+                            errors++; n7++;
+                            if (n7 <= 5) $display("FAIL key matcher: state %0d byte %02h tail %0d -> rtc_mode %b, want %b",
+                                                  s, i[7:0], j, dbg0, (nxt == 8 || j == nxt || j == 0));
+                        end
+                    end
+                end
+            pwr_rst_n = 0; #20 pwr_rst_n = 1;
+            $display("key matcher exhaustive test: %0d errors", n7);
+        end
+
         $display("read-data margin at CPU sample point: fast cycles %0.1f ns, 1 MHz %0.1f ns",
                  min_margin_fast, min_margin_slow);
         $display("SRAM timing violations: %0d", u5.viol + u6.viol);

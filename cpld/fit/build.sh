@@ -25,5 +25,16 @@ python3 "$HERE/fit2v.py" laser128_ramcard.fit > fitted.v
 iverilog -g2012 -o tb_fitted fitted.v "$HERE/../tb_laser128_ramcard.v"
 vvp -n tb_fitted | tee tb_fitted.log
 grep -q '^PASS' tb_fitted.log
+# fuse-level check (optional): decode the .jed itself with Project Bureau's fuse database
+# (github.com/whitequark/prjbureau) and run the same testbench on that
+if [ -n "$PRJBUREAU" ]; then
+    python3 "$HERE/jed2v.py" "$PRJBUREAU" laser128_ramcard.jed "$HERE/pins.txt" > decoded.v 2> decoded.log
+    cat decoded.log
+    iverilog -g2012 -o tb_decoded decoded.v "$HERE/../tb_laser128_ramcard.v"
+    vvp -n tb_decoded | tee tb_decoded.log
+    grep -q '^PASS' tb_decoded.log
+else
+    echo "PRJBUREAU not set: skipping the fuse-level (.jed) check"
+fi
 cp laser128_ramcard.jed laser128_ramcard.fit "$HERE/"
 echo "OK: $HERE/laser128_ramcard.jed"

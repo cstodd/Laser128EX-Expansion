@@ -9,12 +9,38 @@ ATF1504AS-10JU44 and the -7JX44: the speed grade only changes the timing report,
 - `JTAG ON; Secure OFF`, power-down pins off, pin-keeper off, `power_reset` off.
 - Every signal is on the pin the PCB uses (`-preassign keep`, from `pins.txt`). JTAG is on 7/13/32/38 (TDI/TMS/TCK/TDO).
 - MEMRD (pin 39) is wired straight to the '245 DIR, so the CPLD doesn't use it. The fitter drops unused inputs,
-  so pin 39 shows as NC in the report. The fitter enables no output on it, so it stays an undriven input.
-  On the first board, check that pin 39 follows MEMRD.
+  so pin 39 shows as NC in the report. **Confirmed from the fuses** (below): its macrocell (MC57) has
+  `oe_mux = GND` and its logic powered down, so the CPLD can never drive it.
 - Bank bits: each is one macrocell whose feedback holds the value (see the "programmed logic" section of the .fit).
 - **Post-fit simulation:** `fit2v.py` turns the fitter's programmed-logic equations (what the .jed holds)
   back into Verilog, and `build.sh` runs `../tb_laser128_ramcard.v` on it. Result: PASS. The output matches the
   RTL run exactly (14.0 ns fast-cycle read margin), including the key, near-miss key, RTC port, lock and reset tests.
+
+## Fuse-level check (the .jed itself)
+The post-fit simulation above trusts the fitter's report to match its own .jed. `jed2v.py` removes that trust:
+it decodes `laser128_ramcard.jed` using only Project Bureau's open fuse database
+(github.com/whitequark/prjbureau, `database.json`, Mar 2025) and writes Verilog, which then runs through the
+same testbench. Result: **PASS**, identical results (14.0 ns margin, 0 key-matcher errors). Read straight from
+the fuses: JTAG on, PD1/PD2 = user I/O, read protection off, TMS/TDI pull-ups on, and every pin's
+direction and output enable as expected.
+
+What it relies on, and how each was checked:
+- **prjbureau gap:** the database lacks `d_mux`/`o_mux`/`oe_mux` for **MC46** (pin 31, `buf_oe_n`) only. Those
+  fuses step regularly from one macrocell to the next, so `jed2v.py` interpolates them from MC44/MC48 (checked
+  unclaimed by any other field) and prints a NOTE when it does.
+- **XOR polarity** (`xor_invert`): the docs' table for this is marked WIP. The hardware-measured truth table in
+  prjbureau `notes/xor.txt` is used instead; on = non-inverting.
+- **Cascade direction** (MC n → n+1): not in the database; taken from the fitter report.
+- **Sensitivity:** each of those choices was deliberately broken in turn (polarity swapped, cascade reversed,
+  P/N literal sense swapped, MC46's inferred output enable forced off), and each one fails the testbench. A random
+  campaign of single corrupted product-term fuses is summarised in the commit that added this section.
+
+Only the macrocell features this design uses are modelled (no latches, no flip-flop-feedback XOR); the script
+stops if it meets anything else.
+
+The exhaustive key-matcher test (section 7 of the testbench, 2048 state×byte cases) was added because the first
+corrupted-fuse trial, which removed one condition from a key-matcher term, slipped past the original testbench. It takes
+~45 s; `vvp ... +quick` skips it.
 
 ## Rebuilding
 Tools (Linux; all free):
@@ -28,7 +54,8 @@ Tools (Linux; all free):
 ```
 ATF15XX_YOSYS=/path/to/atf15xx_yosys ./build.sh
 ```
-This runs Yosys, then the fitter, then the post-fit testbench, and copies the .jed and .fit here if it passes.
+This runs Yosys, then the fitter, then the post-fit testbench, then (if `PRJBUREAU=/path/to/prjbureau` is set)
+the fuse-level check, and copies the .jed and .fit here only if everything passes.
 Intermediate files go to `out/` (git-ignored). Expect two "logic loop" warnings for the bank bits from
 Yosys: they are intended.
 
