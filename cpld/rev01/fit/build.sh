@@ -1,5 +1,5 @@
 #!/bin/bash
-# Fit cpld/laser128_ramcard.v for the ATF1504AS (PLCC-44) -> laser128_ramcard.jed
+# Fit cpld/rev01/laser128_ramcard.v for the ATF1504AS (PLCC-44) -> laser128_ramcard.jed
 # Needs: yosys, wine (with 32-bit support), and a checkout of
 # https://github.com/hoglet67/atf15xx_yosys whose vendor/ holds Atmel's fit1504.exe,
 # aprim.lib and atmel.std (from Microchip's ProChip5.0.1.zip; see README.md).

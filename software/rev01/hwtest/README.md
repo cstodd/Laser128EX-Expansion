@@ -1,8 +1,8 @@
 # Hardware test programs (driver v2 questions)
 
-`software/dist/LASERTEST.po` holds two programs. Boot your normal ProDOS disk with `CLOCK.SYSTEM`
+`software/rev01/dist/LASERTEST.po` holds two programs. Boot your normal ProDOS disk with `CLOCK.SYSTEM`
 (it removes /RAM, which would otherwise own all aux memory), start BASIC.SYSTEM, then `BRUN` them from
-this disk. Rebuild with `python3 software/hwtest/build.py`.
+this disk. Rebuild with `python3 software/rev01/hwtest/build.py`.
 
 These run on real hardware only; they are **not** emulator-tested (our harness doesn't model ALTZP or
 the aux language card).

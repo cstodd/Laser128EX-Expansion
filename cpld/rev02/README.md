@@ -1,6 +1,6 @@
 # CPLD rev 0.2 (DS3234 on 3-wire SPI) — prototype
 
-Same RAM logic and unlock key as rev 0.1 (`../`); the RTC port drives a DS3234 instead of a DS3231.
+Same RAM logic and unlock key as rev 0.1 (`../rev01/`); the RTC port drives a DS3234 instead of a DS3231.
 See `docs/design-notes.md` §10.
 
 ## RTC port (RTC mode only)

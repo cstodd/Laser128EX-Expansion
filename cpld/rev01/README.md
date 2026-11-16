@@ -4,9 +4,9 @@
 whole card, driven by the Laser's expansion-RAM bus timing (Tech Ref Manual Fig. 11-19).
 
 ```sh
-iverilog -g2012 -o tb cpld/laser128_ramcard.v cpld/tb_laser128_ramcard.v && vvp -n tb
+iverilog -g2012 -o tb cpld/rev01/laser128_ramcard.v cpld/rev01/tb_laser128_ramcard.v && vvp -n tb
 # try other part speeds:
-iverilog -g2012 -Ptb.T_CPLD=7.5 -Ptb.T_AA=45 -o tb cpld/laser128_ramcard.v cpld/tb_laser128_ramcard.v
+iverilog -g2012 -Ptb.T_CPLD=7.5 -Ptb.T_AA=45 -o tb cpld/rev01/laser128_ramcard.v cpld/rev01/tb_laser128_ramcard.v
 ```
 
 The testbench models the CPLD, 74AHCT574 row register, 74AHCT573 column latch, 74AHCT245, MAX693A CE

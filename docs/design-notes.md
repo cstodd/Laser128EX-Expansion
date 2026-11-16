@@ -94,7 +94,7 @@ DS1315 but implemented in the CPLD:
 ## 5. 128EX timing rules for the CPLD (from Fig. 11-19)
 - Expansion-RAM cycles never run faster than **2.3 MHz**: at the 3.6 MHz setting the Laser slows to 2.3 MHz for
   these accesses (Tech Ref App. A, p. A-3). With strobes at the delay-line tap times (an inference), the simulation
-  shows ~14 ns worst-case read margin with 55 ns SRAM on a bank change; see `cpld/README.md`.
+  shows ~14 ns worst-case read margin with 55 ns SRAM on a bank change; see `cpld/rev01/README.md`.
 - /E1MOE rises exactly at the CPUP0 fall, while /RASB, /ECAS and /RWR are still low.
 - SRAM /WE = /RWR·/ECAS·/E1MOE, so the write ends on /E1MOE↑ (early) before data floats.
 - SRAM /OE and the '245 enable are held until /E1MOE↑ (late).
@@ -102,12 +102,12 @@ DS1315 but implemented in the CPLD:
 
 ## 6. Toolchain
 - CPLD logic in portable Verilog, simulated with Icarus Verilog.
-- Fitting (done, Nov 2026): Yosys + hoglet67/atf15xx_yosys + Atmel `fit1504.exe` under Wine → `cpld/fit/laser128_ramcard.jed`.
+- Fitting (done, Nov 2026): Yosys + hoglet67/atf15xx_yosys + Atmel `fit1504.exe` under Wine → `cpld/rev01/fit/laser128_ramcard.jed`.
   Checked three ways: RTL testbench, the fitter's equations, and the .jed decoded with prjbureau's fuse database
-  (`cpld/fit/README.md`).
+  (`cpld/rev01/fit/README.md`).
 - Programming: ATDH1150USB + ATMISP, or an FT232H/USB-Blaster + OpenOCD via SVF.
 - PCB: generated in KiCad 7, now maintained in KiCad 10 (`hardware/README.md`).
-- 6502: ca65/ld65, tested on a py65 65C02 emulator harness; disk image built by `software/mkdisk.py`.
+- 6502: ca65/ld65, tested on a py65 65C02 emulator harness; disk image built by `software/rev01/mkdisk.py`.
 
 ## 7. Task list
 1. ~~KiCad symbols, footprints, schematic~~ (done)

@@ -16,7 +16,7 @@
 ; unlock sequence or clock the RTC port. Serial, mouse and timer handlers don't. (Keeping php/sei/plp would
 ; push the driver past 125 bytes.)
         .setcpu "65C02"
-        .include "../defs.inc"
+        .include "../rev01/defs.inc"
 
 RAMSAVE = $3B
 ACC     = $3C

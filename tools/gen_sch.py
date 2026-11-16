@@ -104,7 +104,7 @@ J1 = {1: '+5V', 2: '+5V', 3: 'RWR_n', 4: 'ECAS4_n', 5: 'ECAS2_n', 6: 'ERA0', 7: 
 part('J1', 'Laser128:Laser128_J1', 'Laser128_J1',
      'Laser128:Laser128_J1_Socket_2x15_P2.54mm_Unumbered', J1, (45.72, 101.6))
 
-# U1: CPLD pin assignment (PLCC-44).  Mirrored in cpld/laser128_ramcard.pin
+# U1: CPLD pin assignment (PLCC-44).  Mirrored in cpld/rev01/laser128_ramcard.pin
 CPLD = {
     # bus inputs
     1: 'ECAS1_n', 44: 'ECAS2_n', 4: 'ECAS3_n', 5: 'ECAS4_n', 2: 'RASB_n', 43: 'E1MOE_n',

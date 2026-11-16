@@ -3,10 +3,10 @@
 
 Models: Laser 128 main/aux memory (RAMRD/RAMWRT), the language card, the expansion-RAM
 "slinky" registers with auto-increment over 1 MB, the card's CPLD (unlock key, RTC port -
-mirrors cpld/laser128_ramcard.v), a bit-level DS3231 I2C slave, and enough of ProDOS 8
+mirrors cpld/rev01/laser128_ramcard.v), a bit-level DS3231 I2C slave, and enough of ProDOS 8
 (global page, MLI OPEN/READ/CLOSE/QUIT, BASIC.SYSTEM GETBUFR, COUT) to run the real binaries.
 
-    python3 software/build.py && python3 software/test/harness.py
+    python3 software/rev01/build.py && python3 software/rev01/test/harness.py
 """
 import os
 import random

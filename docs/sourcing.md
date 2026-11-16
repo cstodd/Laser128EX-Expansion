@@ -45,7 +45,7 @@ Stock figures are snapshots. Check them live before ordering.
 ## Read-path timing note (both options)
 **Update:** the Laser runs expansion-RAM cycles at 2.3 MHz at most (Tech Ref App. A), so CPUP0 high is
 ~217 ns, not the ~140 ns assumed below. With /ECAS at the D120 delay-line tap (an inference), the 55 ns AS6C4008
-has ~14 ns worst-case margin on a bank change, and the 45 ns CY62148ELL on an adapter ~24 ns (`cpld/README.md`).
+has ~14 ns worst-case margin on a bank change, and the 45 ns CY62148ELL on an adapter ~24 ns (`cpld/rev01/README.md`).
 The original analysis follows.
 
 At 3.6 MHz, CPUP0 high lasts ~140 ns. The column address appears on ERA shortly before /ECAS↓, roughly mid-phase.

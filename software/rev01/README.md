@@ -85,25 +85,25 @@ Files: `clkbody.s` (driver body), `stub.s`, `clocksys.s`, `clockmain.s`, `clocks
 ## Building and testing
 Needs `ca65`/`ld65` (cc65) and Python 3 with `py65`.
 ```sh
-python3 software/build.py          # -> software/build/
-python3 software/test/harness.py   # 65C02 emulation tests
-python3 software/mkdisk.py         # -> software/dist/ (binaries + LASERCLOCK.po)
+python3 software/rev01/build.py          # -> software/rev01/build/
+python3 software/rev01/test/harness.py   # 65C02 emulation tests
+python3 software/rev01/mkdisk.py         # -> software/rev01/dist/ (binaries + LASERCLOCK.po)
 ```
-The BASIC programs (`CARD.TEST`, `SET.CLOCK`, `STARTUP`) are plain Applesoft listings in `software/basic/*.bas`;
+The BASIC programs (`CARD.TEST`, `SET.CLOCK`, `STARTUP`) are plain Applesoft listings in `software/rev01/basic/*.bas`;
 `mkdisk.py` tokenises them onto the disk. Edit those files, then rerun `mkdisk.py`. Write them as you would type them on
 an Apple II: uppercase keywords, ascending line numbers, lines under 40 columns for the menus, and no keywords
 hidden in variable names (`TOTAL` contains `TO`), because the tokeniser treats them exactly as Applesoft does.
 Independent image check with AppleCommander 1.10.1 (`net.sf.applecommander:AppleCommander`, Maven Central):
 ```sh
-javac -cp AppleCommander-1.10.1.jar software/test/CheckImage.java
-java -cp AppleCommander-1.10.1.jar:software/test CheckImage software/dist/LASERCLOCK.po software/dist
+javac -cp AppleCommander-1.10.1.jar software/rev01/test/CheckImage.java
+java -cp AppleCommander-1.10.1.jar:software/rev01/test CheckImage software/rev01/dist/LASERCLOCK.po software/rev01/dist
 ```
 It lists the volume, checks each binary against `dist/`, and prints AppleCommander's own listing of the
 BASIC programs. All of these matched as of this commit (19 blocks used, file types and load addresses correct).
 
 The harness runs the real binaries on a 65C02 emulator, with models of the Laser's main/aux
 memory and language card, the slinky registers (auto-increment, 1 MB), the card's CPLD (unlock
-key and RTC port, as in `cpld/laser128_ramcard.v`), a bit-level DS3231, and the parts of ProDOS
+key and RTC port, as in `cpld/rev01/laser128_ramcard.v`), a bit-level DS3231, and the parts of ProDOS
 the programs use. It covers install, reads from either copy, fallback when a copy is damaged, no
 copies, a card without the RTC, 1 MB address wrap, setting the clock, and the `CARDTEST` engine
 with injected faults (stuck data bit, stuck address line, slow bank change, dead battery, missing card).

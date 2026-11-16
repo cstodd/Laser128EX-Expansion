@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Rev 0.2 driver test: 65C02 emulation (software/test/harness.py) with the rev02 CPLD port and a DS3234."""
+"""Rev 0.2 driver test: 65C02 emulation (software/rev01/test/harness.py) with the rev02 CPLD port and a DS3234."""
 import os, random, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, '..', 'test'))
+sys.path.insert(0, os.path.join(HERE, '..', 'rev01', 'test'))
 import harness as H
 
 class DS3234:
