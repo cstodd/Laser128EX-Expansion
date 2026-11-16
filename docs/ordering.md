@@ -43,7 +43,7 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | R5 | 1 | 1 kΩ ¼ W | JTAG TCK pull-down |
 | H1, H3 | — | M3 screws / standoffs | H1 = the Laser's standoff; H3 = your spacer |
 
-Machine-readable versions: `hardware/fab/laser128-ramcard-bom.csv` and `-cpl.csv` (sockets not listed).
+Machine-readable BOM: `hardware/fab/laser128-ramcard-bom.csv` (sockets not listed). `all-pos.csv` is KiCad's placement file, only needed for assembly.
 
 ## Before ordering
 1. Print `hardware/fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1. Check J1 against a real
