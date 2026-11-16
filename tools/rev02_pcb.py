@@ -204,12 +204,21 @@ def move():
     pads = [p for f in board.GetFootprints() for p in f.Pads()]
     # the RTC nets and VBAT are re-routed from scratch; any copper crossing a moved part's courtyard goes
     kill = set(i for i, tr in enumerate(tracks) if str(tr.GetNetname()) in ('/RTC_CS_n', '/RTC_SCLK', '/RTC_DIO', '/RTC_SDIO', '/VBAT'))
-    boxes = []
-    for fp, b in moved:
-        b.Inflate(mm(0.3)); boxes.append(b)
+    # only copper that actually clashes with a moved pad goes (other net, closer than the clearance): tracks may
+    # keep running under the SMD U8 on B.Cu and between the THT pads of the axial resistors
+    mpads = [p for fp, b in moved for p in fp.Pads()]
+    clr = mm(0.25)
     for i, tr in enumerate(tracks):
-        if i not in kill and any(tr.HitTest(b, False, 0) for b in boxes):
-            kill.add(i)
+        if i in kill: continue
+        lays = [pcbnew.F_Cu, pcbnew.B_Cu] if tr.Type() == pcbnew.PCB_VIA_T else [tr.GetLayer()]
+        if tr.Type() == pcbnew.PCB_VIA_T and any(
+                p.GetDrillSizeX() and (p.GetPosition() - tr.GetPosition()).EuclideanNorm()
+                < (p.GetDrillSizeX() + tr.GetDrillValue()) // 2 + clr for p in mpads):
+            kill.add(i); continue          # hole-to-hole
+        for p in mpads:
+            if p.GetNetname() == tr.GetNetname(): continue
+            if any(p.IsOnLayer(l) and p.GetEffectiveShape(l).Collide(tr.GetEffectiveShape(l), clr) for l in lays):
+                kill.add(i); break
     def connected(pt, netname, me):
         if any(p.GetNetname() == netname and p.HitTest(pt) for p in pads):
             return True
