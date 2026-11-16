@@ -189,7 +189,7 @@ no ACK/addressing) behind the same key would make a driver small enough for ProD
 would make AppleWorks and anything else work with no patch, but the DS1302 is crystal-based (more drift than the
 DS3231's TCXO) and the board would change.
 
-## 9. Driver v2 plan: body in aux language card bank 2 (agreed Nov 2026, in progress)
+## 9. Driver v2 plan: body in aux language card bank 2 (**parked** Nov 2026: superseded by §10 if the DS3234 prototype works)
 
 ### Why
 - Measured in the emulator (one ProDOS clock call, aux copy, caller had interrupts enabled): **18,347 cycles with
@@ -246,3 +246,62 @@ the card as free memory?
 
 References downloaded this session: ProDOS 8 Technical Reference (Asimov mirror), ProDOS 8 TN #1, #12, #23, #26
 (prodos8.com), a2stuff/prodos-drivers (clock driver conventions, DClock driver), GBBS-2.x source, AE DClock manual.
+
+## 10. Rev 0.2 direction: DS3234 (SPI) and a driver in ProDOS's 125-byte slot (Nov 2026)
+
+Divergence point: branch **`rev0.1-ds3231`** (commit `b042fed`) holds the complete rev 0.1 (DS3231 / I²C board,
+fitted CPLD, driver v1). Rev 0.2 work lives in `cpld/rev02/` and `software/rev02/` until proven, then replaces
+rev 0.1 in the main tree.
+
+### Why
+Historically ProDOS clock drivers are unobtrusive: the whole driver fits in ProDOS's 125-byte slot (DClock,
+No-Slot Clock, Cricket). Ours can't because of I²C (start/stop, ACKs, addressing; three port writes per bit).
+SPI plus a CPLD that clocks **one bit per `$C0D3` access** removes that, and with it the aux-memory body,
+the /RAM removal, the AppleWorks problem and the long interrupts-off window (§9).
+
+### DS3234 facts (datasheet, Maxim 19-5338, uploaded Nov 2026)
+- DS3234S# (0 to +70 °C) / DS3234SN# (−40 to +85 °C), 20-pin SO 300 mil, 1.27 mm. Pins 2 and 7–14 are N.C. and
+  **must be grounded**. Pins 18 and 20 are both SCLK (internally connected). RST (pin 6) is open-drain with an
+  internal pull-up and can be left open; INT/SQW and 32kHz are unused.
+- VCC 2.0–5.5 V (from +5 V), VBAT 2.0–3.8 V (CR2032). Inputs need VIH ≥ 0.7·VCC (3.5 V at 5 V): CPLD CMOS outputs
+  are fine. DOUT is push-pull.
+- SPI modes 1 and 3 (polarity chosen by SCLK's level when CS falls), up to 4 MHz, MSB first. The first byte is the
+  address: bit 7 = 0 read, 1 write; burst transfers auto-increment. Time registers 00h–06h (seconds..year).
+- **DOUT is high-impedance while CS is high, and in read mode until data is ready** (Table 3), so DIN and DOUT can
+  share one CPLD pin (3-wire SPI).
+- Battery current 1.5 µA typ / 2.3 µA max including temperature conversions every 64 s (CRATE = 00; 128/256/512 s
+  selectable). **BB_TD** (register 13h bit 0) disables conversions on battery; no figure is given, but from
+  IBATTC = 400 µA for ~125 ms every 64 s the conversions average ≈ 0.8 µA, so ≈ 0.7 µA with BB_TD (estimate).
+  That's a modest gain against the ~10–13 µA total, which the SRAM dominates; the cost is uncompensated drift while
+  off. Also has 256 bytes of battery-backed SRAM (could hold settings).
+
+### CPLD (rev 0.2)
+- Same key matcher and RAM logic. In RTC mode, the I²C port is replaced by:
+  - a **control write** (D6 = 1): D0 → CS (1 = selected), no clock;
+  - a **bit write** (D6 = 0, D7 = 0): D0 → MOSI (latched at the start of the access), SCLK low for the access and high
+    at its end, so the DS3234 latches DIN on the rising edge (mode 3);
+  - a **read**: SCLK low during the access, so DOUT shifts out the next bit on the falling edge; the CPLD returns it in
+    D0 ({signature, DIO}); SCLK rises at the end;
+  - **lock** (D7 = 1) as now, which also deselects CS;
+  - DIO is driven only during bit writes, so the shared DIN/DOUT line is never fought over.
+- Pins: CS, SCLK, DIO = 3 (today SDA and SCL = 2). Reuse pins 34/36 plus pin 39 (no longer wired to MEMRD; the '245
+  still gets MEMRD directly) or pin 41 (debug).
+- To check in simulation: DOUT valid time after SCLK falls against our read sample point, CS setup/hold (400 ns
+  CS to SCLK, 400 ns CS inactive), and the 30 ns DIN setup/hold around SCLK's rise.
+
+### Driver (rev 0.2): target ≤ 125 bytes, entirely in ProDOS's slot
+- All 8 key writes go to one address (reset the slinky low byte before each, as the a2stuff DClock driver does), so
+  only **1** RAM-disk byte is saved and restored.
+- Interrupts off only around the key and the restore; `plp`/`php` hands the caller's interrupt state back for
+  the SPI read. Target: interrupts-off window of a few hundred cycles.
+- Read 00h–06h in one burst (address byte 00h = eight zero bits), BCD → ProDOS date/time, scratch in `$3A-$3E`
+  (ProDOS's own clock driver uses those) and `$200-$210` (TN #1).
+- Rough budget: entry/exit ~8, save/key ~28 (incl. 8-byte key), CS + address ~12, read 7 bytes ~20,
+  BCD + packing ~40, lock + restore ~10 → ~120.
+- No aux memory, no stub/body split, no checksum, no /RAM removal. CLOCK.SYSTEM just probes and installs.
+
+### Plan
+1. Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.
+2. Driver rev02 in the emulator harness (DS3234 model behind the CPLD port model): size ≤ 125, interrupts-off window,
+   RAM-disk byte and address restored.
+3. If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.
