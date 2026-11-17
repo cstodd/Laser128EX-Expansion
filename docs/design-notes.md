@@ -329,3 +329,11 @@ accelerated cycles the 128EX drops /RWR up to 4.72 ns *after* /E1MOE, so SCLK is
 - **Done:** DRC 0 unconnected / 0 errors, schematic parity clean, J1/H1 geometry unchanged, fab outputs and
   renders in `hardware/rev02` (status in `hardware/rev02/README.md`). The /RWR-vs-/E1MOE scope check is done
   (CPLD fix: SCLK gated by /RASB, `cpld/rev02/README.md`); no board change.
+
+## 11. Future idea (parked): a version for the Apple //c (and maybe //c+)
+Once the 128EX card is proven, try a variant for the stock Apple //c memory-expansion connector (the "slinky"
+interface the Laser's was modelled on); the CPLD/SRAM/RTC approach should mostly carry over, but the connector,
+pinout and strobe timing must be checked from Apple's documentation and on a scope. The //c+ (4 MHz, its own
+accelerator) may behave like the 128EX's accelerated mode: re-run the /RWR, /E1MOE-equivalent and /RAS timing
+checks from `cpld/rev02/README.md` there before trusting any timing assumption. Lesson from the 128EX: strobes
+that are CPU-timed at 1 MHz can come from a different (delay-line) path when accelerated.
