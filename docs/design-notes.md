@@ -340,3 +340,5 @@ pinout and strobe timing must be checked from Apple's documentation and on a sco
 accelerator) may behave like the 128EX's accelerated mode: re-run the /RWR, /E1MOE-equivalent and /RAS timing
 checks from `cpld/rev02/README.md` there before trusting any timing assumption. Lesson from the 128EX: strobes
 that are CPU-timed at 1 MHz can come from a different (delay-line) path when accelerated.
+
+//c research now lives in its own repo: [cstodd/AppleIIC-Expansion](https://github.com/cstodd/AppleIIC-Expansion).
