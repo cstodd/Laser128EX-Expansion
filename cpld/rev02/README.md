@@ -42,8 +42,8 @@ Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE 
 | MEMRD, read | stays high | stays high (no dip) |
 | write data (D0) valid | crosses 1.48 V as /E1MOE falls, settled ~25 ns after | crosses 1.48 V as /E1MOE falls, settled ~25 ns after |
 | write data (D0) held after /E1MOE rises | ~1.69 µs | ~515 ns (until the CPU drives the bus again) |
-| ERA0: row address set | (pending) | ~90 ns before /E1MOE falls (≈170 ns before /RASB↓) |
-| ERA0: row → column switch | (pending) | starts ~125 ns, settled ~148 ns after /E1MOE falls (row hold ≈45 ns after /RASB↓, column setup ≈26 ns before /ECAS↓) |
+| ERA0: row address set | ~10 ns before /E1MOE falls (≈44 ns before /RASB↓) | ~90 ns before /E1MOE falls (≈170 ns before /RASB↓) |
+| ERA0: row → column switch | ~138 ns after /E1MOE falls (row hold ≈100 ns, column setup ≈74 ns before /ECAS↓); ERA then moves on again at ~+345 ns, inside the /E1MOE window but after /ECAS↓ (DRAM and our latches both hold the address by then) | starts ~125 ns, settled ~148 ns after /E1MOE falls (row hold ≈45 ns after /RASB↓, column setup ≈26 ns before /ECAS↓) |
 | other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
 
 **What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when

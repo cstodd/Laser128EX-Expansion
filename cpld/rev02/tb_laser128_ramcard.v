@@ -31,6 +31,9 @@ module tb;
     parameter real T_CAS_FAST = 174.0, T_CAS_SLOW = 212.0;
     // /E1MOE fall -> column address settled on ERA: scoped ~148 ns fast (row set ~90 ns BEFORE /E1MOE falls).
     parameter real T_COL_FAST = 150.0;
+    // 1 MHz: row set ~10 ns before /E1MOE falls, column ~+138 ns, and ERA moves on again at ~+340 ns, while /E1MOE
+    // is still low (after /ECAS fell): the card must already hold the address in its latches by then.
+    parameter real T_COL_SLOW = 140.0, T_ERA_NEXT_SLOW = 340.0;
     localparam real T_574  = 9.0;    // 74AHCT574 clk->Q
     localparam real T_573  = 9.0;    // 74AHCT573 D->Q / LE->Q
     localparam real T_245  = 8.0;    // 74AHCT245 tpd / tPZ / tPHZ
@@ -123,9 +126,10 @@ module tb;
                 #(435 - ph - 27) ;              // 2.3 MHz cycle: 435 ns
             end else begin
                 #(T_RAS_SLOW) rasb_n = 0;        // +40
-                #50 era = a[8:0];
-                #(T_CAS_SLOW - T_RAS_SLOW - 50) cas_fall(a[19:18]);
-                #(385 - 5 - T_CAS_SLOW) rasb_n = 1;                // +385  (RAS ends BEFORE CAS: Fig. 11-19a; scoped ~90 ns before /E1MOE)
+                #(T_COL_SLOW - T_RAS_SLOW) era = a[8:0];
+                #(T_CAS_SLOW - T_COL_SLOW) cas_fall(a[19:18]);
+                #(T_ERA_NEXT_SLOW - T_CAS_SLOW) era = $urandom;    // scoped: ERA moves on mid-cycle
+                #(380 - T_ERA_NEXT_SLOW) rasb_n = 1;                // +385  (RAS ends BEFORE CAS: Fig. 11-19a; scoped ~90 ns before /E1MOE)
                 #(ph - 385 - T_DSU) s = $realtime;
                 rd = d;
                 if (!wr) chk_margin(fast, s);
