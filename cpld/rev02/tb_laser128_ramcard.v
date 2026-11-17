@@ -12,8 +12,18 @@
 module tb;
     // ---------------------------------------------------------------- part delays (ns, max)
     parameter real T_CPLD = 10.0;   // ATF1504AS-10 pin-to-pin (7.5 for -7)
-    parameter real PH_FAST = 217.0; // CPUP0 high in "fast" cycles. Expansion RAM never runs faster
-                                    // than 2.3 MHz (Tech Ref App. A): 217. 140 = hypothetical 3.6 MHz stress.
+    parameter real PH_FAST = 264.0; // CPUP0 high in "fast" cycles. Expansion RAM never runs faster than 2.3 MHz
+                                    // (Tech Ref App. A; scoped: same timing at the 2.3 and 3.6 settings).
+                                    // Scope, 128EX, Nov 2026: /E1MOE low 266-270 ns in fast cycles.
+    // Strobe timing scoped on a 128EX (J13, STA/LDA $C0D3 loops, Nov 2026), relative to /E1MOE falling:
+    //   fast: /RWR falls up to 4.72 ns AFTER /E1MOE (MMU delay line); /RASB falls 79.6-82.8 ns after,
+    //         low >= 181 ns, rises just before /E1MOE rises
+    //   slow: /RWR falls 8.7-14 ns BEFORE /E1MOE; /RASB falls up to 34.4 ns after, low >= 352 ns, rises ~90 ns
+    //         before /E1MOE rises
+    // The model uses the worse side of each: /RWR 6 ns late (fast), /RASB at the latest measured time.
+    parameter real T_RWR_LAG = 6.0;   // fast write: /RWR falls this long after /E1MOE
+    parameter real T_RAS_FAST = 83.0; // /E1MOE fall -> /RASB fall, fast
+    parameter real T_RAS_SLOW = 35.0; // /E1MOE fall -> /RASB fall, slow
     localparam real T_574  = 9.0;    // 74AHCT574 clk->Q
     localparam real T_573  = 9.0;    // 74AHCT573 D->Q / LE->Q
     localparam real T_245  = 8.0;    // 74AHCT245 tpd / tPZ / tPHZ
@@ -76,32 +86,34 @@ module tb;
             ph = fast ? PH_FAST : 489;
             t0 = $realtime;
             era = a[17:9];
-            // /RWR (from the 65C02's R/W, valid early in the cycle) is set before /E1MOE falls. The rev 0.2 SCLK
-            // decode depends on this; changing both in the same instant creates a zero-width SCLK glitch.
-            if (wr) begin rwr_n = 0; memrd = 0; end
+            // Slow cycles: /RWR (from the 65C02's R/W) is set before /E1MOE falls. Fast cycles: the MMU's delay
+            // line drops /RWR a few ns AFTER /E1MOE (scoped), so a write starts with a short "/E1MOE low,
+            // /RWR high" window that looks like a read; the RTC port must not clock SCLK on it.
+            if (wr && !fast) begin rwr_n = 0; memrd = 0; end
             #5  e1moe_n = 0;
+            if (wr && fast) begin memrd = 0; rwr_n <= #(T_RWR_LAG) 0; end
             if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 15 : 40) 1; end  // 65C02 write data
             if (fast) begin
-                #55 rasb_n = 0;                 // +60  (delay-line tap D60)
-                #30 era = a[8:0];               // +90  column (AX low, tap D90)
-                #30 cas_fall(a[19:18]);         // +120 (tap D120)
-                #(ph - 120 - T_DSU) s = $realtime;                // CPU samples read data
+                #(T_RAS_FAST) rasb_n = 0;        // +88  (scoped 79.6-82.8 ns after /E1MOE)
+                #30 era = a[8:0];               // column (delay-line taps: +30, +60 after RAS)
+                #30 cas_fall(a[19:18]);         // +148
+                #(ph - 5 - T_RAS_FAST - 60 - T_DSU) s = $realtime;   // CPU samples read data
                 rd = d;
                 if (!wr) chk_margin(fast, s);
-                #(T_DSU) ;                      // +140 CPUP0 fall
+                #(T_DSU) ;                      // +ph: CPUP0 fall
+                rasb_n = 1;                     // scoped: /RASB rises just before /E1MOE
                 #2  e1moe_n = 1;
                 #6  rwr_n = 1; memrd = 1;
-                #2  cpu_drive = 0;              // CPU write hold ends at +150
-                #26 rasb_n = 1;                 // +176
-                #14 ecas_n = 4'hF;              // +190
+                #2  cpu_drive = 0;              // CPU write hold
+                #14 ecas_n = 4'hF;
                 #3  era = 9'h1AB;               // next row
-                #86 ;                           // cycle 279 ns
+                #(435 - ph - 27) ;              // 2.3 MHz cycle: 435 ns
             end else begin
-                #55 rasb_n = 0;                 // +60
-                #50 era = a[8:0];               // +110
-                #40 cas_fall(a[19:18]);         // +150
-                #310 rasb_n = 1;                // +460  (RAS ends BEFORE CAS: Fig. 11-19a)
-                #(ph - 460 - T_DSU) s = $realtime;
+                #(T_RAS_SLOW) rasb_n = 0;        // +40
+                #50 era = a[8:0];
+                #60 cas_fall(a[19:18]);         // +150
+                #235 rasb_n = 1;                // +385  (RAS ends BEFORE CAS: Fig. 11-19a; scoped ~90 ns before /E1MOE)
+                #(ph - 385 - T_DSU) s = $realtime;
                 rd = d;
                 if (!wr) chk_margin(fast, s);
                 #(T_DSU) ;                      // +489

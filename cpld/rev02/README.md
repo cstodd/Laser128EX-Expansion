@@ -9,7 +9,7 @@ See `docs/design-notes.md` §10.
 | write, D7 = 1 | lock: deselect, release DIO, back to RAM mode |
 | write, D6 = 1 | control: D0 = chip select, D1 = drive DIO (address/data out) |
 | other write | data bit: D0 = next bit to send. **No clock** |
-| read | **one SPI clock**: SCLK low for the /E1MOE-low part of the read (≈214 ns fast, DS3234 needs ≥110 ns); the falling edge shifts out the next DOUT bit, returned in D0 as `{101101, CS, DIO}`; the rising edge latches the data bit written before |
+| read | **one SPI clock**: SCLK low while /E1MOE **and /RASB** are low (≥181 ns fast, ≥352 ns at 1 MHz, scoped; DS3234 needs ≥110 ns); the falling edge shifts out the next DOUT bit, returned in D0 as `{101101, CS, DIO}`; the rising edge latches the data bit written before |
 
 SCLK idles high whenever CS is off (mode 3), so the signature read after unlock clocks nothing.
 Sending a bit = write then read; receiving = read. Pins: 34 = /CS, 36 = SCLK, 39 = DIO (DIN and DOUT
@@ -23,9 +23,33 @@ together on the board, through a series resistor). Pin 39 no longer carries MEMR
   burst reads of 00h–06h at 3.6 and 1 MHz, a register write + read-back, plus all rev 0.1 tests
   (RAM, quiet bus, exhaustive key matcher).
 
-## Assumption to verify on hardware
-**/RWR must be valid before /E1MOE falls.** SCLK = ~(RTC mode · CS · /E1MOE low · /RWR high); if /RWR settled
-after /E1MOE fell, every RTC write would start with a short SCLK glitch (an extra clock). The decoded-fuse
-simulation found this when the testbench changed both in the same instant; the testbench now sets /RWR 5 ns
-earlier, matching the 65C02 (R/W is valid early in the cycle). Scope /RWR vs /E1MOE on the first board
-(rev 0.1 can be used for this).
+## Strobe timing, scoped on a Laser 128EX (Nov 2026)
+Siglent SDS1202X-E, 10× probes, J13 on a bare 128EX (no card: the Laser generates all of these). Loops in the
+monitor: `300:AD 00 C5 8D D3 C0 4C 03 03` (enable expansion RAM, then `STA $C0D3` forever; `AD D3 C0` for reads).
+Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE falling.
+
+| | 1 MHz | accelerated (2.3 and 3.6 settings identical: card cycles run at 2.3 MHz) |
+|---|---|---|
+| /RWR falls (write) | **8.7–14 ns before** | **up to 4.72 ns after** (MMU delay line) |
+| /RASB falls | ≤ 34.4 ns after | 79.6–82.8 ns after |
+| /RASB low width | ≥ 352 ns | ≥ 181 ns |
+| /RASB rises | ~90 ns before /E1MOE rises | just before /E1MOE rises |
+| /E1MOE low width | 474–478 ns | 266–270 ns |
+| other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
+
+**What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when
+/E1MOE falls. That holds at 1 MHz but not in accelerated cycles: every write would start with a ~5 ns "looks like
+a read" window, i.e. a stray SPI clock (the driver writes with CS active). SCLK is now also gated by **/RASB**,
+which in every case falls long after /RWR has settled (≥75 ns fast) and appears exactly once inside each /E1MOE
+window:
+
+    SCLK = ~(RTC mode · CS · /E1MOE low · /RASB low · /RWR high)
+
+SCLK low time is then the /RASB pulse (≥181 ns fast, ≥352 ns slow), SCLK ends on /RASB↑ (before /RWR can change),
+and DOUT (valid ≤80 ns after SCLK↓) settles ~100 ns before the CPU samples it. No board change: /RASB is already
+on CPLD pin 2. The testbench now uses these measured timings (fast writes drop /RWR 6 ns after /E1MOE; /RASB at
+the latest measured times; /E1MOE 264 ns); the previous logic fails it (29 SPI timing violations), the new logic
+passes as RTL, fitted equations and decoded fuses.
+
+**Bring-up check:** with the write loop running in accelerated mode, RTC_SCLK (CPLD pin 36) must stay high
+through every write; with the read loop and the RTC selected, it should show one ~180 ns low pulse per read.

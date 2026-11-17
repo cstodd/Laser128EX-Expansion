@@ -302,8 +302,9 @@ the /RAM removal, the AppleWorks problem and the long interrupts-off window (§9
 
 **Prototype result (Nov 2026):** final port design is "writes set registers, **reads are the clock**" (a fast write
 is only ~22 ns wide between /ECAS and /E1MOE, too short for tCL ≥ 110 ns). Fits in 40/64 macrocells; passes the
-rev02 testbench (DS3234 timing model) as RTL, fitter equations and decoded fuses. **Hardware check needed: /RWR must
-be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK glitch). Details: `cpld/rev02/README.md`.
+rev02 testbench (DS3234 timing model) as RTL, fitter equations and decoded fuses. **Scope check (Nov 2026):** in
+accelerated cycles the 128EX drops /RWR up to 4.72 ns *after* /E1MOE, so SCLK is now also gated by /RASB (falls
+80–83 ns into fast cycles, once per /E1MOE window). Measurements and details: `cpld/rev02/README.md`.
 
 ### Plan
 1. ~~Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.~~ (done)
@@ -326,5 +327,5 @@ be valid before /E1MOE falls** (otherwise each RTC write starts with an SCLK gli
   hand in KiCad 10. Lesson: Freerouting was routing GND as a signal (≈400 mm of GND traces) and the move step
   originally ripped up everything crossing a moved courtyard, both layers; both made it much harder.
 - **Done:** DRC 0 unconnected / 0 errors, schematic parity clean, J1/H1 geometry unchanged, fab outputs and
-  renders in `hardware/rev02` (status in `hardware/rev02/README.md`). Still open on hardware: the
-  /RWR-before-/E1MOE scope check.
+  renders in `hardware/rev02` (status in `hardware/rev02/README.md`). The /RWR-vs-/E1MOE scope check is done
+  (CPLD fix: SCLK gated by /RASB, `cpld/rev02/README.md`); no board change.

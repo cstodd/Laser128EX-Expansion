@@ -144,13 +144,18 @@ module laser128_ramcard (
         if (!pwr_rst_n) rtc_mode <= 1'b0;
         else            rtc_mode <= mode_next;
 
-    // SPI mode 3, one clock per RTC-mode READ: SCLK is low for the whole /E1MOE-low part of a read (~214 ns on a
-    // fast cycle; DS3234 needs >= 110 ns). The falling edge shifts out the next DOUT bit (valid <= 80 ns later,
-    // well before the CPU samples); the rising edge (/E1MOE up) latches DIN = spi_mosi, set by an earlier write.
+    // SPI mode 3, one clock per RTC-mode READ. SCLK is low while /E1MOE AND /RASB are both low on a read.
+    // Why /RASB: in fast cycles the 128EX's MMU drops /RWR up to 4.72 ns AFTER /E1MOE (scoped, Nov 2026), so
+    // every write starts with a brief "/E1MOE low, /RWR high" window that would otherwise be a stray clock.
+    // /RASB falls 80-83 ns after /E1MOE in fast cycles (<= 34.4 ns at 1 MHz, where /RWR leads by 8.7 ns), long
+    // after /RWR has settled, and there is exactly one /RASB pulse inside each /E1MOE window (refresh RAS
+    // pulses fall outside it). SCLK low time = the /RASB pulse: >= 181 ns fast, >= 352 ns at 1 MHz (DS3234
+    // needs 110). /RASB rises before /E1MOE, so SCLK also ends before /RWR can change.
+    // The falling edge shifts out the next DOUT bit (valid <= 80 ns later, well before the CPU samples at
+    // /E1MOE up); the rising edge latches DIN = spi_mosi, set by an earlier write.
     // Gated by chip select, so SCLK idles high whenever the DS3234 is deselected (e.g. the signature read).
-    // Assumes /RWR is already valid when /E1MOE falls (65C02 R/W is set early in the cycle): scope this.
     assign rtc_cs_n = ~spi_cs;
-    assign rtc_sclk = ~(rtc_mode & spi_cs & ~e1moe_n & rwr_n);
+    assign rtc_sclk = ~(rtc_mode & spi_cs & ~e1moe_n & ~rasb_n & rwr_n);
     assign rtc_dio  = (spi_cs & spi_oe) ? spi_mosi : 1'bz;
 
     // RTC-mode reads: the CPLD drives the card bus (the SRAMs are deselected)

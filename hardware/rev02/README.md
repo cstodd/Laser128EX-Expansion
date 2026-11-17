@@ -28,8 +28,8 @@ What changed from rev 0.1:
 - CPLD pins 34 / 36 / 39 are now `RTC_CS_n` / `RTC_SCLK` / `RTC_DIO` (were SDA / SCL / MEMRD; MEMRD was
   unused by the logic).
 - Board text reads "rev 0.2".
-- **Hardware check still open:** the CPLD generates SCLK from /E1MOE while /RWR is high, so /RWR must be
-  valid before /E1MOE falls (J13 pin 3 vs pin 16 on a scope). See `cpld/rev02/README.md`.
+- Strobe timing scoped on a 128EX (Nov 2026): /RWR lags /E1MOE by up to 4.72 ns in accelerated cycles, so the
+  CPLD gates SCLK with /RASB as well (already on CPLD pin 2: no board change). See `cpld/rev02/README.md`.
 
 How it was made: `tools/rev02_sch.py` (schematic edit), `tools/rev02_pcb.py` (`prep`: DS3234 footprint and
 rev 0.2 nets with stale copper removed; `move`: the placement above; `rip` / `route`: protected incremental
