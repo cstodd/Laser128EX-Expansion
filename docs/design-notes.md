@@ -117,10 +117,18 @@ DS1315 but implemented in the CPLD:
 3. ~~PCB layout, DRC, Gerbers, drill, BOM, placement~~ (done; KiCad 10, 100 × 90 mm)
 4. ~~6502 clock driver, set-clock utility, card test, disk image~~ (done)
 5. Order boards and parts; assemble; program the CPLD; bring-up with `CARD.TEST` (tests 1, 2, 5 at 1 and 3.6 MHz).
-6. AppleWorks 5.1 support (§8.3).
-7. Driver: shorten the interrupts-off window for interrupt-driven serial (§8.2).
+6. ~~AppleWorks 5.1 support (§8.3).~~ Rev 0.1 only; rev 0.2's driver lives entirely in ProDOS's clock slot (§10), so the
+   overwrite problem is gone. Still to confirm on hardware/emulator: AW5's clock display advances.
+7. ~~Driver: shorten the interrupts-off window for interrupt-driven serial (§8.2).~~ Rev 0.1 only; the rev 0.2 driver never
+   disables interrupts (§10).
 
 ## 8. Software compatibility: comparison with AE's DClock, GBBS Pro, AppleWorks (Nov 2026)
+
+> **Rev 0.1 analysis, partly superseded by §10 (rev 0.2).** The rev 0.2 driver is **122 bytes, entirely in ProDOS's
+> 125-byte clock slot**: no stub, no aux-memory body or swap, no checksum, no /RAM removal, and interrupts are never
+> disabled (`software/rev02/README.md`). So the "~365 bytes / doesn't fit the slot" point in §8.1, the interrupts caveat
+> and fix in §8.2, and the stub/body patch plan in §8.3 apply only to rev 0.1. Still valid: DClock background (§8.1),
+> the GBBS ProDOS-clock configuration (§8.2), and the AppleWorks 5 facts (§8.3).
 
 ### 8.1 How DClock did it (AE DClock User's Manual v1.0, 1988)
 - Hardware: a Dallas **DS1215** phantom clock plugged into a DRAM socket on the IIc memory card (Ram Express or
@@ -191,7 +199,7 @@ no ACK/addressing) behind the same key would make a driver small enough for ProD
 would make AppleWorks and anything else work with no patch, but the DS1302 is crystal-based (more drift than the
 DS3231's TCXO) and the board would change.
 
-## 9. Driver v2 plan: body in aux language card bank 2 (**parked** Nov 2026: superseded by §10 if the DS3234 prototype works)
+## 9. Driver v2 plan: body in aux language card bank 2 (**superseded** by §10: rev 0.2 has no stub, aux body or swap)
 
 ### Why
 - Measured in the emulator (one ProDOS clock call, aux copy, caller had interrupts enabled): **18,347 cycles with
