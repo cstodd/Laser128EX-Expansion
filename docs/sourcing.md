@@ -43,7 +43,15 @@ Stock figures are snapshots. Check them live before ordering.
   the stock card is ~190 × 92 mm and held 32 DRAMs.
 
 ## Read-path timing note (both options)
-**Update:** the Laser runs expansion-RAM cycles at 2.3 MHz at most (Tech Ref App. A), so CPUP0 high is
+**Measured (Nov 2026, scope on a 128EX):** /ECAS falls up to **174 ns** after /E1MOE in fast cycles (later than the
+D120 tap inferred below). The bank is only known at /ECAS↓, so the first read after a bank change starts a full
+SRAM access there. With every part at its datasheet maximum and the CPU sampling 10 ns before /E1MOE↑, the
+55 ns AS6C4008 has **~2 ns** of margin on a bank-change read (the testbench fails from ~176 ns) and the 45 ns
+CY62148ELL **~10 ns** (fails from ~184 ns). The real margin is larger: the stock DRAM card's /ECAS→data path
+(41256 tCAC 60–75 ns plus a buffer) is slower than ours, so the Laser's real CPU sample point must be later than
+modelled. Order the 45 ns pair as well and let `CARD.TEST` option 5 (bank hop) at 3.6 MHz decide.
+
+**Earlier estimate:** the Laser runs expansion-RAM cycles at 2.3 MHz at most (Tech Ref App. A), so CPUP0 high is
 ~217 ns, not the ~140 ns assumed below. With /ECAS at the D120 delay-line tap (an inference), the 55 ns AS6C4008
 has ~14 ns worst-case margin on a bank change, and the 45 ns CY62148ELL on an adapter ~24 ns (`cpld/rev01/README.md`).
 The original analysis follows.

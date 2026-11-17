@@ -27,7 +27,7 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | — | 3 | DIP-20 socket (0.3") | |
 | U5, U6 | 2 | **AS6C4008-55PCN** DIP-32 | 2.7–5.5 V. **Not** a 3.3 V-only part |
 | — | 2 | DIP-32 socket (0.6") | |
-| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | fallback only: fit if `CARD.TEST` option 5 (bank hop) fails at 3.6 MHz. Adds ~10 ns of margin; check height |
+| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | **recommended to order too:** scoped /ECAS timing leaves the 55 ns parts only ~2 ns of worst-case margin on a bank-change read at 3.6 MHz (`docs/sourcing.md`). Fit if `CARD.TEST` option 5 (bank hop) fails at 3.6 MHz. Adds ~10 ns; check height |
 | U7 | 1 | **MAX693ACPE+** DIP-16 | 4.40 V threshold. Not the MAX691A (4.65 V) |
 | — | 1 | DIP-16 socket (0.3") | |
 | U8 | 1 | **DS3231M+** (or DS3231SN#) | SOIC-16 wide (300 mil) |

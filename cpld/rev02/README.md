@@ -35,6 +35,9 @@ Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE 
 | /RASB low width | ≥ 352 ns | ≥ 181 ns |
 | /RASB rises | ~90 ns before /E1MOE rises | just before /E1MOE rises |
 | /E1MOE low width | 474–478 ns | 266–270 ns |
+| /ECAS falls | ~212 ns after | **≤ 174 ns after** |
+| /ECAS rises | just before /E1MOE rises | ~27 ns after /E1MOE rises (harmless: the card is already off) |
+| /ECAS outside the /E1MOE window | never | never |
 | other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
 
 **What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when
@@ -50,6 +53,12 @@ and DOUT (valid ≤80 ns after SCLK↓) settles ~100 ns before the CPU samples i
 on CPLD pin 2. The testbench now uses these measured timings (fast writes drop /RWR 6 ns after /E1MOE; /RASB at
 the latest measured times; /E1MOE 264 ns); the previous logic fails it (29 SPI timing violations), the new logic
 passes as RTL, fitted equations and decoded fuses.
+
+**RAM read margin (from the /ECAS measurement).** The bank is only known when /ECAS falls, so the first read after
+a bank change starts a full SRAM access at /ECAS↓. With the measured 174 ns, the testbench (all parts at their
+datasheet maximum, CPU sampling 10 ns before /E1MOE↑) leaves **2 ns** with 55 ns SRAM (fails from ~176 ns) and
+~10 ns with the 45 ns CY62148ELL (fails from ~184 ns); 1 MHz has ~190 ns. Likely pessimistic (the stock DRAM card's
+/ECAS→data path is slower), but order the 45 ns alternate too and run `CARD.TEST` option 5 (bank hop) at 3.6 MHz.
 
 **Bring-up check:** with the write loop running in accelerated mode, RTC_SCLK (CPLD pin 36) must stay high
 through every write; with the read loop and the RTC selected, it should show one ~180 ns low pulse per read.

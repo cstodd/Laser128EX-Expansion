@@ -24,6 +24,11 @@ module tb;
     parameter real T_RWR_LAG = 6.0;   // fast write: /RWR falls this long after /E1MOE
     parameter real T_RAS_FAST = 83.0; // /E1MOE fall -> /RASB fall, fast
     parameter real T_RAS_SLOW = 35.0; // /E1MOE fall -> /RASB fall, slow
+    // /E1MOE fall -> /ECAS fall: scoped 174 ns worst case fast, ~212 ns at 1 MHz (Nov 2026). /ECAS rises ~27 ns
+    // after /E1MOE in fast cycles and just before it at 1 MHz. With 55 ns SRAM a bank-change read then has only
+    // ~1-2 ns of worst-case margin here (fails from T_CAS_FAST ~176); 45 ns SRAM (-Ptb.T_AA=45 -Ptb.T_ACE=45)
+    // passes to ~184. See cpld/rev02/README.md.
+    parameter real T_CAS_FAST = 174.0, T_CAS_SLOW = 212.0;
     localparam real T_574  = 9.0;    // 74AHCT574 clk->Q
     localparam real T_573  = 9.0;    // 74AHCT573 D->Q / LE->Q
     localparam real T_245  = 8.0;    // 74AHCT245 tpd / tPZ / tPHZ
@@ -95,9 +100,9 @@ module tb;
             if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 15 : 40) 1; end  // 65C02 write data
             if (fast) begin
                 #(T_RAS_FAST) rasb_n = 0;        // +88  (scoped 79.6-82.8 ns after /E1MOE)
-                #30 era = a[8:0];               // column (delay-line taps: +30, +60 after RAS)
-                #30 cas_fall(a[19:18]);         // +148
-                #(ph - 5 - T_RAS_FAST - 60 - T_DSU) s = $realtime;   // CPU samples read data
+                #30 era = a[8:0];               // column, 30 ns after RAS (not yet scoped)
+                #(T_CAS_FAST - T_RAS_FAST - 30) cas_fall(a[19:18]);
+                #(ph - T_CAS_FAST - 5 - T_DSU) s = $realtime;   // CPU samples read data
                 rd = d;
                 if (!wr) chk_margin(fast, s);
                 #(T_DSU) ;                      // +ph: CPUP0 fall
@@ -111,8 +116,8 @@ module tb;
             end else begin
                 #(T_RAS_SLOW) rasb_n = 0;        // +40
                 #50 era = a[8:0];
-                #60 cas_fall(a[19:18]);         // +150
-                #235 rasb_n = 1;                // +385  (RAS ends BEFORE CAS: Fig. 11-19a; scoped ~90 ns before /E1MOE)
+                #(T_CAS_SLOW - T_RAS_SLOW - 50) cas_fall(a[19:18]);
+                #(385 - 5 - T_CAS_SLOW) rasb_n = 1;                // +385  (RAS ends BEFORE CAS: Fig. 11-19a; scoped ~90 ns before /E1MOE)
                 #(ph - 385 - T_DSU) s = $realtime;
                 rd = d;
                 if (!wr) chk_margin(fast, s);
