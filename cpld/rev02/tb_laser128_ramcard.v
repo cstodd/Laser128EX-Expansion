@@ -94,9 +94,12 @@ module tb;
             // Slow cycles: /RWR (from the 65C02's R/W) is set before /E1MOE falls. Fast cycles: the MMU's delay
             // line drops /RWR a few ns AFTER /E1MOE (scoped), so a write starts with a short "/E1MOE low,
             // /RWR high" window that looks like a read; the RTC port must not clock SCLK on it.
-            if (wr && !fast) begin rwr_n = 0; memrd = 0; end
+            // MEMRD ('245 direction) scoped: falls 22-26 ns before /E1MOE on writes at both speeds, rises ~15-20 ns
+            // after /E1MOE rises, stays high on reads. Modelled 5 ns before (pessimistic) and 15 ns after.
+            if (wr) memrd = 0;
+            if (wr && !fast) rwr_n = 0;
             #5  e1moe_n = 0;
-            if (wr && fast) begin memrd = 0; rwr_n <= #(T_RWR_LAG) 0; end
+            if (wr && fast) rwr_n <= #(T_RWR_LAG) 0;
             if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 15 : 40) 1; end  // 65C02 write data
             if (fast) begin
                 #(T_RAS_FAST) rasb_n = 0;        // +88  (scoped 79.6-82.8 ns after /E1MOE)
@@ -108,9 +111,10 @@ module tb;
                 #(T_DSU) ;                      // +ph: CPUP0 fall
                 rasb_n = 1;                     // scoped: /RASB rises just before /E1MOE
                 #2  e1moe_n = 1;
-                #6  rwr_n = 1; memrd = 1;
+                #6  rwr_n = 1;
                 #2  cpu_drive = 0;              // CPU write hold
-                #14 ecas_n = 4'hF;
+                #7  memrd = 1;
+                #7  ecas_n = 4'hF;
                 #3  era = 9'h1AB;               // next row
                 #(435 - ph - 27) ;              // 2.3 MHz cycle: 435 ns
             end else begin
@@ -123,14 +127,15 @@ module tb;
                 if (!wr) chk_margin(fast, s);
                 #(T_DSU) ;                      // +489
                 ecas_n = 4'hF; e1moe_n = 1;
-                #6  rwr_n = 1; memrd = 1;
+                #6  rwr_n = 1;
                 #4  cpu_drive = 0;
+                #5  memrd = 1;
                 if (refresh) begin              // RAS-only refresh in CPUP0 low (Fig. 11-19a)
-                    #21 era = $urandom;         // +520
+                    #16 era = $urandom;         // +520
                     #40 rasb_n = 0;             // +560
                     #340 rasb_n = 1;            // +900
                     #78 ;
-                end else #479 ;
+                end else #474 ;
             end
         end
     endtask

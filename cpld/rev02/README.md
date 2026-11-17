@@ -38,8 +38,8 @@ Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE 
 | /ECAS falls | ~212 ns after | **≤ 174 ns after** |
 | /ECAS rises | just before /E1MOE rises | ~27 ns after /E1MOE rises (harmless: the card is already off) |
 | /ECAS outside the /E1MOE window | never | never |
-| MEMRD, write: falls / rises | (pending) | 23–24 ns before /E1MOE falls / ~20 ns after /E1MOE rises |
-| MEMRD, read | (pending) | stays high (no dip) |
+| MEMRD, write: falls / rises | 22–26 ns before /E1MOE falls / ~15–20 ns after /E1MOE rises | 23–24 ns before /E1MOE falls / ~20 ns after /E1MOE rises |
+| MEMRD, read | stays high | stays high (no dip) |
 | other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
 
 **What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when
