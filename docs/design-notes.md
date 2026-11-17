@@ -310,8 +310,9 @@ accelerated cycles the 128EX drops /RWR up to 4.72 ns *after* /E1MOE, so SCLK is
 1. ~~Prototype: CPLD rev02 Verilog + testbench with a DS3234 SPI model; fit it.~~ (done)
 2. ~~Driver rev02 in the emulator harness~~ (done: **122 bytes**, fits the slot; interrupts never disabled; `software/rev02/README.md`).
    Rev 0.2 CLOCK.SYSTEM, CLOCK.SET (incl. BB_TD option), CARD.TEST and disk image `software/rev02/dist/LASERCLOCK2.po`: done, emulator-tested.
-   **Board note: DIN/DOUT line needs a pull-DOWN** (the driver relies on it to send read address 00h).
-3. If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.
+   Board note: DIN/DOUT line needs a pull-DOWN (the driver relies on it to send read address 00h): **done**, R2 47 kΩ
+   RTC_SDIO → GND on the rev 0.2 board.
+3. ~~If both pass: board refactor (DS3234 footprint, CPLD pin changes) → rev 0.2.~~ (done: `hardware/rev02`, status below)
 
 ### Board refactor status (rev 0.2 PCB, `hardware/rev02`, scripted in `tools/rev02_sch.py` / `tools/rev02_pcb.py`)
 - Schematic done (DS3234SN#, R1 1k series DIN/DOUT link, R2 47k pull-down, CPLD pins 34/36/39); ERC clean.
