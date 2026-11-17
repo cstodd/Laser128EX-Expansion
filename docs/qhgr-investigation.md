@@ -42,7 +42,7 @@ gives the address in bank 1.
 `vt27-0430-0` (marked "need to dump actual part"). The 0706 part is used for the 128, 128EX and EX/2. If an
 early-only mode existed, its table would be in **0430**, which no one seems to have read.
 
-## Finding 2: the earliest firmware sets up registers at `$C021–$C026` that later ROMs dropped
+## Finding 2: the earliest firmware resets the early-only video switches at `$C021–$C026`
 At `$F954` (bank 0, a video-init subroutine; it is called from the code just after it, at `$F985`), the early ROMs run:
 ```
 F954  STZ $C021
@@ -66,11 +66,36 @@ No ROM reads or writes `$C02x` anywhere else. On an Apple IIe or IIc these addre
 register block at `$C021–$C026` that needed a known state at every reset, next to the video switches**. Later
 boards no longer did.
 
-What the registers were is unknown. `$F0` written to `$C022` reads like a packed foreground/background nibble pair,
-and it matches the later Apple IIgs `TBCOLOR` layout (white text on black). The IIgs mapping doesn't fit the
-other writes, though, so this is likely a coincidence. A video-mode or interlace control is one possibility.
-This is the best ROM-side evidence that the early hardware differed. It fits the claim that early hardware
-had a mode that later units dropped, but it doesn't prove it.
+### These writes match the Applefritter description of the early switches
+The [Applefritter thread](https://www.applefritter.com/content/quick-delve-laser-128-ex2) describes these
+early-hardware soft switches, based on others' experiments (not from the ROMs):
+
+> $C023 controlling the border color for graphics modes … $C024..$C027 control the rest of the unique behavior.
+> … $C027 seems to enable the stacked mode, $C026 disables it. $C025 affects interlacing (?) and $C024 again
+> disables it.
+
+The early reset code matches it:
+
+| Address | Thread | Early reset code |
+|---|---|---|
+| `$C021` | (not described) | writes `$00` |
+| `$C022` | (not described) | writes `$F0`, likely a text foreground/background color pair (white on black) |
+| `$C023` | graphics border color | writes `$00`, a black border |
+| `$C024` | interlace **off** | touched, so interlace is off |
+| `$C025` | interlace **on** | **never touched by any ROM** |
+| `$C026` | stacked mode **off** | touched, so stacked mode is off |
+| `$C027` | stacked mode **on** | **never touched by any ROM** |
+
+Reset puts every special feature in its off or default state and never turns one on. `$C024/$C025` and
+`$C026/$C027` follow the Apple convention of even address = off, odd address = on. Two independent
+sources, one from hands-on poking and one from the firmware, agree this closely, so **the early Laser 128
+almost certainly had interlace and stacked-page (384-line) video modes, plus border and probably text
+color registers**. The firmware never used them, and they were removed from the hardware by the time of ROM 3.3.
+`$C021` is still unknown. Possibilities include color/monochrome, a mode select, or something not related to video.
+
+"Stacked mode" with interlace is presumably the 560×384 "Quad Hi-Res": DHGR page 1 on one field and page 2
+on the other. This needs no new pixel table, which fits Finding 1. A version of the mode with more horizontal
+resolution has no support anywhere.
 
 ## Ruled out
 - **No firmware support in any version.** Video soft-switch use (`$C050–$C05F`) is the same in all 12 ROMs.
@@ -83,8 +108,10 @@ had a mode that later units dropped, but it doesn't prove it.
 ## How to settle it
 1. **Dump a `vt27-0430-0` video ROM** from an early Laser 128 board. Run `videorom.py` on it and look for
    sub-tables that don't match LGR, HGR, DLGR or DHGR, or for a changed address layout.
-2. On an early board (one that ships with ROM 2.9 or 3.0, or a VTech 8608xx ROM), write to `$C021–$C026` from
-   the monitor with DHGR content in both pages. Watch for interlace or a changed display.
-   For example: `C05E`, `C00D`, `C057`, `C050`, then poke `$C023`/`$C024`/`$C026` with `01`/`FF`.
+2. On an early board (one that ships with ROM 2.9 or 3.0, or a VTech 8608xx ROM), load different DHGR images
+   into page 1 and page 2. From the monitor, enter DHGR: `C050:0`, `C052:0`, `C057:0`, `C00D:0`, `C05E:0`
+   (80COL on, DHGR on). Then try `C027:0` (stacked on), `C025:0` (interlace on), and `C023:` followed by a
+   color value. Undo them with `C026:0` and `C024:0`. Check that
+   a later board (ROM 3.3 or later) ignores the same writes.
 3. Read the Technical Reference Manual's I/O map for `$C020–$C02F`. Check it against the early schematics, if
    there are any, to see which chip decodes those addresses.
