@@ -29,7 +29,7 @@ space we don't use.
 ## Still to confirm
 - Component height limit above the card (tallest parts: the PLCC socket with chip, the CR2032 holder, the 22 µF cap).
   **Measured (Nov 2026): +11 mm** from the stock card's board surface to the RF shield above it. The A-CCS 044-Z-T
-  PLCC socket is 8.06 mm with the chip in, which fits. The optional 45 ns SRAMs on TSOP-II → DIP-32 adapters should
-  come to roughly 7–8 mm in a DIP socket (check the actual adapter). The shield is often removed anyway, so this is
-  a soft limit.
+  PLCC socket is 8.28 mm (Assmann drawing ASS 0981 CO rev 11, 28–84 pin table), which fits. The optional 45 ns
+  SRAMs on a Chip Quik PA0216 adapter come to roughly 7–7.5 mm in a DIP socket (socket ~4–4.5 + PCB 1.6 + TSOP 1.2).
+  The shield is often removed anyway, so this is a soft limit.
 - Nothing above the 90 mm top edge inside the case was measured; ours is the same height as the stock card.

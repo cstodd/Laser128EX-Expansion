@@ -26,8 +26,8 @@ No assembly is needed: every part is through-hole except U8 (SOIC-16W, 1.27 mm p
 | U4 | 1 | **74AHCT245** DIP-20 | HCT works, but is ~10 ns slower |
 | — | 3 | DIP-20 socket (0.3") | |
 | U5, U6 | 2 | **AS6C4008-55PCN** DIP-32 | 2.7–5.5 V. **Not** a 3.3 V-only part |
-| — | 2 | DIP-32 socket (0.6") | |
-| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | **recommended to order too:** scoped /ECAS timing leaves the 55 ns parts only ~2 ns of worst-case margin on a bank-change read at 3.6 MHz (`docs/sourcing.md`). Fit if `CARD.TEST` option 5 (bank hop) fails at 3.6 MHz. Adds ~10 ns. Adapter must be **TSOP-II** (1.27 mm pitch), not the common TSOP-I (0.5 mm) type: candidate Chip Quik PA0216 (check its pitch and 0.6" DIP spacing). Height ≲ 11 mm to the shield |
+| — | 2 | DIP-32 socket (0.6"), **stamped dual-wipe** | not machined round-pin: the PA0216 adapter's 0.025" square pins don't fit those |
+| (alt) | 2 | CY62148ELL-45ZSXI + TSOP-II-32 → DIP-32 adapter | **recommended to order too:** scoped /ECAS timing leaves the 55 ns parts only ~2 ns of worst-case margin on a bank-change read at 3.6 MHz (`docs/sourcing.md`). Fit if `CARD.TEST` option 5 (bank hop) fails at 3.6 MHz. Adds ~10 ns. Adapter must be **TSOP-II** (1.27 mm pitch), not the common TSOP-I (0.5 mm) type: **Chip Quik PA0216** checked (TSOP-32(II), 1.27 mm, 10.16 mm body, 0.600" DIP, 0.025" square pins). ~7–7.5 mm high in a socket, under the 11 mm to the shield |
 | U7 | 1 | **MAX693ACPE+** DIP-16 | 4.40 V threshold. Not the MAX691A (4.65 V) |
 | — | 1 | DIP-16 socket (0.3") | |
 | U8 | 1 | **DS3231M+** (or DS3231SN#) | SOIC-16 wide (300 mil) |
