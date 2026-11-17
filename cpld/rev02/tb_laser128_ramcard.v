@@ -29,6 +29,8 @@ module tb;
     // ~1-2 ns of worst-case margin here (fails from T_CAS_FAST ~176); 45 ns SRAM (-Ptb.T_AA=45 -Ptb.T_ACE=45)
     // passes to ~184. See cpld/rev02/README.md.
     parameter real T_CAS_FAST = 174.0, T_CAS_SLOW = 212.0;
+    // /E1MOE fall -> column address settled on ERA: scoped ~148 ns fast (row set ~90 ns BEFORE /E1MOE falls).
+    parameter real T_COL_FAST = 150.0;
     localparam real T_574  = 9.0;    // 74AHCT574 clk->Q
     localparam real T_573  = 9.0;    // 74AHCT573 D->Q / LE->Q
     localparam real T_245  = 8.0;    // 74AHCT245 tpd / tPZ / tPHZ
@@ -105,8 +107,8 @@ module tb;
             if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 25 : 40) 1; end
             if (fast) begin
                 #(T_RAS_FAST) rasb_n = 0;        // +88  (scoped 79.6-82.8 ns after /E1MOE)
-                #30 era = a[8:0];               // column, 30 ns after RAS (not yet scoped)
-                #(T_CAS_FAST - T_RAS_FAST - 30) cas_fall(a[19:18]);
+                #(T_COL_FAST - T_RAS_FAST) era = a[8:0];   // column (scoped: settled ~148 ns after /E1MOE)
+                #(T_CAS_FAST - T_COL_FAST) cas_fall(a[19:18]);
                 #(ph - T_CAS_FAST - 5 - T_DSU) s = $realtime;   // CPU samples read data
                 rd = d;
                 if (!wr) chk_margin(fast, s);
