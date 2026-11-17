@@ -100,7 +100,9 @@ module tb;
             if (wr && !fast) rwr_n = 0;
             #5  e1moe_n = 0;
             if (wr && fast) rwr_n <= #(T_RWR_LAG) 0;
-            if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 15 : 40) 1; end  // 65C02 write data
+            // 65C02 write data. Scoped (3.6 MHz): D0 crosses the threshold as /E1MOE falls and is fully settled ~25 ns
+            // later; it then stays valid ~515 ns past /E1MOE rising. Modelled: valid at +25 (fast), held only 8 ns.
+            if (wr) begin cpu_d = wd; cpu_drive <= #(fast ? 25 : 40) 1; end
             if (fast) begin
                 #(T_RAS_FAST) rasb_n = 0;        // +88  (scoped 79.6-82.8 ns after /E1MOE)
                 #30 era = a[8:0];               // column, 30 ns after RAS (not yet scoped)
