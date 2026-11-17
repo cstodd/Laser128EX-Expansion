@@ -36,18 +36,22 @@
 306 PRINT "a while, boot, then run test 3."
 320 GOTO 900
 400 POKE 768,4 : CALL 24576 : IF PEEK(769) <> 0 THEN PRINT "Clock not found." : GOTO 900
-410 GOSUB 500 : S0 = PEEK(784)
+410 S0 = PEEK(784) : PRINT "Checking the clock..."
 420 FOR I = 1 TO 600 : POKE 768,4 : CALL 24576 : IF PEEK(784) <> S0 THEN 450
 430 NEXT I
-440 PRINT "Clock not running (seconds not moving)" : GOTO 460
+440 PRINT "Clock not running (seconds stuck)." : GOSUB 500 : GOTO 470
 450 PRINT "Clock running." : GOSUB 500
-460 IF PEEK(799) > 127 THEN PRINT "Note: oscillator stopped since clock" : PRINT "was set (battery?). Run SET.CLOCK."
 470 GOTO 900
 500 M = PEEK(789) : IF M > 127 THEN M = M - 128
-510 H = PEEK(786) : IF H > 63 THEN H = H - 64
+505 H = PEEK(786) : IF H > 63 THEN H = H - 64
+510 W = PEEK(787) : IF W >= 1 AND W <= 7 THEN PRINT MID$("SunMonTueWedThuFriSat",W * 3 - 2,3);" ";
 520 PRINT 2000 + FN B(PEEK(790));"-"; : V = FN B(M) : GOSUB 700 : PRINT "-"; : V = FN B(PEEK(788)) : GOSUB 700
 530 PRINT " "; : V = FN B(H) : GOSUB 700 : PRINT ":"; : V = FN B(PEEK(785)) : GOSUB 700 : PRINT ":"; : V = FN B(PEEK(784)) : GOSUB 700 : PRINT
-540 RETURN
+540 T = PEEK(801) * 4 + INT(PEEK(802) / 64) : IF T > 511 THEN T = T - 1024
+550 C = T / 4 : F = INT((C * 1.8 + 32) * 10 + .5) / 10
+560 PRINT "Temperature: ";C;" C / ";F;" F"
+570 IF PEEK(799) > 127 THEN PRINT "Note: the clock stopped since it was" : PRINT "set (battery?): time may be wrong." : PRINT "Run SET.CLOCK."
+580 RETURN
 600 H$ = "0123456789ABCDEF" : FOR K = 4 TO 0 STEP - 1 : P = 16 ^ K : D = INT(N / P) : N = N - D * P : PRINT MID$(H$,D + 1,1); : NEXT K : RETURN
 700 PRINT RIGHT$("0" + STR$(V),2); : RETURN
 800 PRINT "Was test 2 run before the last"

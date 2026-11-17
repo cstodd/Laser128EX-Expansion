@@ -1,6 +1,7 @@
 ; CLOCK.SET (rev 0.2): BIN program (BLOAD + CALL 24576 from SET.CLOCK). Sets the DS3234.
 ; Input at $0300 (binary): year 0-99, month 1-12, day 1-31, hour 0-23, minute, second, weekday 1-7;
 ;   $0308 = 1 to stop temperature compensation while on battery (BB_TD: saves ~0.8 uA, more drift while off).
+;   $0309 MODE: 0 = set the clock (above), 1 = only read registers 00h-12h into $0310-$0322 (no writes).
 ; Output: $0307 = 0 if the card answered, $FF if the clock was not found.
 ; Also writes control/status 0Fh = 00h: clears the oscillator-stopped flag, conversion every 64 s, 32 kHz off.
         .setcpu "65C02"
@@ -8,12 +9,35 @@
 PARM    = $0300
 RESULT  = $0307
 BBTD    = $0308
+MODE    = $0309
+REGS    = $0310                         ; read mode: registers 00h-12h land here
+NREAD   = $13
 ZTMP    = $3A
 
         .segment "BIN"
 start:  php
         sei
-        ldx     #6                      ; binary -> BCD in register order (sec min hour dow date month year)
+        lda     MODE
+        beq     setclk
+        jsr     rtc_open                ; read-only mode
+        bcc     :+
+        lda     #$FF
+        bra     done
+:       lda     #$00                    ; read from 00h
+        jsr     rtc_start
+        jsr     rtc_rdmode
+        ldx     #0
+:       jsr     rtc_rx
+        sta     REGS,x
+        inx
+        cpx     #NREAD
+        bne     :-
+        jsr     rtc_stop
+        jsr     rtc_close
+        lda     #0
+        bra     done
+
+setclk: ldx     #6                      ; binary -> BCD in register order (sec min hour dow date month year)
 :       ldy     order,x
         lda     PARM,y
         cpx     #3                      ; weekday is plain 1-7

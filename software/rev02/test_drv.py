@@ -186,7 +186,15 @@ def main():
     M.rtc.regs[0x0F] = 0x88                                  # OSF set, 32 kHz on
     M.load(B + '/CLOCK.SET', 0x6000)
     P = M.mem.main
-    P[0x300:0x309] = bytes([28, 10, 9, 13, 7, 0, 2, 0, 1])  # 2028-10-09 13:07:00, Monday, BB_TD on
+    M.rtc.regs[0x11] = 0xF6; M.rtc.regs[0x12] = 0xC0                # -9.25 C (two's complement)
+    P[0x300:0x30A] = bytes([0] * 9 + [1]); before = list(M.rtc.regs)
+    M.call(0x6000)                                           # read-only mode
+    H.check(P[0x307] == 0 and list(P[0x310:0x323]) == before[0:0x13] and M.rtc.regs == before,
+            'read mode: 00h-12h -> $0310-$0322, nothing written')
+    t = P[0x321] * 4 + P[0x322] // 64
+    H.check((t - 1024 if t > 511 else t) / 4 == -9.25, 'negative temperature decodes to -9.25 C')
+    H.check(snap(M.card) == ram0 and not M.card.rtc_mode, 'read mode: RAM disk + address unchanged')
+    P[0x300:0x30A] = bytes([28, 10, 9, 13, 7, 0, 2, 0, 1, 0])  # 2028-10-09 13:07:00, Monday, BB_TD on, set mode
     M.call(0x6000)
     H.check(P[0x307] == 0, 'result 0')
     H.check(M.rtc.regs[0:7] == [0x00, 0x07, 0x13, 2, 0x09, 0x10, 0x28], 'DS3234 00h-06h: %s' % [hex(x) for x in M.rtc.regs[0:7]])
@@ -197,15 +205,18 @@ def main():
     P[0x308] = 0; M.call(0x6000)
     H.check(M.rtc.regs[0x13] == 0, 'BB_TD = 0 when not requested')
     M = Machine2(has_rtc=False, seed=15); M.card.addr = 0x0BEEF; ram0 = snap(M.card)
-    M.load(B + '/CLOCK.SET', 0x6000); M.call(0x6000)
+    M.load(B + '/CLOCK.SET', 0x6000); M.mem.main[0x309] = 0; M.call(0x6000)
     H.check(M.mem.main[0x307] == 0xFF and snap(M.card) == ram0, 'no RTC: result $FF, RAM disk unchanged')
+    M.mem.main[0x309] = 1; M.call(0x6000)
+    H.check(M.mem.main[0x307] == 0xFF and snap(M.card) == ram0, 'no RTC, read mode: result $FF, RAM disk unchanged')
 
     print('CARDTEST clock read (rev 0.2)')
     M = Machine2(seed=16); M.card.enabled = True; M.card.addr = 0x0ABCD; ram0 = snap(M.card)
-    M.rtc.regs[0x0F] = 0x80
+    M.rtc.regs[0x0F] = 0x80; M.rtc.regs[0x11] = 0x19; M.rtc.regs[0x12] = 0x40     # 25.25 C
     M.load(B + '/CARDTEST', 0x6000); P = M.mem.main
     P[0x300] = 4; M.call(0x6000, limit=5_000_000)
-    H.check(P[0x301] == 0 and list(P[0x310:0x320]) == M.rtc.regs[0:16], 'registers 00h-0Fh -> $0310 (OSF bit visible)')
+    H.check(P[0x301] == 0 and list(P[0x310:0x323]) == M.rtc.regs[0:0x13], 'registers 00h-12h -> $0310-$0322 (OSF bit, temperature)')
+    H.check((P[0x321] * 4 + P[0x322] // 64) / 4 == 25.25, 'temperature decodes to 25.25 C')
     H.check(snap(M.card) == ram0 and not M.card.rtc_mode, 'RAM disk + address unchanged')
     P[0x300] = 1; P[0x309] = 1; P[0x30A] = 0; M.call(0x6000, limit=60_000_000)
     H.check(P[0x301] == 0 and snap(M.card) == ram0, 'quick RAM test (64K): pass, non-destructive')

@@ -1,7 +1,7 @@
 ; CARDTEST (rev 0.2: clock read over SPI, otherwise identical to rev 0.1): machine-language engine for CARD.TEST (BLOAD CARDTEST, CALL 24576).
 ; Parameter block at $0300:
 ;   $0300 CMD     1 = quick non-destructive RAM test, 2 = fill (destructive), 3 = verify fill,
-;                 4 = read clock registers 0-15 into $0310-$031F,
+;                 4 = read clock registers 00h-12h into $0310-$0322 (11h-12h = temperature),
 ;                 5 = bank-hop test (non-destructive): every access changes 256K bank, which is
 ;                     the card's slowest path (A18 / chip select through the CPLD)
 ;   $0301 RESULT  0 = pass, 1 = errors, $FF = card/clock not responding
@@ -12,7 +12,7 @@
 ;   $030A FIRST   first 64K region to test (commands 1-3; normally 0). The retention check uses 1:
 ;                 after test 2 the RAM disk's directory is gone, so the Laser firmware reformats the
 ;                 start of the RAM disk at the next boot, overwriting the pattern there.
-;   $0310 CLOCK   DS3231 registers 0-15
+;   $0310 CLOCK   DS3234 registers 00h-12h ($0321/$0322 = temperature MSB/LSB)
 ; Address pattern: byte at H:M:L = L + 7*M + 13*H (detects stuck/shorted address lines).
         .setcpu "65C02"
         .include "../rev01/defs.inc"
@@ -25,6 +25,7 @@ ERRCNT  = $0307
 NREG    = $0309
 FIRST   = $030A
 CLOCK   = $0310
+NCLK    = $13                           ; registers 00h-12h (time, alarms, control, aging, temperature)
 ZTMP    = $3A
 SAVE    = $6F00                         ; block save buffer (above this program)
 
@@ -360,8 +361,8 @@ probe:  lda     #0
 :       sec
         rts
 
-; ---- clock: unlock (saving the 8 RAM bytes), read registers 0-15, lock, restore
-rtcregs:                                ; DS3234 registers 00h-0Fh -> CLOCK (rev 0.2, SPI)
+; ---- clock: unlock (saving the 8 RAM bytes), read registers 00h-12h, lock, restore
+rtcregs:                                ; DS3234 registers 00h-12h -> CLOCK (rev 0.2, SPI)
         php
         sei
         jsr     rtc_open
@@ -377,7 +378,7 @@ rtcregs:                                ; DS3234 registers 00h-0Fh -> CLOCK (rev
 :       jsr     rtc_rx
         sta     CLOCK,x
         inx
-        cpx     #16
+        cpx     #NCLK
         bne     :-
         jsr     rtc_stop
         jsr     rtc_close

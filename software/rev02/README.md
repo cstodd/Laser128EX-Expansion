@@ -29,9 +29,9 @@ each transfer, as with the DClock driver).
 | File | Type | What it does |
 |---|---|---|
 | `CLOCK.SYSTEM` | SYS | Put it before BASIC.SYSTEM. Probes for the rev 0.2 card, copies the driver into ProDOS's clock slot (patching its key pointer), sets `DATETIME` and the MACHID clock bit, chains to BASIC.SYSTEM. **Leaves /RAM and all aux memory alone.** If a clock is already active (MACHID bit or `DATETIME` not RTS) it stands aside. |
-| `SET.CLOCK` | BAS | Asks for the date/time and whether to skip temperature compensation on battery (BB_TD), then runs `CLOCK.SET`. |
-| `CLOCK.SET` | BIN | Writes 00h–06h (24-hour), 0Fh = 00h (clears the oscillator-stopped flag, 64 s conversions, 32 kHz output off) and 13h BB_TD from `$0308`. |
-| `CARD.TEST` / `CARDTEST` | BAS / BIN | Same as rev 0.1 (`../rev01/`); the engine's clock read is SPI (registers 00h–0Fh, same layout as the DS3231 for what CARD.TEST shows). |
+| `SET.CLOCK` | BAS | Shows what the clock reads now (weekday, date, time, temperature in °C and °F, and a warning if the oscillator-stopped flag is set), asks whether to set it, then asks for the date/time and whether to skip temperature compensation on battery (BB_TD), runs `CLOCK.SET` and shows the new reading. |
+| `CLOCK.SET` | BIN | `$0309` = 0: writes 00h–06h (24-hour), 0Fh = 00h (clears the oscillator-stopped flag, 64 s conversions, 32 kHz output off) and 13h BB_TD from `$0308`. `$0309` = 1: only reads registers 00h–12h into `$0310-$0322` (time, control/status, temperature at 11h–12h). |
+| `CARD.TEST` / `CARDTEST` | BAS / BIN | Same as rev 0.1 (`../rev01/`), with the clock read over SPI: registers 00h–12h. The clock test (4) shows weekday, date, time and the DS3234's temperature in °C and °F (0.25 °C steps, updated every 64 s; it's the chip's own temperature, a few degrees above the room once the Laser is warm). |
 
 No `CLOCK.MAIN` or `STARTUP` any more: the whole driver lives in ProDOS's slot.
 `rtcspi.inc` holds the shared SPI routines for the utilities (unlock/lock with a one-byte save, send, receive).
