@@ -340,3 +340,7 @@ pinout and strobe timing must be checked from Apple's documentation and on a sco
 accelerator) may behave like the 128EX's accelerated mode: re-run the /RWR, /E1MOE-equivalent and /RAS timing
 checks from `cpld/rev02/README.md` there before trusting any timing assumption. Lesson from the 128EX: strobes
 that are CPU-timed at 1 MHz can come from a different (delay-line) path when accelerated.
+
+Connector research: [apple-iic-expansion-connector.md](apple-iic-expansion-connector.md). The //c J13 is a 2×17 CPU-bus
+port (D0–7, A0/A1/A4–A15, R/W, PH0, Q3, 7M, /RESET) with the address counter and memory control on the card, not a
+DRAM port like the Laser's, so the CPLD logic would be redesigned rather than ported.
