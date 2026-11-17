@@ -68,3 +68,14 @@ datasheet maximum, CPU sampling 10 ns before /E1MOE↑) leaves **2 ns** with 55 
 
 **Bring-up check:** with the write loop running in accelerated mode, RTC_SCLK (CPLD pin 36) must stay high
 through every write; with the read loop and the RTC selected, it should show one ~180 ns low pulse per read.
+
+## Programming
+`fit/laser128_ramcard.jed` is the file to program (same fuses for the -10JU44 and the -7JX44). Rebuild and
+re-check it with `fit/build.sh` (RTL, fitted-equation and decoded-fuse simulations must all pass; tool setup as
+in `../rev01/README.md`).
+- JTAG on J2 (Altera/Atmel 10-pin layout): **ATDH1150USB + ATMISP** (loads the .jed directly), or an
+  **FT232H / USB-Blaster + OpenOCD** with an SVF made by ATMISP.
+- Power the board for programming from a bench 5 V on **J3 (pin 4 = +5 V, pin 1 = GND)** with only U1 fitted
+  (`docs/bring-up.md` §3), or in the Laser with everything fitted.
+- The design is fitted with **JTAG left enabled**. Don't change that: a part fitted with JTAG off can't be
+  reprogrammed in-circuit (recovery needs 12 V on pin 44, which this board ties to J1 /ECAS2).

@@ -1,4 +1,6 @@
-# Rev 0.2 clock driver (DS3234 / SPI) — prototype
+# Rev 0.2 clock software (DS3234 / SPI)
+
+Status: complete and emulator-tested (below); not yet run on a real card.
 
 `clkdrv.s`: the **whole ProDOS clock driver in ProDOS's 125-byte clock slot** (currently 122 bytes, enforced
 by an assert). No aux-memory body, no stub, no checksum, no /RAM removal. Needs the rev 0.2 CPLD

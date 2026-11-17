@@ -48,8 +48,10 @@ lines keep toggling. Avoid Applesoft `POKE`/`PEEK` loops: they are slow (one acc
 goes through an indirect store that can add a dummy read, so "writes only" isn't guaranteed.
 
 ## Speed
-- **1 MHz:** Ctrl-Reset without holding a key (the 128EX defaults to 1 MHz).
-- **Accelerated:** hold **3** (3.6 MHz) or **2** (2.3 MHz) while pressing Ctrl-Reset or at power-on.
+- **Speed register `$C074`** (what `CARD.TEST` uses): from the monitor `C074:00` = 1 MHz, `C074:80` = 2.3 MHz,
+  `C074:C0` = 3.6 MHz (BASIC: `POKE 49268,0 / 128 / 192`). Set it, then `300G`.
+- Or at reset: Ctrl-Reset without holding a key gives the 128EX's default 1 MHz; hold **3** (3.6 MHz) or **2**
+  (2.3 MHz) while pressing Ctrl-Reset or at power-on.
 - Check: the cursor blinks noticeably faster when accelerated, and the /E1MOE low pulse is ~475 ns at 1 MHz
   and ~268 ns accelerated. Card cycles never run faster than 2.3 MHz (Tech Ref App. A): the 2.3 and 3.6
   settings measured identically.

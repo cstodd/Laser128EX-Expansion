@@ -1,6 +1,6 @@
 # Laser 128EX Battery-Backed SRAM Expansion + Clock — Design Notes
 
-Status: **rev 0.1 complete: schematic, routed 2-layer board (DRC clean), Gerbers, CPLD logic + simulation. Next: fit the CPLD (Windows tools), order boards, write the 6502 RTC driver.**
+Status (Nov 2026): **rev 0.2 ready to order**: DS3234 (SPI) board routed and DRC clean, CPLD fitted and verified against scoped 128EX timing, ProDOS driver and utilities done. Rev 0.1 (sections 1–9 describe it where they mention the DS3231/I²C) is superseded; see §10 for rev 0.2. Next: order, build, bring up (`bring-up.md`).
 Interface facts (pinout, timing) are in [`laser-expansion-interface.md`](laser-expansion-interface.md).
 The decisions below come from the earlier design conversation (Claude.ai, Nov 2026) and were re-checked
 against the Technical Reference Manual.

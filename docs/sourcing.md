@@ -15,13 +15,14 @@ Stock figures are snapshots. Check them live before ordering.
 | Lyontek LY62W10248 (2.7–5.5 V, TSOP-44) | Unverified | Possible second source; check its datasheet. |
 | AS6C4008-55PCN (512K×8, **DIP-32**) / -55SIN (SOP-32) | Active (DigiKey), 20-week lead | Common in retro projects. Socketable. |
 | ATF1504AS-7JX44 (PLCC-44, 7.5 ns, commercial) | Listed in the datasheet | Faster than -10JU44, which gives more row-hold margin. Same pinout. Either works. |
-| DS3231SN# (TCXO crystal, ±2 ppm 0–40 °C) | Active | Mouser stock is thinner. |
-| **DS3231M+** (MEMS, ±5 ppm) | Active, better availability | **Same 16-pin SO pinout and footprint.** Time/date registers are the same, which is all the driver uses. INT/SQW only outputs 1 Hz and the 32 kHz output is uncompensated; we use neither. ±5 ppm ≈ 2.6 min/yr worst case (Renée's clock drifted ~80 ppm). **Acceptable; buy whichever is in stock.** |
+| **DS3234SN#** (SPI, TCXO, ±2 ppm 0–40 °C, SOIC-20W) | **Active**, DigiKey 1000+ (Nov 2026) | **Rev 0.2 RTC (chosen).** SPI lets the ProDOS driver fit in the 125-byte clock slot without disabling interrupts (`design-notes.md` §10). |
+| DS3231SN# (TCXO crystal, ±2 ppm 0–40 °C) | Active | Rev 0.1 only (superseded). Mouser stock is thinner. |
+| **DS3231M+** (MEMS, ±5 ppm) | Active, better availability | Rev 0.1 only. **Same 16-pin SO pinout and footprint.** Time/date registers are the same, which is all the driver uses. INT/SQW only outputs 1 Hz and the 32 kHz output is uncompensated; we use neither. ±5 ppm ≈ 2.6 min/yr worst case (Renée's clock drifted ~80 ppm). **Acceptable; buy whichever is in stock.** |
 | **DS1210 / DS1210+** | **Obsolete since Jan 2016** (DigiKey/Mouser/ADI) | Jameco stock is new-old stock. Workable for prototypes, but the design shouldn't depend on it. |
 | **MAX693ACPE+** (DIP-16) | Listed as a current product at ADI (verify with the distributor) | Proposed DS1210 replacement: battery switchover (VOUT) + **chip-enable gating, 10 ns max** + reset. 4.40 V threshold (MAX691A = 4.65 V, too close to a sagging rail). |
 | MAX691ACPE+ (DIP-16) | Active (DigiKey ~140 + factory) | Same part, 4.65 V threshold. |
 | **ISSI IS62C5128BL-45** (SOP-32/TSOP-II) | Active | **Rejected:** 5 V ±10% only, and standby/data-retention current is in **mA** (10 mW typ standby, Idr typ 2 mA at 2 V). A CR2032 would last days. Its JEDEC SOP/TSOP-II pinout = AS6C4008 DIP with A17/A18 swapped (pins 1/30). |
-| **Infineon CY62148ELL-45ZSXI** (TSOP-II-32, 1.27 mm) | **Active** (DigiKey 1106954) | **Chosen 45 ns alternate (U9/U10).** Datasheet 38-05442 Rev *S checked: 4.5–5.5 V, tAA 45 ns, tDOE 22 ns. ISB2 2.5 µA typ / 7 µA max; data retention to 2.0 V at 3 µA typ / 8.8 µA max, so it is battery-friendly. Pinout = JEDEC SOIC/TSOP II (A17 pin 1, A18 pin 30), wired pin-for-pin with the DIP; the A17/A18 swap is harmless. Package 20.95 × 11.76 mm, matching KiCad TSOP-II-32_21.0x10.2mm_P1.27mm. **Caveat:** VCC min is 4.5 V, and the MAX693A VOUT is VCC − 0.2–0.3 V, so measure the Laser +5 V rail (it needs ≳4.8 V). |
+| **Infineon CY62148ELL-45ZSXI** (TSOP-II-32, 1.27 mm) | **Active** (DigiKey 1106954) | **Chosen 45 ns alternate** (on TSOP-II → DIP-32 adapters in U5/U6). Datasheet 38-05442 Rev *S checked: 4.5–5.5 V, tAA 45 ns, tDOE 22 ns. ISB2 2.5 µA typ / 7 µA max; data retention to 2.0 V at 3 µA typ / 8.8 µA max, so it is battery-friendly. Pinout = JEDEC SOIC/TSOP II (A17 pin 1, A18 pin 30), wired pin-for-pin with the DIP; the A17/A18 swap is harmless. Package 20.95 × 11.76 mm, matching KiCad TSOP-II-32_21.0x10.2mm_P1.27mm. **Caveat:** VCC min is 4.5 V, and the MAX693A VOUT is VCC − 0.2–0.3 V, so measure the Laser +5 V rail (it needs ≳4.8 V). |
 | 74AHCT245 / 74AHCT574 / 74AHCT573 | Commodity | — |
 
 ## Option A: TQFP-100 CPLD + one 1 MB TSOP SRAM (dropped)
@@ -39,7 +40,7 @@ Stock figures are snapshots. Check them live before ordering.
   are in standby.
 - CPLD pin budget: 8 bus inputs, D0–7 (key detect plus RTC read-back), A18, OE0/1, WE0/1, CE,
   '245 DIR and /OE, column LE, SDA, SCL = **27 of 32**, with JTAG kept. That leaves ~5 spare for a debug header.
-- 9 ICs, all in sockets except the DS3231 (SOIC-16W, 1.27 mm pitch, easy by hand). Space is plentiful:
+- 9 ICs, all in sockets except the RTC (rev 0.2: DS3234, SOIC-20W, 1.27 mm pitch, easy by hand). Space is plentiful:
   the stock card is ~190 × 92 mm and held 32 DRAMs.
 
 ## Read-path timing note (both options)
