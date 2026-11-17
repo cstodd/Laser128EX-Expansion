@@ -56,8 +56,10 @@ selects a chip by giving only that one OE# or WE#. The other chip is enabled but
 - The stock KiCad 2×15 footprint numbers odd/even across the rows, so it **must not** be used.
 - Before ordering, print 1:1 and check it against the socket or the original card.
 
-Battery life estimate with the Laser off: two SRAMs at roughly 4–6 µA each (typical; to be measured) + DS3231
-~0.84 µA + MAX693A <0.1 µA ≈ 10–13 µA, so a 220 mAh CR2032 lasts roughly 2 years of continuous off-time.
+Battery life estimate with the Laser off: two SRAMs at roughly 4–6 µA each (typical; to be measured) + RTC +
+MAX693A <0.1 µA. Rev 0.1's DS3231 drew ~0.84 µA (≈ 10–13 µA total, ~2 years per 220 mAh CR2032). **Rev 0.2's
+DS3234 draws 1.5 µA typ / 2.3 µA max** on battery (datasheet IBATT, default 64 s temperature conversions), so
+≈ 11–15 µA total: roughly **1.7–2 years** of continuous off-time.
 
 **Architecture under review:** see [`sourcing.md`](sourcing.md). The 1 MB SRAM is going EOL and a socketable
 PLCC-44 option exists.

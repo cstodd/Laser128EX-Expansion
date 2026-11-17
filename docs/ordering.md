@@ -67,7 +67,7 @@ OpenOCD and an SVF; `cpld/rev02/README.md`).
    (unchanged from rev 0.1 and re-checked on the rev 0.2 board).
 2. Measure the Laser's +5 V at J13 pins 1–2 (should be ~5 V; the MAX693A locks out the SRAM below 4.4 V, and
    the 45 ns SRAMs want ≳ 4.8 V there).
-3. Battery: expect roughly 10–13 µA with the Laser off (about 2 years per CR2032).
+3. Battery: expect roughly 11–15 µA with the Laser off (about 1.7–2 years per CR2032; the DS3234 draws 1.5–2.3 µA).
 4. Height above the card: **11 mm** measured to the RF shield; the PLCC socket with chip is 8.28 mm and a
    socketed TSOP adapter ~7–7.5 mm (`docs/mechanical.md`).
 
