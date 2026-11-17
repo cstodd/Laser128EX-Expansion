@@ -34,6 +34,7 @@ written to `$C0D3` switches the CPLD into RTC mode for one transfer. Details: `d
 | `docs/scope-tests.md` | How the J13 timing was measured, with monitor test loops |
 | `docs/design-notes.md` | Design decisions and history |
 | `docs/laser-expansion-interface.md` | The Laser's expansion RAM interface (from the Technical Reference Manual) |
+| `docs/qhgr-investigation.md` | ROM analysis of the "Quad Hi-Res" rumor (`tools/rom-analysis/`) |
 | `docs/sourcing.md`, `docs/mechanical.md` | Part availability; board outline and clearances |
 | `hardware/rev01/`, `cpld/rev01/`, `software/rev01/` | Rev 0.1 (DS3231 on I²C): superseded, kept for reference |
 | `tools/` | Scripts that generated / edited the boards and fab outputs |
