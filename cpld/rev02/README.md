@@ -40,8 +40,8 @@ Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE 
 | /ECAS outside the /E1MOE window | never | never |
 | MEMRD, write: falls / rises | 22–26 ns before /E1MOE falls / ~15–20 ns after /E1MOE rises | 23–24 ns before /E1MOE falls / ~20 ns after /E1MOE rises |
 | MEMRD, read | stays high | stays high (no dip) |
-| write data (D0) valid | — | crosses 1.48 V as /E1MOE falls, settled ~25 ns after |
-| write data (D0) held after /E1MOE rises | — | ~515 ns (until the CPU drives the bus again) |
+| write data (D0) valid | crosses 1.48 V as /E1MOE falls, settled ~25 ns after | crosses 1.48 V as /E1MOE falls, settled ~25 ns after |
+| write data (D0) held after /E1MOE rises | ~1.69 µs | ~515 ns (until the CPU drives the bus again) |
 | other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
 
 **What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when
