@@ -24,8 +24,8 @@ together on the board, through a series resistor). Pin 39 no longer carries MEMR
   (RAM, quiet bus, exhaustive key matcher).
 
 ## Strobe timing, scoped on a Laser 128EX (Nov 2026)
-Siglent SDS1202X-E, 10× probes, J13 on a bare 128EX (no card: the Laser generates all of these). Loops in the
-monitor: `300:AD 00 C5 8D D3 C0 4C 03 03` (enable expansion RAM, then `STA $C0D3` forever; `AD D3 C0` for reads).
+Siglent SDS1202X-E, 10× probes, J13 on a bare 128EX (no card: the Laser generates all of these). Procedure,
+pins and the monitor test loops: [`docs/scope-tests.md`](../../docs/scope-tests.md).
 Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE falling.
 
 | | 1 MHz | accelerated (2.3 and 3.6 settings identical: card cycles run at 2.3 MHz) |
@@ -38,6 +38,8 @@ Edges taken at 1.48 V, worst case over ~30 s of persistence, relative to /E1MOE 
 | /ECAS falls | ~212 ns after | **≤ 174 ns after** |
 | /ECAS rises | just before /E1MOE rises | ~27 ns after /E1MOE rises (harmless: the card is already off) |
 | /ECAS outside the /E1MOE window | never | never |
+| MEMRD, write: falls / rises | (pending) | 23–24 ns before /E1MOE falls / ~20 ns after /E1MOE rises |
+| MEMRD, read | (pending) | stays high (no dip) |
 | other /RASB pulses (refresh, Laser's own cycles) | end ≥ ~105 ns before / start ≥ ~60 ns after the /E1MOE window | ≥ ~185 ns before / ≥ ~190 ns after |
 
 **What this changed.** The first design clocked SCLK on `/E1MOE low · /RWR high`, assuming /RWR is valid when
