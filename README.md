@@ -29,7 +29,7 @@ written to `$C0D3` switches the CPLD into RTC mode for one transfer. Details: `d
 | `hardware/rev02/` | **Current board**: KiCad 10 schematic + PCB, `fab/` (Gerbers, drill, BOM, placement), renders, README |
 | `cpld/rev02/` | CPLD Verilog, testbench (DS3234 model, measured Laser timing), fitter flow and `.jed` |
 | `software/rev02/` | ProDOS clock driver, CLOCK.SYSTEM, SET.CLOCK, CARD.TEST, disk image, emulator tests |
-| `docs/ordering.md` | What to order (PCB settings, parts list) |
+| `docs/ordering.md` | What to order (PCB settings, parts list); open checks in `hardware/rev02/todo.md` |
 | `docs/bring-up.md` | Assembly order, programming the CPLD, first power-up and tests |
 | `docs/scope-tests.md` | How the J13 timing was measured, with monitor test loops |
 | `docs/design-notes.md` | Design decisions and history |
