@@ -13,7 +13,8 @@ It continues Renée Harke's earlier CPLD + SRAM card for the Laser, which was ne
 - **CPLD logic: fitted** (ATF1504AS, 40/64 macrocells); passes its testbench as RTL, fitted equations and decoded
   fuses. The testbench uses strobe timing measured with a scope on a real 128EX (`cpld/rev02/README.md`).
 - **ProDOS clock driver: done** (fits in ProDOS's 125-byte clock slot, never disables interrupts), with
-  CLOCK.SYSTEM, SET.CLOCK and CARD.TEST on `software/rev02/dist/LASERCLOCK2.po`; emulator-tested.
+  CLOCK.SYSTEM, SET.CLOCK and CARD.TEST on `software/rev02/dist/LASERCLOCK2.po` (a bootable ProDOS 2.4 disk);
+  emulator-tested.
 - **Not yet built.** Next: order boards, assemble, bring up (`docs/bring-up.md`).
 
 ## How it works, briefly

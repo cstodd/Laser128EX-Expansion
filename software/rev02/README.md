@@ -26,6 +26,11 @@ address's mid/high bytes are kept; its low byte ends at `01` (the RAM-disk firmw
 each transfer, as with the DClock driver).
 
 ## Programs (`dist/LASERCLOCK2.po`, built by `python3 software/rev02/build.py`)
+`LASERCLOCK2.po` is a **bootable ProDOS 2.4 disk**: PRODOS, CLOCK.SYSTEM (the first `.SYSTEM` file, so it runs
+first and chains to BASIC.SYSTEM), BASIC.SYSTEM, the utilities, and a STARTUP that lists them. The disk image is
+made by `mkboot.py` (called by `build.py`), which can also be run on its own: it needs no ca65, only the
+assembled programs in `dist/`. ProDOS 2.4 comes from `software/prodos/` via `software/prodisk.py`.
+
 | File | Type | What it does |
 |---|---|---|
 | `CLOCK.SYSTEM` | SYS | Put it before BASIC.SYSTEM. Probes for the rev 0.2 card, copies the driver into ProDOS's clock slot (patching its key pointer), sets `DATETIME` and the MACHID clock bit, chains to BASIC.SYSTEM. **Leaves /RAM and all aux memory alone.** If a clock is already active (MACHID bit or `DATETIME` not RTS) it stands aside. |
@@ -33,7 +38,8 @@ each transfer, as with the DClock driver).
 | `CLOCK.SET` | BIN | `$0309` = 0: writes 00h–06h (24-hour), 0Fh = 00h (clears the oscillator-stopped flag, 64 s conversions, 32 kHz output off) and 13h BB_TD from `$0308`. `$0309` = 1: only reads registers 00h–12h into `$0310-$0322` (time, control/status, temperature at 11h–12h). |
 | `CARD.TEST` / `CARDTEST` | BAS / BIN | Same as rev 0.1 (`../rev01/`), with the clock read over SPI: registers 00h–12h. The clock test (4) shows weekday, date, time and the DS3234's temperature in °C and °F (0.25 °C steps, updated every 64 s; it's the chip's own temperature, a few degrees above the room once the Laser is warm). |
 
-No `CLOCK.MAIN` or `STARTUP` any more: the whole driver lives in ProDOS's slot.
+No `CLOCK.MAIN` any more: the whole driver lives in ProDOS's slot. (The STARTUP on the disk only lists the
+utilities.)
 `rtcspi.inc` holds the shared SPI routines for the utilities (unlock/lock with a one-byte save, send, receive).
 
 ## Test

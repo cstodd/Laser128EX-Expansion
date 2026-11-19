@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Build the rev 0.2 (DS3234) software and dist/LASERCLOCK2.po."""
+"""Build the rev 0.2 (DS3234) software and dist/LASERCLOCK2.po (a bootable ProDOS 2.4 disk, via mkboot.py)."""
 import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 B = os.path.join(HERE, 'build')
-sys.path.insert(0, os.path.join(HERE, '..', 'rev01'))
-import mkdisk
+import mkboot
 
 def cfg(name, seg, start, size):
     p = os.path.join(B, name + '.cfg')
@@ -29,21 +28,16 @@ def main():
     sysf = asm('clocksys.s', 'CLOCK.SYSTEM', cfg('sys', 'SYS', 0x2000, 0x1000))
     setf = asm('clockset.s', 'CLOCK.SET', cfg('set', 'BIN', 0x6000, 0x1000))
     test = asm('cardtest.s', 'CARDTEST', cfg('test', 'BIN', 0x6000, 0x0F00))
-    bas = lambda n: mkdisk.tokenize(open(os.path.join(HERE, 'basic', n + '.bas')).read())
-    files = [('CLOCK.SYSTEM', 0xFF, 0x2000, sysf), ('CLOCK.SET', 0x06, 0x6000, setf),
-             ('CARDTEST', 0x06, 0x6000, test), ('SET.CLOCK', 0xFC, 0x0801, bas('SET.CLOCK')),
-             ('CARD.TEST', 0xFC, 0x0801, bas('CARD.TEST'))]
-    img = mkdisk.build_image('LASERCLOCK', files)
-    back = mkdisk.read_image(img)
+    files = [('CLOCK.SYSTEM', 0xFF, 0x2000, sysf), ('CLOCK.SET', 0x06, 0x6000, setf), ('CARDTEST', 0x06, 0x6000, test)]
     os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)
     for n, t, a, d in files:
-        assert back[n] == (t, a, d), n
-        if t != 0xFC: open(os.path.join(HERE, 'dist', n), 'wb').write(d)
+        open(os.path.join(HERE, 'dist', n), 'wb').write(d)
         print('%-13s %5d bytes ok' % (n, len(d)))
     print('clock driver: %d bytes (ProDOS slot: 125)' % len(drv))
-    out = os.path.join(HERE, 'dist', 'LASERCLOCK2.po')
-    open(out, 'wb').write(img)
-    print('wrote', out)
+    img = mkboot.build()                                # bootable LASERCLOCK2.po from dist/ and basic/
+    back = mkboot.prodisk.read_files(img)
+    for n, t, a, d in files:
+        assert back[n][:3] == (t, a, d), n
 
 if __name__ == '__main__':
     main()

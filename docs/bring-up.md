@@ -30,7 +30,8 @@ Current with only the programmed CPLD fitted should be tens of mA.
 4. Boot ProDOS: **`/RAM5`** (slot 5, drive 1) should appear and be usable.
 
 ## 5. Tests (`software/rev02/dist/LASERCLOCK2.po`)
-Copy the files to a ProDOS boot disk (CLOCK.SYSTEM before BASIC.SYSTEM). `CARD.TEST` asks for the CPU speed
+The disk is bootable (ProDOS 2.4, with CLOCK.SYSTEM before BASIC.SYSTEM): boot it and it lists the utilities.
+To use your own boot disk instead, copy the files across, keeping CLOCK.SYSTEM before BASIC.SYSTEM. `CARD.TEST` asks for the CPU speed
 first (it sets it with `POKE 49268`, i.e. `$C074`: 0 = 1 MHz, 128 = 2.3, 192 = 3.6).
 1. At **1 MHz** and again at **3.6 MHz**: test 1 (quick RAM), test 2 (full address, erases the RAM disk) and
    **test 5 (bank hop)**. Test 5 at 3.6 MHz is the deciding one for the SRAM speed: if it fails there, fit the
