@@ -1,7 +1,7 @@
 # Rev 0.2 to-do
 
 ## Before ordering
-- [ ] **J1 position and orientation.** Print `fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1 and lay it
+- [x] **J1 position and orientation** (physical clearances verified on the board, Nov 2026). Print `fab/laser128-ramcard-F_Cu.gtl` (or the KiCad PCB) at 1:1 and lay it
       on the stock card or a real 2×15 socket: pin 1 in the same place (J1 uses DIP-style numbering, pins 1–15
       down one row and 16–30 back up the other, not KiCad's odd/even), and 23.0 mm from the J1 bottom pins to the
       H1 centre. The board can't be fixed after ordering.
