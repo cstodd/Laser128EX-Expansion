@@ -33,3 +33,10 @@ space we don't use.
   SRAMs on a Chip Quik PA0216 adapter come to roughly 7–7.5 mm in a DIP socket (socket ~4–4.5 + PCB 1.6 + TSOP 1.2).
   The shield is often removed anyway, so this is a soft limit.
 - Nothing above the 90 mm top edge inside the case was measured; ours is the same height as the stock card.
+
+## Laser +5 V rail (measured Nov 2026)
+J13 pin 1 to chassis ground, eight power supplies: Buggie (adapted Toshiba laptop supply) 5.19 V; 8bitstuff
+USB-C //c adapter with a 15 V USB-C PD charger and C-to-C cable 5.15 V; VTech L-128PS bricks dated 09/87, 12/88,
+03/89, 06/89, 06/89: 5.13, 5.13, 5.20, 5.14, 5.13 V; Apple //c supply (1987) 5.13 V. Only small changes with the
+disk drive running and acceleration on. After the MAX693A's 0.2–0.3 V drop the SRAMs see ~4.8–5.0 V: above
+the MAX693A's 4.40 V lockout and the 45 ns CY62148ELL's 4.5 V minimum.
