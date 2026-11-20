@@ -11,12 +11,13 @@
       both SRAM options. Original item: The MAX693A deselects the SRAMs below 4.40 V, and the optional
       45 ns CY62148ELL needs ≥ 4.5 V after the MAX693A's 0.2–0.3 V drop, so ≳ 4.8 V at J13. If it is lower,
       the 45 ns fallback is doubtful.
-- [ ] *(optional)* **ERA8 timing, J13 pin 10.** Only ERA0 was scoped; ERA8 is the address line the CPLD registers
-      itself (row bit 8 on /RASB↓, column bit 8 on /ECAS↓). Plain write loop at 3.6 MHz
-      (`docs/scope-tests.md`): it should switch where ERA0 does (~90 ns before and ~148 ns after /E1MOE falls).
 
 ## On the first board (`docs/bring-up.md`)
 - [ ] CARD.TEST test 5 (bank hop) at 3.6 MHz: decides 55 ns vs 45 ns SRAM (the CPU's read-sample point can't be
       scoped; ~2 ns worst-case paper margin with 55 ns parts).
 - [ ] RTC_SCLK (CPLD pin 36) stays high through writes at 3.6 MHz.
 - [ ] SRAM standby current on battery (decides real battery life; estimate 11–15 µA total).
+- [ ] *(optional, deferred from before ordering)* **ERA8 timing, J13 pin 10.** CARD.TEST test 2 (full address test)
+      also catches a mis-latched address bit 8, so a scope check is only needed if test 2 fails. Only ERA0 was scoped; ERA8 is the address line the CPLD registers
+      itself (row bit 8 on /RASB↓, column bit 8 on /ECAS↓). Plain write loop at 3.6 MHz
+      (`docs/scope-tests.md`): it should switch where ERA0 does (~90 ns before and ~148 ns after /E1MOE falls).
