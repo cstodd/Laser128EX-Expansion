@@ -365,3 +365,40 @@ So a battery-backed card keeps `/RAM5` across power-off as long as its volume di
 with CARD.TEST test 3, where the firmware reformats only after test 2 has wiped the directory. Nothing to add in
 the card or the ROM. The thing to protect is block 2: anything that corrupts it gets a fresh, empty `/RAM5` at
 the next boot.
+
+## 13. Idea: a driverless clock on the 128EX through a 6.0X ROM (Nov 2026; not started)
+**What the EX/2 does** (Laser128-ROMHacks `docs/ex2-settings-and-clock.md`): its ROM 6.1 needs no clock driver
+file.
+- Slot 7's firmware patches ProDOS's date/time vector the first time ProDOS calls it: `$BF06` becomes
+  `JMP $C718`.
+- The ROM reads its MSM6242-style clock at `$C078` and fills `$BF90–$BF93`.
+- 6.0 has neither part.
+
+**Why the card can't do it alone:**
+- J13 carries only the DRAM signals and the data bus. The card can't answer at `$C078` and can't supply ROM in
+  `$Cnxx`.
+- So the code has to be in the system ROM.
+- The card stays as it is: the clock is still reached through `$C0D0–$C0D3` and the unlock key (§3).
+
+**Shape of a 6.0X version:**
+1. **Install the hook:** slot 5's firmware (the `/RAM5` driver, which ProDOS calls at startup) installs
+   `JMP $C5xx` at `$BF06` when `$BF00` is a `JMP` and `$BF06` isn't. This follows 6.1's logic exactly.
+2. **The entry point:** it must be in a slot page, since ProDOS runs from language-card RAM, which hides the
+   main ROM. A `JMP` from a few spare bytes in the `$C500` page into the C5 bank is enough: running code from
+   `$C5xx` selects that bank itself.
+3. **The clock read:** in the C5 bank (chip `$5000`), which has about 98 free bytes at `$CF9E` and 32 at
+   `$C9B0`. Rev 0.2's DS3234 driver already fits ProDOS's 125-byte slot, so it should fit. The routine does the
+   unlock, reads time and date over SPI through `$C0D3`, packs `$BF90–$BF93`, and restores the RAM disk's
+   address registers.
+
+**Gains:**
+- no CLOCK.SYSTEM;
+- ProDOS's `/RAM` stays (nothing in aux memory);
+- time-stamps work with any ProDOS boot disk.
+
+**Costs:**
+- it needs the 6.0X EPROM;
+- on stock ROMs, CLOCK.SYSTEM is still needed, and both can coexist: the ROM hook steps aside if `$BF06` is
+  already a `JMP`.
+
+**To verify first:** that the zero bytes in the `$C500` page (`$C5D1`, 8 bytes) are really unused.
