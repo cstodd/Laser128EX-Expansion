@@ -342,3 +342,26 @@ checks from `cpld/rev02/README.md` there before trusting any timing assumption. 
 that are CPU-timed at 1 MHz can come from a different (delay-line) path when accelerated.
 
 //c research now lives in its own repo: [cstodd/AppleIIC-Expansion](https://github.com/cstodd/AppleIIC-Expansion).
+
+## 12. Does /RAM5 need ROM 4X-style "battery-backed RAM disk recovery"? No (Nov 2026)
+The Apple //c ROM 4X adds a feature that finds a ProDOS boot block on a battery-backed memory card at power-up
+and restores the screen-hole values, so the RAM disk isn't wiped. **The Laser's own port-5 firmware already does
+the equivalent.** Traced in ROM 6.0's port-5 bank (`$C800` window with C5 = chip `$5000`). The same code is at
+the same place in 4.1, 4.2, 4.5 and 6.1; 3.3 has no RAM disk firmware. Entry is `$CB5D`:
+- **Checks the volume itself:** it reads the card directly through `$C0D0–$C0D2` (address) and `$C0D3` (data,
+  auto-increment), and looks at the RAM disk's own volume directory (block 2). With ProDOS (`$BF00` = `$00` or
+  `$4C`):
+  - it checks the block's links;
+  - it checks for storage type `$F` (`AND #$F0 / CMP #$F0`).
+  A separate branch checks for a Pascal volume.
+- **Valid volume:** it then only checks the screen holes. `$047D` holds the size, and `$077D` must equal
+  `$047D EOR $5A`. If they don't match (as after power-up), it **re-sizes the card without erasing it**
+  (`$CD07`). That routine saves two bytes at each 256K step, test-writes, and restores them, then rewrites
+  `$047D`/`$077D`. **No format.**
+- **No valid volume:** it sizes the card (`$CD07`) and formats (`$CD5C` clears the blocks, then a fresh
+  directory is written).
+
+So a battery-backed card keeps `/RAM5` across power-off as long as its volume directory is intact. That agrees
+with CARD.TEST test 3, where the firmware reformats only after test 2 has wiped the directory. Nothing to add in
+the card or the ROM. The thing to protect is block 2: anything that corrupts it gets a fresh, empty `/RAM5` at
+the next boot.
