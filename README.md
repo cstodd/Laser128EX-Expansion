@@ -24,6 +24,9 @@ no spare pins, so the clock (a DS3234 on SPI) is reached **through the RAM data 
 written to `$C0D3` switches the CPLD into RTC mode for one transfer. Details: `docs/design-notes.md`.
 
 ## Repository
+New here (or a fresh Claude session)? Start with `progress.md`, `changelog.md`, `architecture.md` and
+`building.md`; `CLAUDE.md` has the working rules.
+
 | Path | What |
 |---|---|
 | `hardware/rev02/` | **Current board**: KiCad 10 schematic + PCB, `fab/` (Gerbers, drill, BOM, placement), renders, README |
